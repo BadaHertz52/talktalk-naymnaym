@@ -1,23 +1,23 @@
 :root {
   /* Primary — 당근 카퍼 */
-  --color-primary: #E08A3E;
-  --color-primary-deep: #B3703F;
-  --color-primary-light: #F2C98F;
-  --color-primary-on-black: #3A2A1A;
+  --color-primary: #e08a3e;
+  --color-primary-deep: #b3703f;
+  --color-primary-light: #f2c98f;
+  --color-primary-on-black: #3a2a1a;
 
   /* Neutral */
-  --color-white: #FFFFFF;
-  --color-gray-light: #CFCFCF;
-  --color-gray-mid: #8A8A8A;
-  --color-gray-dark: #4A4A4A;
-  --color-surface: #1A1A1A;
+  --color-white: #ffffff;
+  --color-gray-light: #cfcfcf;
+  --color-gray-mid: #8a8a8a;
+  --color-gray-dark: #4a4a4a;
+  --color-surface: #1a1a1a;
   --color-black: #000000;
 
   /* 감정 강도 팔레트 — 날씨 아이콘 색 */
-  --intensity-1: #E7E4DA; /* 맑음 */
-  --intensity-2: #9A9A9A; /* 구름 */
-  --intensity-3: #7C93B0; /* 비 */
-  --intensity-4: #9C7A63; /* 번개 */
+  --intensity-1: #e7e4da; /* 맑음 */
+  --intensity-2: #9a9a9a; /* 구름 */
+  --intensity-3: #7c93b0; /* 비 */
+  --intensity-4: #9c7a63; /* 번개 */
 
   /* 타이포그래피 */
   --font-pixel: 'Galmuri14', 'Galmuri11', 'Courier New', monospace;
