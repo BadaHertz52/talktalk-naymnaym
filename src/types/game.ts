@@ -1,3 +1,5 @@
+import type { EmotionIntensity, WeatherIcon } from './session';
+
 export interface Position {
   x: number;
   y: number;
@@ -18,3 +20,16 @@ export interface EmotionChunk {
 }
 
 export type OnGameComplete = () => void;
+
+export interface GameAssets {
+  bunny: {
+    idle: string;
+    eating: string;
+    cart: string;
+    intensity: Record<EmotionIntensity, string>;
+  };
+  carrot: {
+    full: string;
+  };
+  weather: Record<WeatherIcon, string>;
+}
