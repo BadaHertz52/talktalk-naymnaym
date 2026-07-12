@@ -1,0 +1,24 @@
+:root {
+  /* Primary — 당근 카퍼 */
+  --color-primary: #E08A3E;
+  --color-primary-deep: #B3703F;
+  --color-primary-light: #F2C98F;
+  --color-primary-on-black: #3A2A1A;
+
+  /* Neutral */
+  --color-white: #FFFFFF;
+  --color-gray-light: #CFCFCF;
+  --color-gray-mid: #8A8A8A;
+  --color-gray-dark: #4A4A4A;
+  --color-surface: #1A1A1A;
+  --color-black: #000000;
+
+  /* 감정 강도 팔레트 — 날씨 아이콘 색 */
+  --intensity-1: #E7E4DA; /* 맑음 */
+  --intensity-2: #9A9A9A; /* 구름 */
+  --intensity-3: #7C93B0; /* 비 */
+  --intensity-4: #9C7A63; /* 번개 */
+
+  /* 타이포그래피 */
+  --font-pixel: 'Galmuri14', 'Galmuri11', 'Courier New', monospace;
+}

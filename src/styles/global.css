@@ -1,0 +1,10 @@
+@import url('https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css');
+@import './tokens.css';
+@import './reset.css';
+
+body {
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-pixel);
+  -webkit-font-smoothing: antialiased;
+}
