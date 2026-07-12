@@ -3,6 +3,6 @@ import { useSessionStore } from '../stores/sessionStore';
 import type { Step } from '../types/session';
 
 export function StepGuard({ requires }: { requires: Step }) {
-  const completed = useSessionStore((s) => s.completed);
-  return completed[requires] ? <Outlet /> : <Navigate to="/" replace />;
+  const done = useSessionStore((s) => s.completed[requires]);
+  return done ? <Outlet /> : <Navigate to="/" replace />;
 }
