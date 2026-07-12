@@ -3,7 +3,7 @@
 # 린터: oxlint | 패키지 매니저: pnpm | 배포: Cloudflare Pages
 # 참고: https://docs.coderabbit.ai/reference/configuration
 
-language: "ko-KR"
+language: 'ko-KR'
 
 tone_instructions: |
   1인 사이드 프로젝트다. 리뷰는 명확하고 간결하게 한다.
@@ -11,7 +11,7 @@ tone_instructions: |
   nitpick은 최소화하고, 실제 버그·접근성·성능에 집중한다.
 
 reviews:
-  profile: "chill"
+  profile: 'chill'
   request_changes_workflow: false
   high_level_summary: true
   poem: false
@@ -24,21 +24,21 @@ reviews:
     # PR 오픈 시 최초 1회만 자동 리뷰. 추가 커밋 재리뷰 없음 (로컬 에이전트 루프가 1차 게이트)
     auto_incremental_review: false
     base_branches:
-      - "master"
+      - 'master'
 
   # 리뷰 제외 경로
   path_filters:
-    - "!pnpm-lock.yaml"
-    - "!**/*.lock"
-    - "!**/node_modules/**"
-    - "!**/dist/**"
-    - "!**/.gitkeep"
-    - "!public/assets/**"      # WebP 바이너리 에셋
-    - "!public/_redirects"     # Cloudflare SPA 폴백 한 줄짜리
+    - '!pnpm-lock.yaml'
+    - '!**/*.lock'
+    - '!**/node_modules/**'
+    - '!**/dist/**'
+    - '!**/.gitkeep'
+    - '!public/assets/**' # WebP 바이너리 에셋
+    - '!public/_redirects' # Cloudflare SPA 폴백 한 줄짜리
 
   path_instructions:
     # ── Canvas 게임 로직 ─────────────────────────────────────────────────────
-    - path: "src/game/**"
+    - path: 'src/game/**'
       instructions: |
         이 디렉터리는 React 의존성이 없는 순수 TypeScript여야 한다.
         React / react-dom import가 있으면 반드시 지적한다.
@@ -60,7 +60,7 @@ reviews:
         - devicePixelRatio 처리 없이 Canvas를 생성하면 Retina 디스플레이에서 흐릿해진다.
 
     # ── Canvas ↔ React 브리지 훅 ─────────────────────────────────────────────
-    - path: "src/hooks/useGameCanvas.ts"
+    - path: 'src/hooks/useGameCanvas.ts'
       instructions: |
         React 생명주기와 게임 루프 충돌이 이 프로젝트의 최대 리스크다.
 
@@ -76,7 +76,7 @@ reviews:
           의도적인지 확인한다.
 
     # ── 라우트 가드 ──────────────────────────────────────────────────────────
-    - path: "src/routes/**"
+    - path: 'src/routes/**'
       instructions: |
         StepGuard는 Zustand 스토어의 completed 플래그만 읽어야 한다.
 
@@ -89,7 +89,7 @@ reviews:
         라우터 설정에서 새로 추가된 경로에 가드가 빠져 있지는 않은지 확인한다.
 
     # ── Zustand 세션 스토어 ──────────────────────────────────────────────────
-    - path: "src/stores/**"
+    - path: 'src/stores/**'
       instructions: |
         persist 미들웨어 설정:
         - storage가 반드시 createJSONStorage(() => sessionStorage)여야 한다. localStorage 사용 금지.
@@ -104,7 +104,7 @@ reviews:
           해당 단계의 completed 플래그를 true로 설정하는지 확인한다.
 
     # ── IntensitySlider 공용 컴포넌트 ────────────────────────────────────────
-    - path: "src/components/IntensitySlider/**"
+    - path: 'src/components/IntensitySlider/**'
       instructions: |
         접근성 필수 항목 (WCAG 2.1):
         - role="slider" 속성이 있어야 한다.
@@ -119,7 +119,7 @@ reviews:
         MeasurePage와 ResultPage에서 재사용되므로 내부 상태를 외부 props로 제어할 수 있는 구조인지 확인한다.
 
     # ── 페이지 컴포넌트 ───────────────────────────────────────────────────────
-    - path: "src/pages/**"
+    - path: 'src/pages/**'
       instructions: |
         스타일: CSS Modules(.module.css)를 사용해야 한다. 인라인 style 속성이나 전역 클래스명을 지적한다.
 
@@ -135,14 +135,14 @@ reviews:
         EndPage 특이사항: 진입 시 reset()을 호출해야 한다. reset() 전에 표시할 값은 로컬 변수로 보관해야 한다.
 
     # ── CSS 토큰 / 글로벌 스타일 ─────────────────────────────────────────────
-    - path: "src/styles/**"
+    - path: 'src/styles/**'
       instructions: |
         색상은 반드시 var(--color-*) 또는 var(--intensity-*) 토큰을 참조해야 한다.
         하드코딩된 hex / rgb 색상값은 지적한다.
         CSS Variables 이름이 tokens.css에 정의된 것과 일치하는지 확인한다.
 
     # ── 타입 정의 ─────────────────────────────────────────────────────────────
-    - path: "src/types/**"
+    - path: 'src/types/**'
       instructions: |
         EmotionIntensity는 1|2|3|4 유니온 타입이어야 한다 (number 아님).
         Step은 'input'|'measure'|'game'|'result' 유니온이어야 한다.
@@ -150,14 +150,14 @@ reviews:
         실제 게임 구현(src/game/**)과 일치하는지 확인한다.
 
     # ── 테스트 ────────────────────────────────────────────────────────────────
-    - path: "**/*.test.ts"
+    - path: '**/*.test.ts'
       instructions: |
         테스트 프레임워크는 Vitest다. Jest 전용 API(jest.fn, jest.mock 등)는 vi.fn, vi.mock으로 써야 한다.
         Canvas API 호출은 mock 처리하거나 테스트 대상에서 제외한다 (jsdom에서 Canvas 미지원).
         게임 로직 테스트(충돌 감지, 텍스트 분할, 루프 상태 전이)는 Canvas 없이 실행 가능해야 한다.
 
     # ── Vite 설정 ─────────────────────────────────────────────────────────────
-    - path: "vite.config.ts"
+    - path: 'vite.config.ts'
       instructions: |
         초기 JS 번들 목표: gzip 100KB 이하.
         불필요한 외부 라이브러리를 번들에 포함시키는 설정 변경은 경고한다.

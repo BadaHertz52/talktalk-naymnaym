@@ -1,3 +1,3 @@
 export default function EndPage() {
-  return <div>EndPage</div>
+  return <div>EndPage</div>;
 }

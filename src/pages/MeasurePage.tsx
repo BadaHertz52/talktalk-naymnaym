@@ -1,3 +1,3 @@
 export default function MeasurePage() {
-  return <div>MeasurePage</div>
+  return <div>MeasurePage</div>;
 }

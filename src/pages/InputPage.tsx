@@ -1,3 +1,3 @@
 export default function InputPage() {
-  return <div>InputPage</div>
+  return <div>InputPage</div>;
 }

@@ -1,11 +1,11 @@
-import { createBrowserRouter } from 'react-router-dom'
-import { StepGuard } from './StepGuard'
-import HomePage from '../pages/HomePage'
-import InputPage from '../pages/InputPage'
-import MeasurePage from '../pages/MeasurePage'
-import GamePage from '../pages/GamePage'
-import ResultPage from '../pages/ResultPage'
-import EndPage from '../pages/EndPage'
+import { createBrowserRouter } from 'react-router-dom';
+import { StepGuard } from './StepGuard';
+import HomePage from '../pages/HomePage';
+import InputPage from '../pages/InputPage';
+import MeasurePage from '../pages/MeasurePage';
+import GamePage from '../pages/GamePage';
+import ResultPage from '../pages/ResultPage';
+import EndPage from '../pages/EndPage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
@@ -26,4 +26,4 @@ export const router = createBrowserRouter([
     element: <StepGuard requires="result" />,
     children: [{ path: '/end', element: <EndPage /> }],
   },
-])
+]);
