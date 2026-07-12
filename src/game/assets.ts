@@ -6,8 +6,6 @@ export const ASSETS = {
   },
   carrot: {
     full: '/assets/carrot-full.webp',
-    half: '/assets/carrot-half.webp',
-    stub: '/assets/carrot-stub.webp',
   },
   weather: {
     sun: '/assets/weather-sun.webp',
