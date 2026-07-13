@@ -5,7 +5,6 @@ import { useSessionStore } from '../../stores/sessionStore';
 import { ASSETS } from '../../game/assets';
 import { PATHS } from '../../constants/paths';
 import IntensitySlider from '../../components/IntensitySlider';
-import PageHeader from '../../components/PageHeader';
 import styles from './index.module.css';
 
 const PROMPTS = [
@@ -40,9 +39,7 @@ export default function ResultPage() {
   };
 
   return (
-    <main className={styles.page}>
-      <PageHeader step="05 / 06" />
-
+    <>
       <div className={`${styles.resultCard} ${decreased ? styles.resultCardWarm : ''}`}>
         {expressionStep === null ? (
           <div className={styles.moodEmpty}>
@@ -143,7 +140,6 @@ export default function ResultPage() {
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
           placeholder={prompt}
-          rows={10}
           maxLength={1000}
           aria-label="되돌아보기 메모"
         />
@@ -152,6 +148,6 @@ export default function ResultPage() {
       <button className={styles.button} disabled={!intensity} onClick={handleDone}>
         마무리하기 ▸
       </button>
-    </main>
+    </>
   );
 }

@@ -6,7 +6,6 @@ import { ASSETS } from '../../game/assets';
 import { EXPRESSION_WEATHER } from '../../constants/intensity';
 import { PATHS } from '../../constants/paths';
 import IntensitySlider from '../../components/IntensitySlider';
-import PageHeader from '../../components/PageHeader';
 import styles from './index.module.css';
 
 const WEATHER_LABEL: Record<EmotionExpressionStep, string> = {
@@ -32,9 +31,7 @@ export default function MeasurePage() {
   };
 
   return (
-    <main className={styles.page}>
-      <PageHeader step="03 / 06" />
-
+    <>
       <h1 className={styles.heading}>
         얼마나
         <br />
@@ -69,6 +66,6 @@ export default function MeasurePage() {
       <button className={styles.button} disabled={!intensity} onClick={handleNext}>
         없애러 가기 ▸
       </button>
-    </main>
+    </>
   );
 }

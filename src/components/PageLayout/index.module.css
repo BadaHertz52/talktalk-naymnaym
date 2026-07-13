@@ -1,0 +1,13 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  height: 95dvh;
+  padding: 1.625rem 1.375rem 1.875rem;
+  gap: 1rem;
+  max-width: 480px;
+  min-width: calc(320px * 0.9);
+  width: 90vw;
+  background: var(--color-black);
+  border: 2px solid var(--color-white);
+  border-radius: 14px;
+}

@@ -4,7 +4,6 @@ import { useSessionStore } from '../../stores/sessionStore';
 import { useGameCanvas } from '../../hooks/useGameCanvas';
 import { ASSETS } from '../../game/assets';
 import { PATHS } from '../../constants/paths';
-import PageHeader from '../../components/PageHeader';
 import styles from './index.module.css';
 
 export default function GamePage() {
@@ -27,14 +26,13 @@ export default function GamePage() {
   }, [handleComplete]);
 
   return (
-    <main className={styles.page}>
-      <PageHeader step="04 / 06" />
+    <>
       <h1 className={styles.heading}>냠냠… 없애는 중</h1>
       <p className={styles.sub}>토끼가 당근을 굴려서, 지나간 자리의 글자가 사라져요.</p>
       <canvas ref={canvasRef} className={styles.canvas} />
       <div className={styles.eatingBox}>
         <img src={ASSETS.bunny.eating} alt="당근을 먹는 토끼" className={styles.eatingImg} />
       </div>
-    </main>
+    </>
   );
 }

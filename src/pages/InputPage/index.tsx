@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '../../stores/sessionStore';
 import { PATHS } from '../../constants/paths';
-import PageHeader from '../../components/PageHeader';
 import styles from './index.module.css';
 
 const MAX = 200;
@@ -19,9 +18,7 @@ export default function InputPage() {
   };
 
   return (
-    <main className={styles.page}>
-      <PageHeader step="02 / 06" />
-
+    <>
       <h1 className={styles.heading}>
         무엇이
         <br />
@@ -89,6 +86,6 @@ export default function InputPage() {
       <button className={styles.button} onClick={handleNext} disabled={text.trim().length === 0}>
         다음 ▸
       </button>
-    </main>
+    </>
   );
 }

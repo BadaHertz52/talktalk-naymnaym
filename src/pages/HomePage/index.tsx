@@ -15,7 +15,7 @@ export default function HomePage() {
   }, [emotionText, reset]);
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <img src={ASSETS.bunny.cart} alt="톡톡냠냠 마스코트 토끼" className={styles.mascot} />
       <h1 className={styles.title}>톡톡냠냠</h1>
       <p className={styles.description}>
@@ -26,6 +26,6 @@ export default function HomePage() {
       <button className={styles.button} onClick={() => navigate(PATHS.input)}>
         시작하기 ▸
       </button>
-    </main>
+    </div>
   );
 }
