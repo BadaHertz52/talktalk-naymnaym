@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { StepGuard } from './StepGuard';
+import { PATHS } from '../constants/paths';
 import HomePage from '../pages/HomePage';
 import InputPage from '../pages/InputPage';
 import MeasurePage from '../pages/MeasurePage';
@@ -8,22 +9,22 @@ import ResultPage from '../pages/ResultPage';
 import EndPage from '../pages/EndPage';
 
 export const router = createBrowserRouter([
-  { path: '/', element: <HomePage /> },
-  { path: '/input', element: <InputPage /> },
+  { path: PATHS.home, element: <HomePage /> },
+  { path: PATHS.input, element: <InputPage /> },
   {
     element: <StepGuard requires="input" />,
-    children: [{ path: '/measure', element: <MeasurePage /> }],
+    children: [{ path: PATHS.measure, element: <MeasurePage /> }],
   },
   {
     element: <StepGuard requires="measure" />,
-    children: [{ path: '/game', element: <GamePage /> }],
+    children: [{ path: PATHS.game, element: <GamePage /> }],
   },
   {
     element: <StepGuard requires="game" />,
-    children: [{ path: '/result', element: <ResultPage /> }],
+    children: [{ path: PATHS.result, element: <ResultPage /> }],
   },
   {
     element: <StepGuard requires="result" />,
-    children: [{ path: '/end', element: <EndPage /> }],
+    children: [{ path: PATHS.end, element: <EndPage /> }],
   },
 ]);
