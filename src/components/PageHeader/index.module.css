@@ -1,0 +1,13 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.6875rem;
+  letter-spacing: 1px;
+  color: var(--color-gray-mid);
+  width: 100%;
+}
+
+.brand {
+  color: var(--color-gray-light);
+}
