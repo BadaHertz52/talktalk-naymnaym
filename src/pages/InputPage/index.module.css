@@ -1,0 +1,171 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: 1.625rem 1.375rem 1.875rem;
+  gap: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.heading {
+  font-family: var(--font-pixel);
+  font-size: 1.3125rem;
+  color: var(--color-white);
+  line-height: 1.4;
+  margin: 0.625rem 0 0;
+  text-shadow: 2px 2px 0 #555, 4px 4px 0 #222;
+}
+
+.sub {
+  font-size: 0.75rem;
+  color: var(--color-gray-mid);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.note {
+  font-size: 0.6875rem;
+  color: var(--color-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.textareaWrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--color-white);
+  border-radius: 14px;
+  padding: 1.125rem 1rem;
+  min-height: 200px;
+  gap: 0.75rem;
+}
+
+.textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-white);
+  font-family: var(--font-pixel);
+  font-size: 0.875rem;
+  padding: 0;
+  resize: none;
+  line-height: 1.9;
+  outline: none;
+}
+
+.textarea::placeholder {
+  color: var(--color-gray-dark);
+}
+
+.textareaSecret {
+  color: transparent;
+  caret-color: var(--color-white);
+}
+
+.secretOverlay {
+  position: absolute;
+  inset: 1.125rem 1rem auto;
+  font-family: var(--font-pixel);
+  font-size: 0.875rem;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  word-break: break-all;
+  pointer-events: none;
+  color: transparent;
+}
+
+.secretChar {
+  color: transparent;
+  text-decoration: underline;
+  text-decoration-color: var(--color-white);
+  text-underline-offset: 3px;
+}
+
+.textareaFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.charCount {
+  font-size: 0.6875rem;
+  color: var(--color-gray-mid);
+  letter-spacing: 1px;
+}
+
+.secretToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1.5px solid var(--color-gray-dark);
+  border-radius: 999px;
+  padding: 5px 9px;
+  cursor: pointer;
+  color: var(--color-gray-mid);
+}
+
+.secretToggleOn {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.togglePill {
+  display: inline-block;
+  width: 22px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--color-gray-dark);
+  position: relative;
+  transition: background 0.15s;
+}
+
+.secretToggleOn .togglePill {
+  background: var(--color-primary);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 1.5px;
+  left: 1.5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-gray-mid);
+  transition: left 0.15s, background 0.15s;
+}
+
+.secretToggleOn .toggleKnob {
+  left: calc(100% - 10.5px);
+  background: var(--color-black);
+}
+
+.button {
+  padding: 0.9375rem 0;
+  background: var(--color-white);
+  color: var(--color-black);
+  border: 2px solid var(--color-white);
+  border-radius: 10px;
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #555;
+  width: 100%;
+}
+
+.button:disabled {
+  background: var(--color-gray-dark);
+  color: var(--color-gray-mid);
+  border-color: var(--color-gray-dark);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.button:not(:disabled):hover {
+  background: var(--color-gray-light);
+}
