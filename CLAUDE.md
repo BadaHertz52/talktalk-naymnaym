@@ -192,3 +192,17 @@ import { ASSETS } from '../game/assets';
 - 에러 핸들링은 시스템 경계(외부 API, 사용자 입력)에만
 - `pnpm lint && pnpm type-check` 항상 통과 상태 유지
 
+### Import 규칙 (트리쉐이킹)
+
+```ts
+// ✅ named import — 번들러가 미사용 코드 제거 가능
+import { useState, useCallback } from 'react';
+import type { PointerEvent } from 'react';
+
+// ❌ namespace import 금지
+import * as React from 'react';
+```
+
+- 라이브러리에서 필요한 심볼만 named import로 가져온다
+- 타입은 반드시 `import type`으로 분리 — 런타임 번들에서 완전히 제거됨
+
