@@ -1,4 +1,4 @@
-import type { EmotionIntensity, WeatherIcon } from './session';
+import type { EmotionExpressionStep, WeatherIcon } from './session';
 
 export interface Position {
   x: number;
@@ -26,7 +26,7 @@ export interface GameAssets {
     idle: string;
     eating: string;
     cart: string;
-    intensity: Record<EmotionIntensity, string>;
+    expression: Record<EmotionExpressionStep, string>;
   };
   carrot: {
     full: string;
