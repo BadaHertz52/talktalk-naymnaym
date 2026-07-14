@@ -1,18 +1,11 @@
 import { useRef, useCallback } from 'react';
 import type { PointerEvent } from 'react';
 import styles from './index.module.css';
-
-const SEGMENT_COUNT = 10;
+import { SEGMENT_COUNT, posToSegments } from './posToSegments';
 
 interface Props {
   value: number | null;
   onChange: (segments: number) => void;
-}
-
-function posToSegments(x: number, width: number): number {
-  if (width === 0) return 1;
-  const ratio = Math.max(0, Math.min(1, x / width));
-  return Math.max(1, Math.ceil(ratio * SEGMENT_COUNT));
 }
 
 export default function IntensitySlider({ value, onChange }: Props) {
