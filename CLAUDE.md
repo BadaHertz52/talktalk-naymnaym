@@ -54,16 +54,14 @@ src/pages/
 
 **배치 판단 기준**
 
-
-| 컴포넌트 사용 범위    | 위치                                              |
-| ------------- | ----------------------------------------------- |
+| 컴포넌트 사용 범위     | 위치                                            |
+| ---------------------- | ----------------------------------------------- |
 | 이 페이지에서만 사용   | `pages/{PageName}/_components/{ComponentName}/` |
 | 2개 이상 페이지가 공유 | `src/components/{ComponentName}/`               |
 
-
 **규칙**
 
-- 페이지 컴포넌트 파일명: `index.tsx` 
+- 페이지 컴포넌트 파일명: `index.tsx`
 - default export, 함수명은 파일명과 동일 (`export default function HomePage()`)
 - 라우트 등록은 `src/routes/router.tsx`만 담당
 - 페이지 디렉터리끼리 직접 import 금지
@@ -104,19 +102,17 @@ color: #e08a3e;
 
 **토큰 위치**: `src/styles/tokens.css`
 
-
-| 변수                                | 용도                  |
-| --------------------------------- | ------------------- |
-| `--color-primary`                 | CTA, 강조 (#e08a3e)   |
-| `--color-surface`                 | 카드 배경 (#1a1a1a)     |
-| `--color-black`                   | 앱 배경 (#000)         |
-| `--color-white`                   | 기본 텍스트              |
-| `--color-gray-light/mid/dark`     | 보조 텍스트, 비활성         |
-| `--intensity-1` ~ `--intensity-5` | 감정 강도별 색상           |
+| 변수                              | 용도                      |
+| --------------------------------- | ------------------------- |
+| `--color-primary`                 | CTA, 강조 (#e08a3e)       |
+| `--color-surface`                 | 카드 배경 (#1a1a1a)       |
+| `--color-black`                   | 앱 배경 (#000)            |
+| `--color-white`                   | 기본 텍스트               |
+| `--color-gray-light/mid/dark`     | 보조 텍스트, 비활성       |
+| `--intensity-1` ~ `--intensity-5` | 감정 강도별 색상          |
 | `--font-pixel`                    | Galmuri14, 픽셀 아트 폰트 |
 
-
-**전역 클래스** (`src/styles/global.css`): `.pixel-btn` — CTA 버튼 공통 스타일. 새 버튼 스타일 추가 전에 이 클래스로 커버 가능한지 먼저 확인.
+**CTA 버튼**: `src/components/Button` — CTA 버튼 공통 스타일. 새 버튼 스타일 추가 전에 이 컴포넌트로 커버 가능한지 먼저 확인.
 
 **픽셀 아트 이미지**: 반드시 `image-rendering: pixelated` 적용.
 
@@ -135,17 +131,15 @@ const completeInput = useSessionStore((s) => s.completeInput);
 completeInput(text);
 ```
 
-
-| 액션                    | 효과                                            |
-| --------------------- | --------------------------------------------- |
+| 액션                  | 효과                                            |
+| --------------------- | ----------------------------------------------- |
 | `completeInput(text)` | emotionText 저장 + completed.input = true       |
 | `completeMeasure(v)`  | intensityBefore 저장 + completed.measure = true |
-| `completeGame()`      | completed.game = true                         |
+| `completeGame()`      | completed.game = true                           |
 | `completeResult(v)`   | intensityAfter 저장 + completed.result = true   |
-| `reset()`             | 전체 상태 + sessionStorage 초기화                    |
+| `reset()`             | 전체 상태 + sessionStorage 초기화               |
 
-
-**스토어 파일 수정 금지** — 타입/스토어/라우터(`src/types/`, `src/stores/`, `src/routes/`)는 읽기 전용. 변경이 필요하면 사용자에게 먼저 확인.
+**변경 통제** — 타입/스토어/라우터(`src/types/`, `src/stores/`, `src/routes/`)는 플로우(코어 루프) 자체를 정의하는 파일이므로 사용자 승인 없이 수정 금지. 승인받아 변경할 때는 (1) 변경 사유가 기획안의 어느 항목에 해당하는지 명시하고, (2) 다른 작업에 얹지 말고 전용 커밋/PR로 분리한다.
 
 ---
 
@@ -205,4 +199,3 @@ import * as React from 'react';
 
 - 라이브러리에서 필요한 심볼만 named import로 가져온다
 - 타입은 반드시 `import type`으로 분리 — 런타임 번들에서 완전히 제거됨
-
