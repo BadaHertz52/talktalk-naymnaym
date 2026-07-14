@@ -1,0 +1,29 @@
+.button {
+  padding: 0.9375rem 2.875rem;
+  background: var(--color-white);
+  color: var(--color-black);
+  border: 2px solid var(--color-white);
+  border-radius: 10px;
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #555;
+}
+
+.button:disabled {
+  background: var(--color-gray-dark);
+  color: var(--color-gray-mid);
+  border-color: var(--color-gray-dark);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.button:not(:disabled):hover {
+  background: var(--color-gray-light);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}

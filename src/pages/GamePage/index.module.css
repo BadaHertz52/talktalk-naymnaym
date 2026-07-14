@@ -1,14 +1,3 @@
-.page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  padding: 1.625rem 1.375rem 1.875rem;
-  gap: 0.875rem;
-  max-width: 480px;
-  margin: 0 auto;
-  background: var(--color-black);
-}
-
 .heading {
   font-family: var(--font-pixel);
   font-size: 1.25rem;
@@ -18,10 +7,7 @@
 }
 
 .sub {
-  font-size: 0.75rem;
-  color: var(--color-gray-mid);
-  line-height: 1.7;
-  margin: 0;
+  composes: sub from '../../styles/shared.module.css';
 }
 
 .canvas {

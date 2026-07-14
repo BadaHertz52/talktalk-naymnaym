@@ -1,0 +1,20 @@
+/* InputPage/MeasurePage/GamePage가 공유하는 페이지 타이틀·부제 스타일.
+   컴포넌트로 승격할 만한 동작이 없어 CSS Modules composes로만 공유한다. */
+
+.heading {
+  font-family: var(--font-pixel);
+  font-size: 1.3125rem;
+  color: var(--color-white);
+  line-height: 1.4;
+  margin: 0.625rem 0 0;
+  text-shadow:
+    2px 2px 0 #555,
+    4px 4px 0 #222;
+}
+
+.sub {
+  font-size: 0.75rem;
+  color: var(--color-gray-mid);
+  line-height: 1.7;
+  margin: 0;
+}

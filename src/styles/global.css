@@ -12,27 +12,14 @@ body {
   align-items: center;
 }
 
-.pixel-btn {
-  padding: 0.75rem 2.5rem;
-  background: var(--color-primary);
-  color: var(--color-black);
-  border: none;
-  font-family: var(--font-pixel);
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.pixel-btn:disabled {
-  background: var(--color-gray-dark);
-  color: var(--color-gray-mid);
-  cursor: not-allowed;
-}
-
-.pixel-btn:not(:disabled):hover {
-  background: var(--color-primary-light);
-}
-
-.pixel-btn:focus-visible {
-  outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;
+/* CSS Modules는 @keyframes를 파일별로 스코프하므로, 여러 컴포넌트/페이지가
+   공유하는 bob 애니메이션은 전역 스타일시트에 단일 정의로 둔다. */
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }

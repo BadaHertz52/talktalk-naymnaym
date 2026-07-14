@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '../../stores/sessionStore';
 import { PATHS } from '../../constants/paths';
+import Button from '../../components/Button';
 import styles from './index.module.css';
 
 const MAX = 200;
@@ -83,9 +84,9 @@ export default function InputPage() {
         </div>
       </div>
 
-      <button className={styles.button} onClick={handleNext} disabled={text.trim().length === 0}>
+      <Button className={styles.button} onClick={handleNext} disabled={text.trim().length === 0}>
         다음 ▸
-      </button>
+      </Button>
     </>
   );
 }

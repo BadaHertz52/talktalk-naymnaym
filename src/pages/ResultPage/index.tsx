@@ -5,6 +5,8 @@ import { useSessionStore } from '../../stores/sessionStore';
 import { ASSETS } from '../../game/assets';
 import { PATHS } from '../../constants/paths';
 import IntensitySlider from '../../components/IntensitySlider';
+import Button from '../../components/Button';
+import ArrowIcon from './_components/ArrowIcon';
 import styles from './index.module.css';
 
 const PROMPTS = [
@@ -77,17 +79,7 @@ export default function ResultPage() {
             </div>
             <div className={styles.scoreRow}>
               <span className={styles.scoreBefore}>{intensityBefore}</span>
-              <svg
-                width="26"
-                height="26"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--color-primary)"
-                strokeWidth="2.2"
-                aria-hidden="true"
-              >
-                <path d="M5 12h13M13 6l6 6-6 6" />
-              </svg>
+              <ArrowIcon color="var(--color-primary)" />
               <span className={styles.scoreAfter}>{intensity}</span>
             </div>
           </div>
@@ -106,17 +98,7 @@ export default function ResultPage() {
             </p>
             <div className={styles.scoreRow}>
               <span className={styles.scoreBefore}>{intensityBefore}</span>
-              <svg
-                width="26"
-                height="26"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--color-gray-mid)"
-                strokeWidth="2.2"
-                aria-hidden="true"
-              >
-                <path d="M5 12h13M13 6l6 6-6 6" />
-              </svg>
+              <ArrowIcon color="var(--color-gray-mid)" />
               <span className={styles.scoreBefore}>{intensity}</span>
             </div>
             <p className={styles.resultNote}>
@@ -145,9 +127,9 @@ export default function ResultPage() {
         />
       </div>
 
-      <button className={styles.button} disabled={!intensity} onClick={handleDone}>
+      <Button className={styles.button} disabled={!intensity} onClick={handleDone}>
         마무리하기 ▸
-      </button>
+      </Button>
     </>
   );
 }

@@ -1,13 +1,3 @@
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
 .center {
   flex: 1;
   display: flex;
@@ -16,13 +6,6 @@
   justify-content: center;
   gap: 1.625rem;
   text-align: center;
-}
-
-.mascot {
-  width: auto;
-  height: 120px;
-  image-rendering: pixelated;
-  animation: bob 3s ease-in-out infinite;
 }
 
 .title {
@@ -46,24 +29,5 @@
 }
 
 .button {
-  padding: 0.9375rem 0;
-  background: var(--color-white);
-  color: var(--color-black);
-  border: 2px solid var(--color-white);
-  border-radius: 10px;
-  font-family: var(--font-pixel);
-  font-size: 1rem;
-  letter-spacing: 2px;
-  cursor: pointer;
-  box-shadow: 4px 4px 0 #555;
   width: 100%;
-}
-
-.button:hover {
-  background: var(--color-gray-light);
-}
-
-.button:focus-visible {
-  outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;
 }

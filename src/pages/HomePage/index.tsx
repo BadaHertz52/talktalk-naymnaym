@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '../../stores/sessionStore';
 import { ASSETS } from '../../game/assets';
 import { PATHS } from '../../constants/paths';
+import Button from '../../components/Button';
+import Mascot from '../../components/Mascot';
 import styles from './index.module.css';
 
 export default function HomePage() {
@@ -16,16 +18,16 @@ export default function HomePage() {
 
   return (
     <div className={styles.page}>
-      <img src={ASSETS.bunny.cart} alt="톡톡냠냠 마스코트 토끼" className={styles.mascot} />
+      <Mascot src={ASSETS.bunny.cart} alt="톡톡냠냠 마스코트 토끼" />
       <h1 className={styles.title}>톡톡냠냠</h1>
       <p className={styles.description}>
         토끼가 당근을 굴려서
         <br />
         신경 쓰이는 걸 없애줘요
       </p>
-      <button className={styles.button} onClick={() => navigate(PATHS.input)}>
+      <Button className={styles.button} onClick={() => navigate(PATHS.input)}>
         시작하기 ▸
-      </button>
+      </Button>
     </div>
   );
 }

@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '../../stores/sessionStore';
 import { ASSETS } from '../../game/assets';
 import { PATHS } from '../../constants/paths';
+import Button from '../../components/Button';
+import Mascot from '../../components/Mascot';
 import styles from './index.module.css';
 
 export default function EndPage() {
@@ -16,7 +18,7 @@ export default function EndPage() {
   return (
     <>
       <div className={styles.center}>
-        <img src={ASSETS.bunny.idle} alt="토끼 마스코트" className={styles.mascot} />
+        <Mascot src={ASSETS.bunny.idle} alt="토끼 마스코트" />
         <h1 className={styles.title}>
           오늘은
           <br />
@@ -27,9 +29,9 @@ export default function EndPage() {
           <br />또 무거워지면 언제든 들러요.
         </p>
       </div>
-      <button className={styles.button} onClick={handleExit}>
+      <Button className={styles.button} onClick={handleExit}>
         홈으로 돌아가기
-      </button>
+      </Button>
     </>
   );
 }

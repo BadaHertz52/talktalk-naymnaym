@@ -6,6 +6,7 @@ import { ASSETS } from '../../game/assets';
 import { EXPRESSION_WEATHER } from '../../constants/intensity';
 import { PATHS } from '../../constants/paths';
 import IntensitySlider from '../../components/IntensitySlider';
+import Button from '../../components/Button';
 import styles from './index.module.css';
 
 const WEATHER_LABEL: Record<EmotionExpressionStep, string> = {
@@ -20,9 +21,7 @@ export default function MeasurePage() {
   const navigate = useNavigate();
   const completeMeasure = useSessionStore((s) => s.completeMeasure);
   const [intensity, setIntensity] = useState<EmotionIntensity | null>(null);
-  const expressionStep = intensity
-    ? (Math.ceil(intensity / 2) as EmotionExpressionStep)
-    : null;
+  const expressionStep = intensity ? (Math.ceil(intensity / 2) as EmotionExpressionStep) : null;
 
   const handleNext = () => {
     if (!intensity) return;
@@ -57,15 +56,12 @@ export default function MeasurePage() {
       </div>
 
       <div className={styles.sliderWrap}>
-        <IntensitySlider
-          value={intensity}
-          onChange={(v) => setIntensity(v as EmotionIntensity)}
-        />
+        <IntensitySlider value={intensity} onChange={(v) => setIntensity(v as EmotionIntensity)} />
       </div>
 
-      <button className={styles.button} disabled={!intensity} onClick={handleNext}>
+      <Button className={styles.button} disabled={!intensity} onClick={handleNext}>
         없애러 가기 ▸
-      </button>
+      </Button>
     </>
   );
 }
