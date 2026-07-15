@@ -7,17 +7,27 @@ interface SessionStore {
   intensityBefore: EmotionIntensity | null;
   intensityAfter: EmotionIntensity | null;
   completed: Record<Step, boolean>;
-  completeInput: (text: string) => void;
+  secretMode: boolean;
+  afterEmotionText: string;
+  completeInput: ({ text, secretMode }: { text: string; secretMode: boolean }) => void;
   completeMeasure: (v: EmotionIntensity) => void;
   completeGame: () => void;
-  completeResult: (v: EmotionIntensity) => void;
+  completeResult: ({
+    intensityAfter,
+    afterEmotionText,
+  }: {
+    intensityAfter: EmotionIntensity;
+    afterEmotionText: string;
+  }) => void;
   reset: () => void;
 }
 
 const initialState = {
   emotionText: '',
+  secretMode: false,
   intensityBefore: null as EmotionIntensity | null,
   intensityAfter: null as EmotionIntensity | null,
+  afterEmotionText: '',
   completed: { input: false, measure: false, game: false, result: false },
 };
 
@@ -25,16 +35,25 @@ export const useSessionStore = create<SessionStore>()(
   persist(
     (set) => ({
       ...initialState,
-      completeInput: (text) =>
+      completeInput: ({ text, secretMode }) =>
         set({
+          ...initialState,
           emotionText: text,
+          secretMode: secretMode,
           completed: { input: true, measure: false, game: false, result: false },
         }),
       completeMeasure: (v) =>
-        set((s) => ({ intensityBefore: v, completed: { ...s.completed, measure: true } })),
+        set((s) => ({
+          intensityBefore: v,
+          completed: { ...s.completed, measure: true },
+        })),
       completeGame: () => set((s) => ({ completed: { ...s.completed, game: true } })),
-      completeResult: (v) =>
-        set((s) => ({ intensityAfter: v, completed: { ...s.completed, result: true } })),
+      completeResult: ({ intensityAfter, afterEmotionText }) =>
+        set((s) => ({
+          intensityAfter,
+          afterEmotionText,
+          completed: { ...s.completed, result: true },
+        })),
       reset: () => set(initialState),
     }),
     {
