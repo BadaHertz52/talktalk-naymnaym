@@ -4,7 +4,7 @@
 
 - **UI**: React 19 + TypeScript (strict)
 - **번들러**: Vite
-- **라우팅**: react-router-dom v6 (`createBrowserRouter`)
+- **라우팅**: react-router-dom v7 (`createBrowserRouter`)
 - **상태**: Zustand + persist(sessionStorage)
 - **스타일**: CSS Modules + CSS Variables (전역 클래스 최소화)
 - **테스트**: Vitest — 작성 규칙은 [.claude/rules/testing.md](.claude/rules/testing.md) 참고
@@ -25,7 +25,7 @@ src/
 ├── stores/           # Zustand 스토어
 ├── routes/           # 라우터 설정 + StepGuard
 ├── types/            # 공유 TypeScript 타입
-├── constants/        # 상수 (INTENSITY_WEATHER 등)
+├── constants/        # 상수 (EXPRESSION_WEATHER 등)
 ├── game/             # Canvas 게임 로직 (React import 없는 순수 TS)
 └── styles/           # 전역 CSS (tokens, global, reset)
 ```
@@ -86,7 +86,7 @@ completeInput(text);
 import { ASSETS } from '../game/assets';
 
 <img src={ASSETS.bunny.idle} alt="..." />
-<img src={ASSETS.weather[INTENSITY_WEATHER[level]]} alt="" aria-hidden="true" />
+<img src={ASSETS.weather[EXPRESSION_WEATHER[level]]} alt="" aria-hidden="true" />
 ```
 
-감정 강도 → 날씨 아이콘 매핑: `src/constants/intensity.ts`의 `INTENSITY_WEATHER`.
+감정 강도 → 날씨 아이콘 매핑: `src/constants/intensity.ts`의 `EXPRESSION_WEATHER`.
