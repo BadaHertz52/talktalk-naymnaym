@@ -10,7 +10,7 @@
 
 .title {
   font-family: var(--font-pixel);
-  font-size: 2.25rem;
+  font-size: 36px;
   color: var(--color-white);
   margin: 0;
   letter-spacing: 2px;
@@ -21,7 +21,7 @@
 
 .description {
   font-family: var(--font-pixel);
-  font-size: 0.75rem;
+  font-size: 12px;
   color: var(--color-gray-mid);
   line-height: 1.8;
   margin: 0;

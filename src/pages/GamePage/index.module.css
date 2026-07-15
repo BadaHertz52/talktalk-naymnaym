@@ -1,6 +1,6 @@
 .heading {
   font-family: var(--font-pixel);
-  font-size: 1.25rem;
+  font-size: 20px;
   color: var(--color-white);
   margin: 0.375rem 0 0;
   letter-spacing: 1px;

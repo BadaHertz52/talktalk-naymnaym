@@ -17,7 +17,7 @@
 
 .resultTitle {
   font-family: var(--font-pixel);
-  font-size: 1.0625rem;
+  font-size: 17px;
   color: var(--color-gray-light);
   letter-spacing: 1px;
   line-height: 1.5;
@@ -82,24 +82,24 @@
 }
 
 .scoreBefore {
-  font-size: 1.625rem;
+  font-size: 26px;
   color: var(--color-white);
 }
 
 .scoreAfter {
-  font-size: 2.25rem;
+  font-size: 36px;
   color: var(--color-primary);
 }
 
 .resultNote {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: var(--color-gray-mid);
   line-height: 1.7;
   margin: 0;
 }
 
 .sliderLabel {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: var(--color-gray-mid);
   letter-spacing: 0.5px;
   margin: 0;
@@ -120,7 +120,7 @@
 }
 
 .memoLabel {
-  font-size: 0.6875rem;
+  font-size: 11px;
   color: var(--color-gray-mid);
   letter-spacing: 0.5px;
   margin: 0;
@@ -131,7 +131,7 @@
   border: none;
   color: var(--color-gray-dark);
   font-family: var(--font-pixel);
-  font-size: 0.8125rem;
+  font-size: 13px;
   line-height: 1.7;
   resize: none;
   outline: none;

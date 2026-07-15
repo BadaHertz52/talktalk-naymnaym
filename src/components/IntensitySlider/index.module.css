@@ -10,7 +10,7 @@
 .scaleLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.6875rem;
+  font-size: 11px;
   color: var(--color-gray-mid);
   letter-spacing: 1px;
 }

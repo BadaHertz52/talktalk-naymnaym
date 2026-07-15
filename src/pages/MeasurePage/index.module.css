@@ -42,8 +42,8 @@
 }
 
 .previewCaption {
-  font-size: 0.75rem;
-  color: var(--color-gray-mid);
+  font-size: 9px;
+  color: var(--color-white);
   letter-spacing: 0.5px;
   margin: 0;
   text-align: center;
