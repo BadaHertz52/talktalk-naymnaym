@@ -67,11 +67,19 @@
 }
 
 .caret {
+  position: relative;
   display: inline-block;
+  width: 0;
+}
+
+.caret::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
   width: 2px;
   height: 1em;
   background: var(--color-white);
-  vertical-align: text-bottom;
   animation: caretBlink 1s step-end infinite;
 }
 
