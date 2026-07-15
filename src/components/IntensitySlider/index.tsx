@@ -1,11 +1,12 @@
 import { useRef, useCallback } from 'react';
-import type { PointerEvent } from 'react';
+import type { PointerEvent, KeyboardEvent } from 'react';
 import styles from './index.module.css';
 import { SEGMENT_COUNT, posToSegments } from './posToSegments';
+import type { EmotionIntensity } from '../../types/session';
 
 interface Props {
-  value: number | null;
-  onChange: (segments: number) => void;
+  value: EmotionIntensity | null;
+  onChange: (value: EmotionIntensity) => void;
 }
 
 export default function IntensitySlider({ value, onChange }: Props) {
@@ -14,7 +15,8 @@ export default function IntensitySlider({ value, onChange }: Props) {
 
   const commitSegments = useCallback(
     (segments: number) => {
-      onChange(Math.max(1, Math.min(SEGMENT_COUNT, segments)));
+      const clamped = Math.max(1, Math.min(SEGMENT_COUNT, segments)) as EmotionIntensity;
+      onChange(clamped);
     },
     [onChange],
   );
@@ -22,6 +24,7 @@ export default function IntensitySlider({ value, onChange }: Props) {
   const handlePointer = useCallback(
     (e: PointerEvent) => {
       if (!trackRef.current) return;
+
       e.currentTarget.setPointerCapture(e.pointerId);
       const rect = trackRef.current.getBoundingClientRect();
       commitSegments(posToSegments(e.clientX - rect.left, rect.width));
@@ -32,7 +35,9 @@ export default function IntensitySlider({ value, onChange }: Props) {
   const handleMove = useCallback(
     (e: PointerEvent) => {
       if (e.buttons === 0) return;
+
       if (!trackRef.current) return;
+
       const rect = trackRef.current.getBoundingClientRect();
       commitSegments(posToSegments(e.clientX - rect.left, rect.width));
     },
@@ -40,9 +45,11 @@ export default function IntensitySlider({ value, onChange }: Props) {
   );
 
   const handleKey = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') commitSegments(filledSegments + 1);
       if (e.key === 'ArrowLeft') commitSegments(filledSegments - 1);
+      if (e.key === 'Home') commitSegments(1);
+      if (e.key === 'End') commitSegments(SEGMENT_COUNT);
     },
     [filledSegments, commitSegments],
   );
@@ -62,7 +69,7 @@ export default function IntensitySlider({ value, onChange }: Props) {
         role="slider"
         aria-valuemin={1}
         aria-valuemax={SEGMENT_COUNT}
-        aria-valuenow={value ?? undefined}
+        aria-valuenow={value ?? 1}
         aria-valuetext={value ? String(value) : '선택 안 됨'}
         aria-label="감정 강도"
         tabIndex={0}
