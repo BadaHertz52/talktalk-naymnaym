@@ -21,9 +21,11 @@ const STRIP_GROW = [52, 52, 52, 56, 66] as const;
 export default function ResultPage() {
   const navigate = useNavigate();
   const intensityBefore = useSessionStore((s) => s.intensityBefore);
+  const intensityAfter = useSessionStore((s) => s.intensityAfter);
+  const afterEmotionText = useSessionStore((s) => s.afterEmotionText);
   const completeResult = useSessionStore((s) => s.completeResult);
-  const [intensity, setIntensity] = useState<EmotionIntensity | null>(null);
-  const [memo, setMemo] = useState('');
+  const [intensity, setIntensity] = useState<EmotionIntensity | null>(intensityAfter);
+  const [memo, setMemo] = useState(afterEmotionText);
   const prompt = useMemo(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)], []);
 
   if (!intensityBefore) {
@@ -36,7 +38,7 @@ export default function ResultPage() {
 
   const handleDone = () => {
     if (!intensity) return;
-    completeResult(intensity);
+    completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
     navigate(PATHS.end);
   };
 
@@ -110,20 +112,20 @@ export default function ResultPage() {
         )}
       </div>
 
-      <p className={styles.sliderLabel}>감정의 무게만큼 골라보세요.</p>
+      <p className={styles.sliderLabel}>남아있는 감정의 무게는 얼마인가요?</p>
       <div className={styles.sliderWrap}>
         <IntensitySlider value={intensity} onChange={(v) => setIntensity(v as EmotionIntensity)} />
       </div>
 
       <div className={styles.memoBox}>
-        <p className={styles.memoLabel}>되돌아보기 (선택)</p>
+        <p className={styles.memoLabel}>지금 이 순간에게 (선택)</p>
         <textarea
           className={styles.memoTextarea}
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
           placeholder={prompt}
           maxLength={1000}
-          aria-label="되돌아보기 메모"
+          aria-label="지금 이 순간에게 메모"
         />
       </div>
 

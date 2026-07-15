@@ -18,9 +18,11 @@ const WEATHER_LABEL: Record<EmotionExpressionStep, string> = {
 };
 
 export default function MeasurePage() {
-  const navigate = useNavigate();
+  const intensityBefore = useSessionStore((s) => s.intensityBefore);
   const completeMeasure = useSessionStore((s) => s.completeMeasure);
-  const [intensity, setIntensity] = useState<EmotionIntensity | null>(null);
+  const navigate = useNavigate();
+
+  const [intensity, setIntensity] = useState<EmotionIntensity | null>(intensityBefore);
   const expressionStep = intensity ? (Math.ceil(intensity / 2) as EmotionExpressionStep) : null;
 
   const handleNext = () => {
