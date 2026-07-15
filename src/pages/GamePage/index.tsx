@@ -1,7 +1,7 @@
 import { useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '../../stores/sessionStore';
-import { useGameCanvas } from '../../hooks/useGameCanvas';
+import { useGameCanvas } from './_hooks/useGameCanvas';
 import { ASSETS } from '../../game/assets';
 import { PATHS } from '../../constants/paths';
 import styles from './index.module.css';
