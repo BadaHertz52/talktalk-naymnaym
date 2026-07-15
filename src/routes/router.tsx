@@ -12,40 +12,25 @@ import EndPage from '../pages/EndPage';
 export const router = createBrowserRouter([
   {
     element: <PageLayout />,
-    children: [
-      { path: PATHS.home, element: <HomePage /> },
-      { path: PATHS.end, element: <EndPage /> },
-    ],
+    children: [{ path: PATHS.home, element: <HomePage /> }],
   },
   {
-    element: <PageLayout step="01 / 04" />,
-    children: [{ path: PATHS.input, element: <InputPage /> }],
-  },
-  {
-    element: <PageLayout step="02 / 04" />,
+    element: <PageLayout showHeader />,
     children: [
+      { path: PATHS.input, element: <InputPage /> },
       {
         element: <StepGuard requires="input" />,
         children: [{ path: PATHS.measure, element: <MeasurePage /> }],
       },
-    ],
-  },
-  {
-    element: <PageLayout step="03 / 04" />,
-    children: [
       {
         element: <StepGuard requires="measure" />,
         children: [{ path: PATHS.game, element: <GamePage /> }],
       },
-    ],
-  },
-  {
-    element: <PageLayout step="04 / 04" />,
-    children: [
       {
         element: <StepGuard requires="game" />,
         children: [{ path: PATHS.result, element: <ResultPage /> }],
       },
+      { path: PATHS.end, element: <EndPage /> },
     ],
   },
 ]);
