@@ -7,8 +7,8 @@
 }
 
 .note {
-  font-size: 0.6875rem;
-  color: var(--color-primary);
+  font-size: 11px;
+  color: var(--color-gray-light);
   line-height: 1.6;
   margin: 0;
 }
@@ -31,7 +31,7 @@
   border: none;
   color: var(--color-white);
   font-family: var(--font-pixel);
-  font-size: 0.875rem;
+  font-size: 14px;
   padding: 0;
   resize: none;
   line-height: 1.9;
@@ -39,24 +39,17 @@
 }
 
 .textarea::placeholder {
-  color: var(--color-gray-dark);
-}
-
-.textareaSecret {
-  color: transparent;
-  caret-color: var(--color-white);
+  color: var(--color-gray-mid);
 }
 
 .secretOverlay {
-  position: absolute;
-  inset: 1.125rem 1rem auto;
   font-family: var(--font-pixel);
-  font-size: 0.875rem;
+  font-size: 14px;
   line-height: 1.9;
-  white-space: pre-wrap;
-  word-break: break-all;
-  pointer-events: none;
   color: transparent;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .secretChar {
@@ -68,15 +61,9 @@
 
 .textareaFooter {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: auto;
-}
-
-.charCount {
-  font-size: 0.6875rem;
-  color: var(--color-gray-mid);
-  letter-spacing: 1px;
 }
 
 .secretToggle {
@@ -92,8 +79,8 @@
 }
 
 .secretToggleOn {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--color-gray-light);
+  color: var(--color-gray-light);
 }
 
 .togglePill {
@@ -107,7 +94,7 @@
 }
 
 .secretToggleOn .togglePill {
-  background: var(--color-primary);
+  background: var(--color-gray-mid);
 }
 
 .toggleKnob {
@@ -125,7 +112,7 @@
 
 .secretToggleOn .toggleKnob {
   left: calc(100% - 10.5px);
-  background: var(--color-black);
+  background: var(--color-white);
 }
 
 .button {

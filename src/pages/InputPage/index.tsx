@@ -5,16 +5,18 @@ import { PATHS } from '../../constants/paths';
 import Button from '../../components/Button';
 import styles from './index.module.css';
 
-const MAX = 200;
+const MAX = 1000;
 
 export default function InputPage() {
-  const [text, setText] = useState('');
-  const [secretMode, setSecretMode] = useState(false);
+  const emotionText = useSessionStore((s) => s.emotionText);
+  const storedSecretMode = useSessionStore((s) => s.secretMode);
+  const [text, setText] = useState(emotionText);
+  const [secretMode, setSecretMode] = useState(storedSecretMode);
   const navigate = useNavigate();
   const completeInput = useSessionStore((s) => s.completeInput);
 
   const handleNext = () => {
-    completeInput(text.trim());
+    completeInput({ text: text.trim(), secretMode });
     navigate(PATHS.measure);
   };
 
@@ -33,7 +35,7 @@ export default function InputPage() {
       <p className={styles.note}>비밀로 하고 싶으면, 시크릿 모드를 켜보세요.</p>
 
       <div className={styles.textareaWrapper}>
-        {secretMode && (
+        {secretMode ? (
           <div className={styles.secretOverlay} aria-hidden="true">
             {text.split('').map((c, i) =>
               c === ' ' ? (
@@ -45,19 +47,16 @@ export default function InputPage() {
               ),
             )}
           </div>
+        ) : (
+          <textarea
+            className={`${styles.textarea}`}
+            value={text}
+            onChange={(e) => setText(e.target.value.slice(0, MAX))}
+            placeholder="머릿속에 맴도는 걸 그대로 적어요"
+            aria-label="스트레스 내용 입력"
+          />
         )}
-        <textarea
-          className={`${styles.textarea}${secretMode ? ` ${styles.textareaSecret}` : ''}`}
-          value={text}
-          onChange={(e) => setText(e.target.value.slice(0, MAX))}
-          placeholder="머릿속에 맴도는 걸 그대로 적어요"
-          rows={6}
-          aria-label="스트레스 내용 입력"
-        />
         <div className={styles.textareaFooter}>
-          <span className={styles.charCount}>
-            {text.length} / {MAX}
-          </span>
           <button
             type="button"
             className={`${styles.secretToggle}${secretMode ? ` ${styles.secretToggleOn}` : ''}`}
