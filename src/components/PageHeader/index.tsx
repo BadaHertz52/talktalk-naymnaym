@@ -1,14 +1,28 @@
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { PATHS } from '../../constants/paths';
 import styles from './index.module.css';
 
-interface Props {
-  step: string;
-}
+export default function PageHeader() {
+  const { key } = useLocation();
+  const navigate = useNavigate();
+  const canGoBack = key !== 'default';
+  const showBackButton = canGoBack;
 
-export default function PageHeader({ step }: Props) {
   return (
     <div className={styles.header}>
-      <span className={styles.brand}>톡톡냠냠</span>
-      <span className={styles.step}>{step}</span>
+      {showBackButton && (
+        <button
+          type="button"
+          className={styles.back}
+          onClick={() => navigate(-1)}
+          aria-label="이전 페이지로 이동"
+        >
+          ‹
+        </button>
+      )}
+      <Link to={PATHS.home} className={styles.brand}>
+        톡톡냠냠
+      </Link>
     </div>
   );
 }

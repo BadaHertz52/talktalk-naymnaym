@@ -3,13 +3,13 @@ import PageHeader from '../PageHeader';
 import styles from './index.module.css';
 
 interface Props {
-  step?: string;
+  showHeader?: boolean;
 }
 
-export default function PageLayout({ step }: Props) {
+export default function PageLayout({ showHeader }: Props) {
   return (
     <main className={styles.main}>
-      {step && <PageHeader step={step} />}
+      {showHeader && <PageHeader />}
       <Outlet />
     </main>
   );
