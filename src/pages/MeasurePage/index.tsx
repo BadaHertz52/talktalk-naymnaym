@@ -4,6 +4,7 @@ import type { EmotionExpressionStep, EmotionIntensity } from '../../types/sessio
 import { useSessionStore } from '../../stores/sessionStore';
 import { ASSETS } from '../../game/assets';
 import { EXPRESSION_WEATHER } from '../../constants/intensity';
+import { toExpressionStep } from '../../utils/intensity';
 import { PATHS } from '../../constants/paths';
 import IntensitySlider from '../../components/IntensitySlider';
 import Button from '../../components/Button';
@@ -23,7 +24,7 @@ export default function MeasurePage() {
   const navigate = useNavigate();
 
   const [intensity, setIntensity] = useState<EmotionIntensity | null>(intensityBefore);
-  const expressionStep = intensity ? (Math.ceil(intensity / 2) as EmotionExpressionStep) : null;
+  const expressionStep = intensity ? toExpressionStep(intensity) : null;
 
   const handleNext = () => {
     if (!intensity) return;
@@ -58,7 +59,7 @@ export default function MeasurePage() {
       </div>
 
       <div className={styles.sliderWrap}>
-        <IntensitySlider value={intensity} onChange={(v) => setIntensity(v as EmotionIntensity)} />
+        <IntensitySlider value={intensity} onChange={setIntensity} />
       </div>
 
       <Button className={styles.button} disabled={!intensity} onClick={handleNext}>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { EmotionExpressionStep, EmotionIntensity } from '../../types/session';
 import { useSessionStore } from '../../stores/sessionStore';
 import { ASSETS } from '../../game/assets';
+import { toExpressionStep } from '../../utils/intensity';
 import { PATHS } from '../../constants/paths';
 import IntensitySlider from '../../components/IntensitySlider';
 import Button from '../../components/Button';
@@ -29,14 +30,8 @@ export default function ResultPage() {
   const [memo, setMemo] = useState(afterEmotionText);
   const prompt = useMemo(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)], []);
 
-  if (!intensityBefore) {
-    navigate(PATHS.home);
-
-    return null;
-  }
-
-  const expressionStep = intensity ? (Math.ceil(intensity / 2) as EmotionExpressionStep) : null;
-  const decreased = intensity !== null && intensity < intensityBefore;
+  const expressionStep = intensity ? toExpressionStep(intensity) : null;
+  const decreased = intensity !== null && intensityBefore !== null && intensity < intensityBefore;
 
   const handleDone = () => {
     if (!intensity) return;
@@ -116,7 +111,7 @@ export default function ResultPage() {
 
       <p className={styles.sliderLabel}>남아있는 감정의 무게는 얼마인가요?</p>
       <div className={styles.sliderWrap}>
-        <IntensitySlider value={intensity} onChange={(v) => setIntensity(v as EmotionIntensity)} />
+        <IntensitySlider value={intensity} onChange={setIntensity} />
       </div>
 
       <div className={styles.memoBox}>
