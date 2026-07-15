@@ -129,7 +129,7 @@
 .memoTextarea {
   background: transparent;
   border: none;
-  color: var(--color-gray-dark);
+  color: var(--color-gray-light);
   font-family: var(--font-pixel);
   font-size: 13px;
   line-height: 1.7;
@@ -137,10 +137,6 @@
   outline: none;
   width: 100%;
   flex: 1;
-}
-
-.memoTextarea:focus {
-  color: var(--color-gray-light);
 }
 
 .memoTextarea::placeholder {
