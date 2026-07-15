@@ -25,6 +25,12 @@
   gap: 0.75rem;
 }
 
+.textareaBox {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
 .textarea {
   flex: 1;
   background: transparent;
@@ -42,21 +48,46 @@
   color: var(--color-gray-mid);
 }
 
-.secretOverlay {
+.textareaMasked {
+  color: transparent;
+  caret-color: transparent;
+}
+
+.maskOverlay {
+  position: absolute;
+  inset: 0;
+  color: var(--color-white);
   font-family: var(--font-pixel);
   font-size: 14px;
   line-height: 1.9;
-  color: transparent;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.secretChar {
-  color: transparent;
-  text-decoration: underline;
-  text-decoration-color: var(--color-white);
-  text-underline-offset: 3px;
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--color-white);
+  vertical-align: text-bottom;
+  animation: caretBlink 1s step-end infinite;
+}
+
+@keyframes caretBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .textareaFooter {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { SyntheticEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '../../stores/sessionStore';
 import { PATHS } from '../../constants/paths';
@@ -13,8 +14,13 @@ export default function InputPage() {
 
   const [text, setText] = useState(emotionText);
   const [secretMode, setSecretMode] = useState(storedSecretMode);
+  const [caretIndex, setCaretIndex] = useState(emotionText.length);
 
   const navigate = useNavigate();
+
+  const syncCaret = (e: SyntheticEvent<HTMLTextAreaElement>) => {
+    setCaretIndex(e.currentTarget.selectionStart);
+  };
 
   const handleNext = () => {
     completeInput({ text: text.trim(), secretMode });
@@ -36,27 +42,33 @@ export default function InputPage() {
       <p className={styles.note}>비밀로 하고 싶으면, 시크릿 모드를 켜보세요.</p>
 
       <div className={styles.textareaWrapper}>
-        {secretMode ? (
-          <div className={styles.secretOverlay} aria-hidden="true">
-            {text.split('').map((c, i) =>
-              c === ' ' ? (
-                <span key={i}> </span>
-              ) : (
-                <span key={i} className={styles.secretChar}>
-                  {c}
-                </span>
-              ),
-            )}
-          </div>
-        ) : (
+        <div className={styles.textareaBox}>
           <textarea
-            className={`${styles.textarea}`}
+            className={`${styles.textarea}${secretMode ? ` ${styles.textareaMasked}` : ''}`}
             value={text}
-            onChange={(e) => setText(e.target.value.slice(0, MAX))}
+            onChange={(e) => {
+              setText(e.target.value.slice(0, MAX));
+              syncCaret(e);
+            }}
+            onSelect={syncCaret}
+            onClick={syncCaret}
+            onKeyUp={syncCaret}
             placeholder="머릿속에 맴도는 걸 그대로 적어요"
             aria-label="스트레스 내용 입력"
+            aria-describedby="secret-mode-status"
           />
-        )}
+          {secretMode && (
+            <div className={styles.maskOverlay} aria-hidden="true">
+              {text.slice(0, caretIndex).replace(/[^\s]/g, '■')}
+              <span className={styles.caret} />
+              {text.slice(caretIndex).replace(/[^\s]/g, '■')}
+            </div>
+          )}
+        </div>
+        <span id="secret-mode-status" className={styles.srOnly}>
+          {secretMode ? `시크릿 모드 켜짐. 입력 내용은 화면에 가려집니다. ` : ''}현재 {text.length}
+          자 입력됨.
+        </span>
         <div className={styles.textareaFooter}>
           <button
             type="button"
