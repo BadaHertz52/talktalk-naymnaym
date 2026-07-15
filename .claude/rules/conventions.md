@@ -58,6 +58,25 @@ src/components/
 
 ---
 
+## 유틸/훅/상수 스코프 규칙
+
+`_components`와 동일한 원리: **이 페이지·컴포넌트에서만 쓰면 스코프 폴더에, 2개 이상이 공유하면 최상위로 승격**한다.
+
+| 종류      | 전용 (스코프 폴더)                                                   | 공유 (최상위)     |
+| --------- | -------------------------------------------------------------------- | ----------------- |
+| 컴포넌트  | `pages/{Page}/_components/`                                          | `src/components/` |
+| 훅        | `pages/{Page}/_hooks/` 또는 `components/{Component}/_hooks/`         | `src/hooks/`      |
+| 유틸 함수 | `pages/{Page}/_utils/` 또는 `components/{Component}/_utils/`         | `src/utils/`      |
+| 상수      | `pages/{Page}/_constants/` 또는 `components/{Component}/_constants/` | `src/constants/`  |
+
+**폴더로 묶는 기준**
+
+- 같은 종류(훅/유틸/상수) 파일이 **2개 이상** 모였을 때만 `_hooks`/`_utils`/`_constants` 폴더로 묶는다
+- 파일이 1개뿐이면 폴더를 만들지 말고 페이지·컴포넌트 디렉터리에 바로 둔다 (예: `IntensitySlider/posToSegments.ts`)
+- 다른 페이지·컴포넌트에서도 필요해지면 스코프 폴더 → 최상위 폴더로 승격한다
+
+---
+
 ## 스타일 규칙
 
 ```css

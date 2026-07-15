@@ -21,6 +21,7 @@ src/
 ├── pages/            # 라우트 1:1 대응. 페이지 디렉터리 안에 전용 컴포넌트 포함
 ├── components/       # 2개 이상의 페이지가 공유하는 컴포넌트
 ├── hooks/            # 2개 이상의 페이지가 공유하는 커스텀 훅
+├── utils/            # 2개 이상의 페이지가 공유하는 유틸 함수
 ├── stores/           # Zustand 스토어
 ├── routes/           # 라우터 설정 + StepGuard
 ├── types/            # 공유 TypeScript 타입
