@@ -1,20 +1,5 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import type { useSessionStore as UseSessionStoreType } from './sessionStore';
-
-let useSessionStore: typeof UseSessionStoreType;
-
-beforeAll(async () => {
-  // ponytail: node에는 sessionStorage가 없음 — persist 하이드레이션용 최소 인메모리 스텁
-  (globalThis as unknown as { sessionStorage: Storage }).sessionStorage = {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {},
-    key: () => null,
-    length: 0,
-  } as Storage;
-  ({ useSessionStore } = await import('./sessionStore'));
-});
+import { describe, it, expect } from 'vitest';
+import { useSessionStore } from './sessionStore';
 
 function completeAllSteps() {
   useSessionStore.getState().completeInput({ text: 'hi', secretMode: false });

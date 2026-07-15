@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import type { EmotionIntensity, SessionSteps, Step } from '../types/session';
 
 // 단계 추가/삭제가 드물고 수동이므로 배열이면 충분 — config 객체 불필요
@@ -62,40 +61,32 @@ interface SessionStore {
   reset: () => void;
 }
 
-export const useSessionStore = create<SessionStore>()(
-  persist(
-    (set) => ({
-      steps: initialSteps,
-      completeInput: ({ text, secretMode }) =>
-        set((s) => ({
-          steps: applyStep({
-            steps: s.steps,
-            step: 'input',
-            data: { emotionText: text, secretMode },
-            compareKeys: { emotionText: text },
-          }),
-        })),
-      completeMeasure: (v) =>
-        set((s) => ({
-          steps: applyStep({ steps: s.steps, step: 'measure', data: { intensityBefore: v } }),
-        })),
-      completeGame: () =>
-        set((s) => ({
-          steps: applyStep({ steps: s.steps, step: 'game', data: {} }),
-        })),
-      completeResult: ({ intensityAfter, afterEmotionText }) =>
-        set((s) => ({
-          steps: applyStep({
-            steps: s.steps,
-            step: 'result',
-            data: { intensityAfter, afterEmotionText },
-          }),
-        })),
-      reset: () => set({ steps: initialSteps }),
-    }),
-    {
-      name: 'talktalk-naymnaym-session',
-      storage: createJSONStorage(() => sessionStorage),
-    },
-  ),
-);
+export const useSessionStore = create<SessionStore>()((set) => ({
+  steps: initialSteps,
+  completeInput: ({ text, secretMode }) =>
+    set((s) => ({
+      steps: applyStep({
+        steps: s.steps,
+        step: 'input',
+        data: { emotionText: text, secretMode },
+        compareKeys: { emotionText: text },
+      }),
+    })),
+  completeMeasure: (v) =>
+    set((s) => ({
+      steps: applyStep({ steps: s.steps, step: 'measure', data: { intensityBefore: v } }),
+    })),
+  completeGame: () =>
+    set((s) => ({
+      steps: applyStep({ steps: s.steps, step: 'game', data: {} }),
+    })),
+  completeResult: ({ intensityAfter, afterEmotionText }) =>
+    set((s) => ({
+      steps: applyStep({
+        steps: s.steps,
+        step: 'result',
+        data: { intensityAfter, afterEmotionText },
+      }),
+    })),
+  reset: () => set({ steps: initialSteps }),
+}));
