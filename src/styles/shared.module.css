@@ -8,8 +8,8 @@
   line-height: 1.4;
   margin: 0.625rem 0 0;
   text-shadow:
-    2px 2px 0 #555,
-    4px 4px 0 #222;
+    2px 2px 0 var(--shadow-dark-1),
+    4px 4px 0 var(--shadow-dark-2);
 }
 
 .sub {

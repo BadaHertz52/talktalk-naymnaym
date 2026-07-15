@@ -16,8 +16,8 @@
   margin: 0;
   letter-spacing: 1px;
   text-shadow:
-    2px 2px 0 #555,
-    4px 4px 0 #222;
+    2px 2px 0 var(--shadow-dark-1),
+    4px 4px 0 var(--shadow-dark-2);
 }
 
 .description {

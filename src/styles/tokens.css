@@ -22,4 +22,8 @@
 
   /* 타이포그래피 */
   --font-pixel: 'Galmuri14', 'Galmuri11', 'Courier New', monospace;
+
+  /* 그림자 */
+  --shadow-dark-1: #555;
+  --shadow-dark-2: #222;
 }
