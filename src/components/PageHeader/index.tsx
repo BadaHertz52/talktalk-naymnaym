@@ -20,7 +20,7 @@ export default function PageHeader() {
           ‹
         </button>
       )}
-      <Link to={PATHS.home} className={styles.brand}>
+      <Link to={PATHS.home} className={styles.brand} aria-label="톡톡냠냠 홈으로 이동">
         톡톡냠냠
       </Link>
     </div>
