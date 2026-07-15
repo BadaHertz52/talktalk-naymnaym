@@ -27,10 +27,18 @@ export const router = createBrowserRouter([
         children: [{ path: PATHS.game, element: <GamePage /> }],
       },
       {
-        element: <StepGuard requires="game" />,
-        children: [{ path: PATHS.result, element: <ResultPage /> }],
+        element: <StepGuard requires="measure" />,
+        children: [
+          {
+            element: <StepGuard requires="game" />,
+            children: [{ path: PATHS.result, element: <ResultPage /> }],
+          },
+        ],
       },
-      { path: PATHS.end, element: <EndPage /> },
+      {
+        element: <StepGuard requires="result" />,
+        children: [{ path: PATHS.end, element: <EndPage /> }],
+      },
     ],
   },
 ]);
