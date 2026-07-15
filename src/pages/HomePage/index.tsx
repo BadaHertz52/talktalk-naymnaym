@@ -9,7 +9,7 @@ import styles from './index.module.css';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const emotionText = useSessionStore((s) => s.emotionText);
+  const emotionText = useSessionStore((s) => s.steps.input.data.emotionText);
   const reset = useSessionStore((s) => s.reset);
 
   useEffect(() => {

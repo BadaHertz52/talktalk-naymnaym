@@ -8,12 +8,13 @@ import styles from './index.module.css';
 const MAX = 1000;
 
 export default function InputPage() {
-  const emotionText = useSessionStore((s) => s.emotionText);
-  const storedSecretMode = useSessionStore((s) => s.secretMode);
+  const { emotionText, secretMode: storedSecretMode } = useSessionStore((s) => s.steps.input.data);
+  const completeInput = useSessionStore((s) => s.completeInput);
+
   const [text, setText] = useState(emotionText);
   const [secretMode, setSecretMode] = useState(storedSecretMode);
+
   const navigate = useNavigate();
-  const completeInput = useSessionStore((s) => s.completeInput);
 
   const handleNext = () => {
     completeInput({ text: text.trim(), secretMode });
@@ -39,7 +40,7 @@ export default function InputPage() {
           <div className={styles.secretOverlay} aria-hidden="true">
             {text.split('').map((c, i) =>
               c === ' ' ? (
-                <span key={i}>{' '}</span>
+                <span key={i}> </span>
               ) : (
                 <span key={i} className={styles.secretChar}>
                   {c}

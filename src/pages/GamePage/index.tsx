@@ -8,7 +8,7 @@ import styles from './index.module.css';
 
 export default function GamePage() {
   const navigate = useNavigate();
-  const emotionText = useSessionStore((s) => s.emotionText);
+  const emotionText = useSessionStore((s) => s.steps.input.data.emotionText);
   const completeGame = useSessionStore((s) => s.completeGame);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -22,6 +22,7 @@ export default function GamePage() {
   // ponytail: 게임 로직(useGameCanvas) 미구현 상태에서 result 페이지 확인용 임시 타이머, 실제 게임 완료 콜백 연결 시 제거
   useEffect(() => {
     const timer = setTimeout(handleComplete, 1000);
+
     return () => clearTimeout(timer);
   }, [handleComplete]);
 

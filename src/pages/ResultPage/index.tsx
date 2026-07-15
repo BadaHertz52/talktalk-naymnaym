@@ -20,16 +20,18 @@ const STRIP_GROW = [52, 52, 52, 56, 66] as const;
 
 export default function ResultPage() {
   const navigate = useNavigate();
-  const intensityBefore = useSessionStore((s) => s.intensityBefore);
-  const intensityAfter = useSessionStore((s) => s.intensityAfter);
-  const afterEmotionText = useSessionStore((s) => s.afterEmotionText);
+
+  const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
+  const { intensityAfter, afterEmotionText } = useSessionStore((s) => s.steps.result.data);
   const completeResult = useSessionStore((s) => s.completeResult);
+
   const [intensity, setIntensity] = useState<EmotionIntensity | null>(intensityAfter);
   const [memo, setMemo] = useState(afterEmotionText);
   const prompt = useMemo(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)], []);
 
   if (!intensityBefore) {
     navigate(PATHS.home);
+
     return null;
   }
 
