@@ -69,31 +69,31 @@ describe('calculateErasedRatio', () => {
 
 describe('createCompletionTracker', () => {
   it('임계값 미도달 시 콜백이 호출되지 않는다', () => {
-    const onComplete = vi.fn();
-    const tracker = createCompletionTracker(onComplete, DEFAULT_SCRATCH_COMPLETE_THRESHOLD);
+    const enableNextStep = vi.fn();
+    const tracker = createCompletionTracker(enableNextStep, DEFAULT_SCRATCH_COMPLETE_THRESHOLD);
 
     tracker(0.5);
 
-    expect(onComplete).not.toHaveBeenCalled();
+    expect(enableNextStep).not.toHaveBeenCalled();
   });
 
   it('임계값 도달 시 완료 콜백이 1회 호출된다', () => {
-    const onComplete = vi.fn();
-    const tracker = createCompletionTracker(onComplete, DEFAULT_SCRATCH_COMPLETE_THRESHOLD);
+    const enableNextStep = vi.fn();
+    const tracker = createCompletionTracker(enableNextStep, DEFAULT_SCRATCH_COMPLETE_THRESHOLD);
 
     tracker(0.95);
 
-    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(enableNextStep).toHaveBeenCalledTimes(1);
   });
 
   it('도달 후 재호출해도 콜백이 다시 발생하지 않는다', () => {
-    const onComplete = vi.fn();
-    const tracker = createCompletionTracker(onComplete, DEFAULT_SCRATCH_COMPLETE_THRESHOLD);
+    const enableNextStep = vi.fn();
+    const tracker = createCompletionTracker(enableNextStep, DEFAULT_SCRATCH_COMPLETE_THRESHOLD);
 
     tracker(0.95);
     tracker(0.97);
     tracker(1);
 
-    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(enableNextStep).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,4 +1,4 @@
-import type { OnGameComplete, OnProgress } from '@/types/game';
+import type { OnProgress } from '@/types/game';
 
 export const DEFAULT_SCRATCH_COMPLETE_THRESHOLD = 0.8;
 
@@ -51,9 +51,9 @@ export function calculateErasedRatio({
   return erased / sampled;
 }
 
-// 임계값 도달 시 onComplete를 정확히 1회만 호출하는 상태머신
+// 임계값 도달 시 enableNextStep을 정확히 1회만 호출해 다음 단계로 넘어갈 수 있게 하는 상태머신
 export function createCompletionTracker(
-  onComplete: OnGameComplete,
+  enableNextStep: () => void,
   threshold: number = DEFAULT_SCRATCH_COMPLETE_THRESHOLD,
 ): (ratio: number) => void {
   let completed = false;
@@ -65,7 +65,7 @@ export function createCompletionTracker(
 
     if (ratio >= threshold) {
       completed = true;
-      onComplete();
+      enableNextStep();
     }
   };
 }

@@ -1,4 +1,4 @@
-import type { OnGameComplete, OnProgress, Position } from '@/types/game';
+import type { OnProgress, Position } from '@/types/game';
 import { drawScratchCover } from '@game/scratchCover';
 import { eraseStroke, getBrushRadius, clampToCanvas } from '@game/scratchEraser';
 import { reportScratchProgress, createCompletionTracker } from '@game/scratchProgress';
@@ -19,9 +19,10 @@ export interface CreateScratchControllerOptions {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   emotionText: string;
-  onComplete: OnGameComplete;
+  enableNextStep: () => void;
   onProgress: OnProgress;
   cursorRef: { current: Position | null };
+  onCursorMove: (pos: Position) => void;
 }
 
 export interface ScratchController {
@@ -37,13 +38,14 @@ export function createScratchController({
   canvas,
   ctx,
   emotionText,
-  onComplete,
+  enableNextStep,
   onProgress,
   cursorRef,
+  onCursorMove,
 }: CreateScratchControllerOptions): ScratchController {
   // 리사이즈/회전 시 갱신되는 최신 CSS 크기 — clampToCanvas/getBrushRadius/키보드 이동이 항상 이 값을 참조한다
   const size = { width: 0, height: 0 };
-  const completionTracker = createCompletionTracker(onComplete);
+  const completionTracker = createCompletionTracker(enableNextStep);
   let lastProgressAt = 0;
 
   const resize = () => {
@@ -82,6 +84,8 @@ export function createScratchController({
 
     eraseStroke({ ctx, from, to: pos, radius: getBrushRadius(size.width) });
     cursorRef.current = pos;
+    // 당근이 부드럽게 따라다니도록 진행률과 달리 스로틀 없이 매 이동마다 알린다
+    onCursorMove(pos);
     reportProgressThrottled();
   };
 

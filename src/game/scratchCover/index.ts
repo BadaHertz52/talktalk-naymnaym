@@ -13,6 +13,8 @@ const MIN_FONT_SIZE = 10;
 const LINE_HEIGHT_RATIO = 1.4;
 const MIN_LINE_HEIGHT_RATIO = 1.05;
 const HORIZONTAL_PADDING_RATIO = 0.08;
+// 텍스트 블록이 캔버스를 꽉 채우지 않도록 상한을 둔다 — 시각적 여백 확보용
+const TEXT_AREA_MAX_HEIGHT_RATIO = 0.8;
 
 export type MeasureText = (text: string, fontSize: number) => number;
 
@@ -190,7 +192,7 @@ export function drawScratchCover(
   ctx: CanvasRenderingContext2D,
   options: ScratchCoverOptions,
 ): void {
-  const { text, width, height } = options;
+  const { text, width, height, textOpacity = 0.2 } = options;
 
   ctx.imageSmoothingEnabled = false;
 
@@ -206,10 +208,11 @@ export function drawScratchCover(
     return ctx.measureText(measuredText).width;
   };
 
+  // 폰트 크기 산출은 80% 높이 제약으로 하되, 실제 배치는 전체 height 기준 중앙 정렬을 유지한다
   const { fontSize, lineHeightRatio, lines } = fitTextToCanvas({
     text,
     width,
-    height,
+    height: height * TEXT_AREA_MAX_HEIGHT_RATIO,
     measure,
   });
   const lineHeight = fontSize * lineHeightRatio;
@@ -222,7 +225,10 @@ export function drawScratchCover(
 
   const startY = (height - totalTextHeight) / 2 + lineHeight / 2;
 
+  ctx.save();
+  ctx.globalAlpha = textOpacity;
   lines.forEach((line, index) => {
     ctx.fillText(line, width / 2, startY + index * lineHeight);
   });
+  ctx.restore();
 }

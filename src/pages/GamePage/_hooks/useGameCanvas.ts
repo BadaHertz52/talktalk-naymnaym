@@ -1,17 +1,25 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import type { OnGameComplete, Position } from '@/types/game';
+import type { Position } from '@/types/game';
 import { createScratchController } from '@game/scratchController';
 
 interface UseGameCanvasResult {
   progress: number;
+  cursor: Position | null;
 }
 
-export function useGameCanvas(
-  canvasRef: RefObject<HTMLCanvasElement | null>,
-  emotionText: string,
-  onComplete: OnGameComplete,
-): UseGameCanvasResult {
+interface UseGameCanvasProps {
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  emotionText: string;
+  enableNextStep: () => void;
+}
+
+export function useGameCanvas({
+  canvasRef,
+  emotionText,
+  enableNextStep,
+}: UseGameCanvasProps): UseGameCanvasResult {
   const [progress, setProgress] = useState(0);
+  const [cursor, setCursor] = useState<Position | null>(null);
   const cursorRef = useRef<Position | null>(null);
 
   useEffect(() => {
@@ -31,9 +39,10 @@ export function useGameCanvas(
       canvas,
       ctx,
       emotionText,
-      onComplete,
+      enableNextStep,
       onProgress: setProgress,
       cursorRef,
+      onCursorMove: setCursor,
     });
 
     controller.resize();
@@ -55,7 +64,7 @@ export function useGameCanvas(
       canvas.removeEventListener('pointercancel', controller.handlePointerUp);
       canvas.removeEventListener('keydown', controller.handleKeyDown);
     };
-  }, [canvasRef, emotionText, onComplete]);
+  }, [canvasRef, emotionText, enableNextStep]);
 
-  return { progress };
+  return { progress, cursor };
 }
