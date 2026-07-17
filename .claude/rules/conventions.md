@@ -1,5 +1,23 @@
 # 코드 컨벤션
 
+##  원칙
+
+#### Co-location  + Index Convention  + Folder-based Module 규칙 적용 
+
+함수/컴포넌트/훅에 테스트 파일(`.test.ts(x)`)이나 스타일(`.module.css`)이 딸려 있다면, 별도의 `__tests__/`, `styles/` 폴더로 분리하지 않고 **대상 파일과 같은 디렉터리에 함께 둔다.**
+
+```
+IntensitySlider/
+├── index.tsx
+├── index.test.tsx
+├── index.module.css
+└── posToSegments.ts
+```
+
+`pages/`, `components/`, `hooks/`, `utils/` 등 이 문서의 모든 스코프 규칙(전용 vs 공유 배치)에 공통 적용된다.
+
+---
+
 ## pages/ 컨벤션
 
 라우트와 1:1 대응. 페이지마다 **전용 디렉터리**를 만들고, 그 페이지에서만 쓰는 컴포넌트·스타일을 안에 둔다.
@@ -23,10 +41,12 @@ src/pages/
 
 **배치 판단 기준**
 
-| 컴포넌트 사용 범위     | 위치                                            |
-| ---------------------- | ----------------------------------------------- |
+
+| 컴포넌트 사용 범위    | 위치                                              |
+| ------------- | ----------------------------------------------- |
 | 이 페이지에서만 사용   | `pages/{PageName}/_components/{ComponentName}/` |
 | 2개 이상 페이지가 공유 | `src/components/{ComponentName}/`               |
+
 
 **규칙**
 
@@ -45,6 +65,7 @@ src/pages/
 src/components/
 └── IntensitySlider/          ← MeasurePage + ResultPage 공유
     ├── index.tsx
+    ├── index.test.ts
     └── index.module.css
 ```
 
@@ -62,12 +83,14 @@ src/components/
 
 `_components`와 동일한 원리: **이 페이지·컴포넌트에서만 쓰면 스코프 폴더에, 2개 이상이 공유하면 최상위로 승격**한다.
 
-| 종류      | 전용 (스코프 폴더)                                                   | 공유 (최상위)     |
-| --------- | -------------------------------------------------------------------- | ----------------- |
-| 컴포넌트  | `pages/{Page}/_components/`                                          | `src/components/` |
-| 훅        | `pages/{Page}/_hooks/` 또는 `components/{Component}/_hooks/`         | `src/hooks/`      |
+
+| 종류    | 전용 (스코프 폴더)                                                        | 공유 (최상위)          |
+| ----- | ------------------------------------------------------------------ | ----------------- |
+| 컴포넌트  | `pages/{Page}/_components/`                                        | `src/components/` |
+| 훅     | `pages/{Page}/_hooks/` 또는 `components/{Component}/_hooks/`         | `src/hooks/`      |
 | 유틸 함수 | `pages/{Page}/_utils/` 또는 `components/{Component}/_utils/`         | `src/utils/`      |
-| 상수      | `pages/{Page}/_constants/` 또는 `components/{Component}/_constants/` | `src/constants/`  |
+| 상수    | `pages/{Page}/_constants/` 또는 `components/{Component}/_constants/` | `src/constants/`  |
+
 
 **폴더로 묶는 기준**
 
@@ -90,15 +113,17 @@ color: #e08a3e;
 
 **토큰 위치**: `src/styles/tokens.css`
 
-| 변수                              | 용도                      |
-| --------------------------------- | ------------------------- |
-| `--color-primary`                 | CTA, 강조 (#e08a3e)       |
-| `--color-surface`                 | 카드 배경 (#1a1a1a)       |
-| `--color-black`                   | 앱 배경 (#000)            |
-| `--color-white`                   | 기본 텍스트               |
-| `--color-gray-light/mid/dark`     | 보조 텍스트, 비활성       |
-| `--intensity-1` ~ `--intensity-5` | 감정 강도별 색상          |
+
+| 변수                                | 용도                  |
+| --------------------------------- | ------------------- |
+| `--color-primary`                 | CTA, 강조 (#e08a3e)   |
+| `--color-surface`                 | 카드 배경 (#1a1a1a)     |
+| `--color-black`                   | 앱 배경 (#000)         |
+| `--color-white`                   | 기본 텍스트              |
+| `--color-gray-light/mid/dark`     | 보조 텍스트, 비활성         |
+| `--intensity-1` ~ `--intensity-5` | 감정 강도별 색상           |
 | `--font-pixel`                    | Galmuri14, 픽셀 아트 폰트 |
+
 
 **CTA 버튼**: `src/components/Button` — CTA 버튼 공통 스타일. 새 버튼 스타일 추가 전에 이 컴포넌트로 커버 가능한지 먼저 확인.
 
@@ -135,3 +160,4 @@ import * as React from 'react';
 
 - 라이브러리에서 필요한 심볼만 named import로 가져온다
 - 타입은 반드시 `import type`으로 분리 — 런타임 번들에서 완전히 제거됨
+
