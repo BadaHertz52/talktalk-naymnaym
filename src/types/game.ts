@@ -5,21 +5,17 @@ export interface Position {
   y: number;
 }
 
-// 굴러가는 당근 상태
-export interface CarrotState {
-  position: Position;
-  rotation: number;
-  targetChunkId: string | null;
-}
-
-export interface EmotionChunk {
-  id: string;
-  text: string;
-  position: Position;
-  eaten: boolean;
-}
-
 export type OnGameComplete = () => void;
+
+// 스크래치 커버 설정 (감정 텍스트 레이어)
+export interface ScratchCoverOptions {
+  text: string;
+  width: number;
+  height: number;
+}
+
+// 지워진 비율(0~1) 변경 콜백 — 진행률 바 갱신용
+export type OnProgress = (ratio: number) => void;
 
 export interface GameAssets {
   bunny: {
