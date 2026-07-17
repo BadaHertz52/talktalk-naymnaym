@@ -115,7 +115,7 @@ reviews:
         - 마우스 드래그와 터치 드래그 모두 동작해야 한다.
         - 프로그레스 바 단계 영역 클릭 시 해당 단계 값으로 즉시 설정되어야 한다.
 
-        EmotionIntensity 타입(1|2|3|4) 범위 밖의 값이 설정될 수 없도록 경계를 확인한다.
+        src/types/session.ts에 정의된 EmotionIntensity 유니온 범위 밖의 값이 설정될 수 없도록 경계를 확인한다.
         MeasurePage와 ResultPage에서 재사용되므로 내부 상태를 외부 props로 제어할 수 있는 구조인지 확인한다.
 
     # ── 페이지 컴포넌트 ───────────────────────────────────────────────────────
@@ -144,8 +144,9 @@ reviews:
     # ── 타입 정의 ─────────────────────────────────────────────────────────────
     - path: 'src/types/**'
       instructions: |
-        EmotionIntensity는 1|2|3|4 유니온 타입이어야 한다 (number 아님).
-        Step은 'input'|'measure'|'game'|'result' 유니온이어야 한다.
+        EmotionIntensity, EmotionExpressionStep, Step은 number나 string이 아닌 리터럴 유니온 타입으로 유지되어야 한다.
+        이 유니온의 실제 구성원(허용 값 목록)은 코드가 아닌 이 설정 파일에 값을 하드코딩하지 말고,
+        반드시 src/types/session.ts의 현재 정의를 기준으로 판단한다.
         src/types/game.ts의 Position / BunnyState / EmotionChunk / OnGameComplete 타입이
         실제 게임 구현(src/game/**)과 일치하는지 확인한다.
 

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { EmotionIntensity, SessionSteps, Step } from '../types/session';
+import type { EmotionIntensity, SessionSteps, Step } from '@/types/session';
 
 // 단계 추가/삭제가 드물고 수동이므로 배열이면 충분 — config 객체 불필요
 const STEP_ORDER: readonly Step[] = ['input', 'measure', 'game', 'result'];
