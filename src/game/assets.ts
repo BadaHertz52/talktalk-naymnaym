@@ -5,7 +5,7 @@ export const ASSETS: GameAssets = {
     idle: '/assets/bunny-idle.webp',
     eating: '/assets/bunny-eating.webp',
     cart: '/assets/bunny-cart.webp',
-    intensity: {
+    expression: {
       1: '/assets/bunny-intensity-1.webp',
       2: '/assets/bunny-intensity-2.webp',
       3: '/assets/bunny-intensity-3.webp',

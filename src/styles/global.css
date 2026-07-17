@@ -7,4 +7,19 @@ body {
   color: var(--color-white);
   font-family: var(--font-pixel);
   -webkit-font-smoothing: antialiased;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* CSS Modules는 @keyframes를 파일별로 스코프하므로, 여러 컴포넌트/페이지가
+   공유하는 bob 애니메이션은 전역 스타일시트에 단일 정의로 둔다. */
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }

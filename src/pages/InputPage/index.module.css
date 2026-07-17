@@ -1,0 +1,159 @@
+.heading {
+  composes: heading from '../../styles/shared.module.css';
+}
+
+.sub {
+  composes: sub from '../../styles/shared.module.css';
+}
+
+.note {
+  font-size: 11px;
+  color: var(--color-gray-light);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.textareaWrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--color-white);
+  border-radius: 14px;
+  padding: 1.125rem 1rem;
+  min-height: 200px;
+  gap: 0.75rem;
+}
+
+.textareaBox {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
+.textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-white);
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  padding: 0;
+  resize: none;
+  line-height: 1.9;
+  outline: none;
+}
+
+.textarea::placeholder {
+  color: var(--color-gray-mid);
+}
+
+.textareaMasked {
+  color: transparent;
+  caret-color: transparent;
+}
+
+.maskOverlay {
+  position: absolute;
+  inset: 0;
+  color: var(--color-white);
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.caret {
+  position: relative;
+  display: inline-block;
+  width: 0;
+}
+
+.caret::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2px;
+  height: 1em;
+  background: var(--color-white);
+  animation: caretBlink 1s step-end infinite;
+}
+
+@keyframes caretBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.textareaFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: auto;
+}
+
+.secretToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1.5px solid var(--color-gray-dark);
+  border-radius: 999px;
+  padding: 5px 9px;
+  cursor: pointer;
+  color: var(--color-gray-mid);
+}
+
+.secretToggleOn {
+  border-color: var(--color-gray-light);
+  color: var(--color-gray-light);
+}
+
+.togglePill {
+  display: inline-block;
+  width: 22px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--color-gray-dark);
+  position: relative;
+  transition: background 0.15s;
+}
+
+.secretToggleOn .togglePill {
+  background: var(--color-gray-mid);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 1.5px;
+  left: 1.5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-gray-mid);
+  transition:
+    left 0.15s,
+    background 0.15s;
+}
+
+.secretToggleOn .toggleKnob {
+  left: calc(100% - 10.5px);
+  background: var(--color-white);
+}
+
+.button {
+  width: 100%;
+}

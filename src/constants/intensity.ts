@@ -1,6 +1,6 @@
-import type { EmotionIntensity, WeatherIcon } from '../types/session';
+import type { EmotionExpressionStep, WeatherIcon } from '../types/session';
 
-export const INTENSITY_WEATHER: Record<EmotionIntensity, WeatherIcon> = {
+export const EXPRESSION_WEATHER: Record<EmotionExpressionStep, WeatherIcon> = {
   1: 'sun',
   2: 'partlyCloudy',
   3: 'cloudy',

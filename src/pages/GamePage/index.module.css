@@ -1,0 +1,37 @@
+.heading {
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  color: var(--color-white);
+  margin: 0.375rem 0 0;
+  letter-spacing: 1px;
+}
+
+.sub {
+  composes: sub from '../../styles/shared.module.css';
+}
+
+.canvas {
+  display: block;
+  flex: 1;
+  width: 100%;
+  min-height: 260px;
+  background: var(--color-black);
+  border: 2px solid var(--color-white);
+  border-radius: 14px;
+}
+
+.eatingBox {
+  border: 2px solid var(--color-white);
+  border-radius: 14px;
+  padding: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eatingImg {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
