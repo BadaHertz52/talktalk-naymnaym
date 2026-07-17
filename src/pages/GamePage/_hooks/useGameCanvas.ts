@@ -1,9 +1,61 @@
-import type { RefObject } from 'react';
-import type { OnGameComplete } from '@/types/game';
+import { useEffect, useRef, useState, type RefObject } from 'react';
+import type { OnGameComplete, Position } from '@/types/game';
+import { createScratchController } from '@game/scratchController';
 
-// ponytail: body empty — full impl in Phase 3 issue #12
+interface UseGameCanvasResult {
+  progress: number;
+}
+
 export function useGameCanvas(
-  _canvasRef: RefObject<HTMLCanvasElement | null>,
-  _emotionText: string,
-  _onComplete: OnGameComplete,
-): void {}
+  canvasRef: RefObject<HTMLCanvasElement | null>,
+  emotionText: string,
+  onComplete: OnGameComplete,
+): UseGameCanvasResult {
+  const [progress, setProgress] = useState(0);
+  const cursorRef = useRef<Position | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      return;
+    }
+
+    const controller = createScratchController({
+      canvas,
+      ctx,
+      emotionText,
+      onComplete,
+      onProgress: setProgress,
+      cursorRef,
+    });
+
+    controller.resize();
+
+    const resizeObserver = new ResizeObserver(controller.resize);
+    resizeObserver.observe(canvas);
+
+    canvas.addEventListener('pointerdown', controller.handlePointerDown);
+    canvas.addEventListener('pointermove', controller.handlePointerMove);
+    canvas.addEventListener('pointerup', controller.handlePointerUp);
+    canvas.addEventListener('pointercancel', controller.handlePointerUp);
+    canvas.addEventListener('keydown', controller.handleKeyDown);
+
+    return () => {
+      resizeObserver.disconnect();
+      canvas.removeEventListener('pointerdown', controller.handlePointerDown);
+      canvas.removeEventListener('pointermove', controller.handlePointerMove);
+      canvas.removeEventListener('pointerup', controller.handlePointerUp);
+      canvas.removeEventListener('pointercancel', controller.handlePointerUp);
+      canvas.removeEventListener('keydown', controller.handleKeyDown);
+    };
+  }, [canvasRef, emotionText, onComplete]);
+
+  return { progress };
+}

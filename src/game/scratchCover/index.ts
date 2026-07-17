@@ -91,7 +91,7 @@ interface TruncateToHeightOptions {
   height: number;
 }
 
-// height 안에 들어가는 줄 수까지만 자르고 마지막 표시 줄 끝에 ELLIPSIS를 붙인다
+/*height 안에 들어가는 줄 수까지만 자르고 마지막 표시 줄 끝에 ELLIPSIS를 붙이는 함수 */
 function truncateToHeight({
   lines,
   fontSize,

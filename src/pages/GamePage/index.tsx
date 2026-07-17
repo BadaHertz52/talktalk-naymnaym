@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { useGameCanvas } from './_hooks/useGameCanvas';
@@ -17,23 +17,20 @@ export default function GamePage() {
     navigate(PATHS.result);
   }, [completeGame, navigate]);
 
-  useGameCanvas(canvasRef, emotionText, handleComplete);
-
-  // ponytail: 게임 로직(useGameCanvas) 미구현 상태에서 result 페이지 확인용 임시 타이머, 실제 게임 완료 콜백 연결 시 제거
-  useEffect(() => {
-    const timer = setTimeout(handleComplete, 1000);
-
-    return () => clearTimeout(timer);
-  }, [handleComplete]);
+  const { progress } = useGameCanvas(canvasRef, emotionText, handleComplete);
 
   return (
     <>
       <h1 className={styles.heading}>냠냠… 없애는 중</h1>
-      <p className={styles.sub}>토끼가 당근을 굴려서, 지나간 자리의 글자가 사라져요.</p>
-      <canvas ref={canvasRef} className={styles.canvas} />
-      <div className={styles.eatingBox}>
+      <p className={styles.sub}>당근을 움직여 글자를 지우보세요.</p>
+      <div className={styles.field}>
         <img src={ASSETS.bunny.eating} alt="당근을 먹는 토끼" className={styles.eatingImg} />
+        <canvas ref={canvasRef} tabIndex={0} className={styles.canvas} />
+        <img src={ASSETS.carrot.full} alt="" aria-hidden="true" className={styles.carrotImg} />
       </div>
+      <p className={styles.progress} aria-live="polite">
+        사라지는 중 {Math.round(progress * 100)}%
+      </p>
     </>
   );
 }

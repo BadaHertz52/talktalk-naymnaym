@@ -15,8 +15,10 @@ interface ClampToCanvasOptions {
   width: number;
   height: number;
 }
-// 책임 소재: 이 함수는 eraseStroke 등 엔진 내부에서 자동 호출되지 않는다.
-// 좌표 클램프를 엔진이 책임질지 호출자(#12 useGameCanvas)가 책임질지는 #12 통합 단계에서 확정한다.
+
+/**
+ * 위치를 캔버스 경계 내로 클램프한다.
+ */
 export function clampToCanvas({ pos, width, height }: ClampToCanvasOptions): Position {
   return {
     x: Math.min(Math.max(pos.x, 0), width),
