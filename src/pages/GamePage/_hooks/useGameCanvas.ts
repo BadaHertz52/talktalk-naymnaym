@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import type { OnGameComplete } from '../../../types/game';
+import type { OnGameComplete } from '@/types/game';
 
 // ponytail: body empty — full impl in Phase 3 issue #12
 export function useGameCanvas(

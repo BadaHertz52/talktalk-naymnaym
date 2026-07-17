@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { router } from './routes/router';
-import { useSessionStore } from './stores/sessionStore';
+import { router } from '@/routes/router';
+import { useSessionStore } from '@stores/sessionStore';
 
 export default function App() {
   const hasUnsavedEmotionText = useSessionStore((s) =>

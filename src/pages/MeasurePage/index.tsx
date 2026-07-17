@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { EmotionExpressionStep, EmotionIntensity } from '../../types/session';
-import { useSessionStore } from '../../stores/sessionStore';
-import { ASSETS } from '../../game/assets';
-import { EXPRESSION_WEATHER } from '../../constants/intensity';
-import { toExpressionStep } from '../../utils/intensity';
-import { PATHS } from '../../constants/paths';
-import IntensitySlider from '../../components/IntensitySlider';
-import Button from '../../components/Button';
+import type { EmotionExpressionStep, EmotionIntensity } from '@/types/session';
+import { useSessionStore } from '@stores/sessionStore';
+import { ASSETS } from '@game/assets';
+import { EXPRESSION_WEATHER } from '@constants/intensity';
+import { toExpressionStep } from '@utils/intensity';
+import { PATHS } from '@constants/paths';
+import IntensitySlider from '@components/IntensitySlider';
+import Button from '@components/Button';
 import styles from './index.module.css';
 
 const WEATHER_LABEL: Record<EmotionExpressionStep, string> = {

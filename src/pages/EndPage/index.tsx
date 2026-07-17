@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { useSessionStore } from '../../stores/sessionStore';
-import { ASSETS } from '../../game/assets';
-import { PATHS } from '../../constants/paths';
-import Button from '../../components/Button';
-import Mascot from '../../components/Mascot';
+import { useSessionStore } from '@stores/sessionStore';
+import { ASSETS } from '@game/assets';
+import { PATHS } from '@constants/paths';
+import Button from '@components/Button';
+import Mascot from '@components/Mascot';
 import styles from './index.module.css';
 
 export default function EndPage() {

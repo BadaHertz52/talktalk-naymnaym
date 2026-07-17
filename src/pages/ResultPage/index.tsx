@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { EmotionExpressionStep, EmotionIntensity } from '../../types/session';
-import { useSessionStore } from '../../stores/sessionStore';
-import { ASSETS } from '../../game/assets';
-import { toExpressionStep } from '../../utils/intensity';
-import { PATHS } from '../../constants/paths';
-import IntensitySlider from '../../components/IntensitySlider';
-import Button from '../../components/Button';
+import type { EmotionExpressionStep, EmotionIntensity } from '@/types/session';
+import { useSessionStore } from '@stores/sessionStore';
+import { ASSETS } from '@game/assets';
+import { toExpressionStep } from '@utils/intensity';
+import { PATHS } from '@constants/paths';
+import IntensitySlider from '@components/IntensitySlider';
+import Button from '@components/Button';
 import ArrowIcon from './_components/ArrowIcon';
 import styles from './index.module.css';
 

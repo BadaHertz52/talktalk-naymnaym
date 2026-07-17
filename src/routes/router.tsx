@@ -1,13 +1,13 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { StepGuard } from './StepGuard';
-import PageLayout from '../components/PageLayout';
-import { PATHS } from '../constants/paths';
-import HomePage from '../pages/HomePage';
-import InputPage from '../pages/InputPage';
-import MeasurePage from '../pages/MeasurePage';
-import GamePage from '../pages/GamePage';
-import ResultPage from '../pages/ResultPage';
-import EndPage from '../pages/EndPage';
+import PageLayout from '@components/PageLayout';
+import { PATHS } from '@constants/paths';
+import HomePage from '@pages/HomePage';
+import InputPage from '@pages/InputPage';
+import MeasurePage from '@pages/MeasurePage';
+import GamePage from '@pages/GamePage';
+import ResultPage from '@pages/ResultPage';
+import EndPage from '@pages/EndPage';
 
 export const router = createBrowserRouter([
   {

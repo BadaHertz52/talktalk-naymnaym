@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSessionStore } from '../../stores/sessionStore';
-import { PATHS } from '../../constants/paths';
-import Button from '../../components/Button';
+import { useSessionStore } from '@stores/sessionStore';
+import { PATHS } from '@constants/paths';
+import Button from '@components/Button';
 import styles from './index.module.css';
 
 const MAX = 1000;
