@@ -24,10 +24,8 @@ export default function GamePage() {
     navigate(PATHS.result);
   }, [completeGame, navigate]);
 
-  // 완료/커서 레이어 이미지가 처음 필요해지는 시점(스크래치 시작 직후)에 지연 없이 뜨도록 미리 로드
   useEffect(() => {
     new Image().src = ASSETS.bunny.eating;
-    new Image().src = ASSETS.carrot.full;
   }, []);
 
   // 시크릿 모드에서는 캔버스 커버에도 원문이 그려지지 않도록 마스킹 후 전달 (InputPage와 동일한 마스킹 문자)
