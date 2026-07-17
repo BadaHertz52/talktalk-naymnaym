@@ -1,6 +1,6 @@
 import type { OnProgress } from '@/types/game';
 
-export const DEFAULT_SCRATCH_COMPLETE_THRESHOLD = 0.8;
+export const DEFAULT_SCRATCH_COMPLETE_THRESHOLD = 0.7;
 
 // 진행률 계산용 격자 샘플링 간격(px)
 const SAMPLE_GRID_STEP = 16;
