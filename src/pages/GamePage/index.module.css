@@ -10,28 +10,62 @@
   composes: sub from '../../styles/shared.module.css';
 }
 
-.canvas {
-  display: block;
+.field {
+  position: relative;
   flex: 1;
   width: 100%;
   min-height: 260px;
-  background: var(--color-black);
   border: 2px solid var(--color-white);
   border-radius: 14px;
+  overflow: hidden;
+  touch-action: none;
 }
 
-.eatingBox {
-  border: 2px solid var(--color-white);
-  border-radius: 14px;
-  padding: 0.625rem;
+.eatingImgWrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  background: var(--color-black);
 }
 
 .eatingImg {
-  width: 120px;
-  height: 120px;
+  width: 80%;
+  height: auto;
   object-fit: contain;
   image-rendering: pixelated;
+
+  opacity: 0.8;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.carrotImg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.progress {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  color: var(--color-gray-light);
+  text-align: center;
+  margin: 0.5rem 0 0;
 }
