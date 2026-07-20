@@ -206,7 +206,7 @@ describe('router의 StepGuard 배선', () => {
       expect(await screen.findByTestId('home-page')).toBeTruthy();
     });
 
-    it('정의되지 않은 경로 접근 시 NotFoundPage가 렌더된다', async () => {
+    it('정의되지 않은 경로 접근 시 /not-found로 리다이렉트되어 NotFoundPage가 렌더된다', async () => {
       renderAt('/unknown');
 
       expect(await screen.findByRole('heading', { name: '404' })).toBeTruthy();
@@ -217,6 +217,13 @@ describe('router의 StepGuard 배선', () => {
       expect(screen.queryByTestId('game-page')).toBeNull();
       expect(screen.queryByTestId('result-page')).toBeNull();
       expect(screen.queryByTestId('end-page')).toBeNull();
+    });
+
+    it('/not-found에 직접 접근해도 NotFoundPage가 렌더된다', async () => {
+      renderAt(PATHS.notFound);
+
+      expect(await screen.findByRole('heading', { name: '404' })).toBeTruthy();
+      expect(screen.getByRole('heading', { name: '페이지를 찾을 수 없어요.' })).toBeTruthy();
     });
 
     it('NotFoundPage에서 홈으로 돌아가기를 클릭하면 /로 이동하고 세션 상태는 변경되지 않는다', async () => {
@@ -231,4 +238,33 @@ describe('router의 StepGuard 배선', () => {
       expect(useSessionStore.getState().steps.result.completed).toBe(true);
     });
   });
+
+  describe('ErrorPage', () => {
+    it('렌더링 중 실제 에러를 던지는 라우트에 접근하면 ErrorPage의 일반 에러 UI가 렌더된다', async () => {
+      const originalError = console.error;
+      console.error = vi.fn();
+
+      const memoryRouter = createMemoryRouter(
+        [
+          ...router.routes,
+          {
+            path: '/boom',
+            element: <ThrowingComponent />,
+            errorElement: router.routes[0]?.errorElement,
+          },
+        ],
+        { initialEntries: ['/boom'] },
+      );
+      render(<RouterProvider router={memoryRouter} />);
+
+      expect(await screen.findByRole('heading', { name: '문제가 발생했어요' })).toBeTruthy();
+      expect(screen.queryByRole('heading', { name: '404' })).toBeNull();
+
+      console.error = originalError;
+    });
+  });
 });
+
+function ThrowingComponent(): never {
+  throw new Error('테스트용 렌더링 에러');
+}

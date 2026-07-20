@@ -5,4 +5,5 @@ export const PATHS = {
   game: '/game',
   result: '/result',
   end: '/end',
+  notFound: '/not-found',
 } as const;

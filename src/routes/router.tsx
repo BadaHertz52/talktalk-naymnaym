@@ -9,11 +9,13 @@ import GamePage from '@pages/GamePage';
 import ResultPage from '@pages/ResultPage';
 import EndPage from '@pages/EndPage';
 import NotFoundPage from '@pages/NotFoundPage';
+import ErrorPage from '@pages/ErrorPage';
 
 export const router = createBrowserRouter([
   {
-    errorElement: <NotFoundPage />,
+    errorElement: <ErrorPage />,
     children: [
+      { path: PATHS.notFound, element: <NotFoundPage /> },
       {
         element: <PageLayout />,
         children: [{ path: PATHS.home, element: <HomePage /> }],

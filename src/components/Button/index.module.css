@@ -27,3 +27,13 @@
   outline: 2px solid var(--color-primary-light);
   outline-offset: 2px;
 }
+
+.outline {
+  background: var(--color-black);
+  color: var(--color-white);
+  box-shadow: 4px 4px 0 var(--shadow-dark-2);
+}
+
+.outline:not(:disabled):hover {
+  background: var(--color-surface);
+}
