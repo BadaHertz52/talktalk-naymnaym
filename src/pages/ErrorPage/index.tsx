@@ -11,6 +11,10 @@ export default function ErrorPage() {
   if (isRouteErrorResponse(error) && error.status === 404) {
     return <Navigate to={PATHS.notFound} replace />;
   }
+  
+  if('message' in error){
+    console.error('[에러]:',error.message)
+  }
 
   // 이 앱은 loader/action 기반 데이터 패칭이 없어 "다시 시도"가 곧 새로고침과 동치다.
   // 나중에 데이터 패칭 레이어가 생기면 useRevalidator() 등으로 재검토할 것.
