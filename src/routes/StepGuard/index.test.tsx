@@ -6,8 +6,8 @@ import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
 
 // 각 페이지는 GamePage(Canvas/ResizeObserver)·HomePage(마운트 시 reset 부작용) 등
-// jsdom·테스트 흐름과 충돌하는 내부 구현을 갖고 있다. router.tsx의 실제 라우트 배선(StepGuard 중첩 구조)만
-// 검증 대상이므로 페이지 컴포넌트는 testid만 렌더하는 스텁으로 교체한다.
+// jsdom·테스트 흐름과 충돌하는 내부 구현을 갖고 있다. router.tsx의 실제 라우트 배선(단일 StepGuard가
+// requires 배열로 여러 단계를 한번에 확인하는 구조)만 검증 대상이므로 페이지 컴포넌트는 testid만 렌더하는 스텁으로 교체한다.
 // NotFoundPage는 그런 충돌이 없으므로 실제 컴포넌트를 그대로 렌더해 텍스트·버튼 동작까지 검증한다.
 vi.mock('@pages/HomePage', () => ({ default: () => <div data-testid="home-page" /> }));
 vi.mock('@pages/InputPage', () => ({ default: () => <div data-testid="input-page" /> }));
@@ -70,7 +70,7 @@ describe('router의 StepGuard 배선', () => {
       expect(await screen.findByTestId('home-page')).toBeTruthy();
     });
 
-    it('measure 미완료 상태로 /result에 접근하면 첫 번째 가드에서 홈으로 리다이렉트된다', async () => {
+    it('measure 미완료 상태로 /result에 접근하면 requires 배열 중 measure 조건에 걸려 홈으로 리다이렉트된다', async () => {
       completeUpTo('input');
 
       renderAt(PATHS.result);
@@ -78,7 +78,7 @@ describe('router의 StepGuard 배선', () => {
       expect(await screen.findByTestId('home-page')).toBeTruthy();
     });
 
-    it('measure는 완료했지만 game 미완료 상태로 /result에 접근하면 두 번째 가드에서 홈으로 리다이렉트된다', async () => {
+    it('measure는 완료했지만 game 미완료 상태로 /result에 접근하면 requires 배열 중 game 조건에 걸려 홈으로 리다이렉트된다', async () => {
       completeUpTo('measure');
 
       renderAt(PATHS.result);
