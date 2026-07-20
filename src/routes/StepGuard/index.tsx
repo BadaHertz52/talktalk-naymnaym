@@ -3,8 +3,7 @@ import { useSessionStore } from '@stores/sessionStore';
 import type { Step } from '@/types/session';
 
 export function StepGuard({ requires }: { requires: Step[] }) {
-  const steps = useSessionStore((s) => s.steps);
-  const done = requires.every((step) => steps[step].completed);
+  const done = useSessionStore((s) => requires.every((step) => s.steps[step].completed));
 
   return done ? <Outlet /> : <Navigate to="/" replace />;
 }
