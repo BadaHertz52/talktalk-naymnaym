@@ -4,22 +4,22 @@ import { createScratchController } from '@game/scratchController';
 
 interface UseGameCanvasResult {
   progress: number;
-  cursor: Position | null;
 }
 
 interface UseGameCanvasProps {
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  carrotRef: RefObject<HTMLImageElement | null>;
   emotionText: string;
   enableNextStep: () => void;
 }
 
 export function useGameCanvas({
   canvasRef,
+  carrotRef,
   emotionText,
   enableNextStep,
 }: UseGameCanvasProps): UseGameCanvasResult {
   const [progress, setProgress] = useState(0);
-  const [cursor, setCursor] = useState<Position | null>(null);
   const cursorRef = useRef<Position | null>(null);
 
   useEffect(() => {
@@ -42,7 +42,16 @@ export function useGameCanvas({
       enableNextStep,
       onProgress: setProgress,
       cursorRef,
-      onCursorMove: setCursor,
+      onCursorMove: (pos) => {
+        const carrot = carrotRef.current;
+
+        if (!carrot) {
+          return;
+        }
+
+        carrot.style.left = `${pos.x}px`;
+        carrot.style.top = `${pos.y}px`;
+      },
     });
 
     controller.resize();
@@ -64,7 +73,7 @@ export function useGameCanvas({
       canvas.removeEventListener('pointercancel', controller.handlePointerUp);
       canvas.removeEventListener('keydown', controller.handleKeyDown);
     };
-  }, [canvasRef, emotionText, enableNextStep]);
+  }, [canvasRef, carrotRef, emotionText, enableNextStep]);
 
-  return { progress, cursor };
+  return { progress };
 }

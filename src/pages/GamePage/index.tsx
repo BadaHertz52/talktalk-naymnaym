@@ -12,6 +12,7 @@ export default function GamePage() {
   const { emotionText, secretMode } = useSessionStore((s) => s.steps.input.data);
   const completeGame = useSessionStore((s) => s.completeGame);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const carrotRef = useRef<HTMLImageElement>(null);
 
   const [activeNextButton, setActiveNextButton] = useState(false);
 
@@ -30,8 +31,9 @@ export default function GamePage() {
 
   // 시크릿 모드에서는 캔버스 커버에도 원문이 그려지지 않도록 마스킹 후 전달 (InputPage와 동일한 마스킹 문자)
   const coverText = secretMode ? emotionText.replace(/[^\s]/g, '■') : emotionText;
-  const { progress, cursor } = useGameCanvas({
+  const { progress } = useGameCanvas({
     canvasRef,
+    carrotRef,
     emotionText: coverText,
     enableNextStep,
   });
@@ -44,13 +46,18 @@ export default function GamePage() {
         <div className={styles.eatingImgWrapper}>
           <img src={ASSETS.bunny.eating} alt="당근을 먹는 토끼" className={styles.eatingImg} />
         </div>
-        <canvas ref={canvasRef} tabIndex={0} className={styles.canvas} />
+        <canvas
+          ref={canvasRef}
+          tabIndex={0}
+          className={styles.canvas}
+          aria-label="글자 지우기 스크래치 영역"
+        />
         <img
+          ref={carrotRef}
           src={ASSETS.carrot.full}
           alt=""
           aria-hidden="true"
           className={styles.carrotImg}
-          style={cursor ? { left: cursor.x, top: cursor.y } : undefined}
         />
       </div>
       <p className={styles.progress} aria-live="polite">
