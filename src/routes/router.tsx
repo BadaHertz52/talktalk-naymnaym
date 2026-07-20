@@ -8,36 +8,42 @@ import MeasurePage from '@pages/MeasurePage';
 import GamePage from '@pages/GamePage';
 import ResultPage from '@pages/ResultPage';
 import EndPage from '@pages/EndPage';
+import NotFoundPage from '@pages/NotFoundPage';
 
 export const router = createBrowserRouter([
   {
-    element: <PageLayout />,
-    children: [{ path: PATHS.home, element: <HomePage /> }],
-  },
-  {
-    element: <PageLayout showHeader />,
+    errorElement: <NotFoundPage />,
     children: [
-      { path: PATHS.input, element: <InputPage /> },
       {
-        element: <StepGuard requires="input" />,
-        children: [{ path: PATHS.measure, element: <MeasurePage /> }],
+        element: <PageLayout />,
+        children: [{ path: PATHS.home, element: <HomePage /> }],
       },
       {
-        element: <StepGuard requires="measure" />,
-        children: [{ path: PATHS.game, element: <GamePage /> }],
-      },
-      {
-        element: <StepGuard requires="measure" />,
+        element: <PageLayout showHeader />,
         children: [
+          { path: PATHS.input, element: <InputPage /> },
           {
-            element: <StepGuard requires="game" />,
-            children: [{ path: PATHS.result, element: <ResultPage /> }],
+            element: <StepGuard requires="input" />,
+            children: [{ path: PATHS.measure, element: <MeasurePage /> }],
+          },
+          {
+            element: <StepGuard requires="measure" />,
+            children: [{ path: PATHS.game, element: <GamePage /> }],
+          },
+          {
+            element: <StepGuard requires="measure" />,
+            children: [
+              {
+                element: <StepGuard requires="game" />,
+                children: [{ path: PATHS.result, element: <ResultPage /> }],
+              },
+            ],
+          },
+          {
+            element: <StepGuard requires="result" />,
+            children: [{ path: PATHS.end, element: <EndPage /> }],
           },
         ],
-      },
-      {
-        element: <StepGuard requires="result" />,
-        children: [{ path: PATHS.end, element: <EndPage /> }],
       },
     ],
   },

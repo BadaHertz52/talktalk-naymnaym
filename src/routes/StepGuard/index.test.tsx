@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
@@ -8,6 +8,7 @@ import { PATHS } from '@constants/paths';
 // 각 페이지는 GamePage(Canvas/ResizeObserver)·HomePage(마운트 시 reset 부작용) 등
 // jsdom·테스트 흐름과 충돌하는 내부 구현을 갖고 있다. router.tsx의 실제 라우트 배선(StepGuard 중첩 구조)만
 // 검증 대상이므로 페이지 컴포넌트는 testid만 렌더하는 스텁으로 교체한다.
+// NotFoundPage는 그런 충돌이 없으므로 실제 컴포넌트를 그대로 렌더해 텍스트·버튼 동작까지 검증한다.
 vi.mock('@pages/HomePage', () => ({ default: () => <div data-testid="home-page" /> }));
 vi.mock('@pages/InputPage', () => ({ default: () => <div data-testid="input-page" /> }));
 vi.mock('@pages/MeasurePage', () => ({ default: () => <div data-testid="measure-page" /> }));
@@ -205,18 +206,29 @@ describe('router의 StepGuard 배선', () => {
       expect(await screen.findByTestId('home-page')).toBeTruthy();
     });
 
-    it('정의되지 않은 경로 접근 시 우리 페이지 중 아무것도 렌더되지 않고 빈 화면으로 죽지도 않는다', async () => {
+    it('정의되지 않은 경로 접근 시 NotFoundPage가 렌더된다', async () => {
       renderAt('/unknown');
 
-      await waitFor(() => {
-        expect(document.body.textContent).not.toBe('');
-      });
+      expect(await screen.findByRole('heading', { name: '404' })).toBeTruthy();
+      expect(screen.getByRole('heading', { name: '페이지를 찾을 수 없습니다.' })).toBeTruthy();
       expect(screen.queryByTestId('home-page')).toBeNull();
       expect(screen.queryByTestId('input-page')).toBeNull();
       expect(screen.queryByTestId('measure-page')).toBeNull();
       expect(screen.queryByTestId('game-page')).toBeNull();
       expect(screen.queryByTestId('result-page')).toBeNull();
       expect(screen.queryByTestId('end-page')).toBeNull();
+    });
+
+    it('NotFoundPage에서 홈으로 돌아가기를 클릭하면 /로 이동하고 세션 상태는 변경되지 않는다', async () => {
+      completeUpTo('result');
+
+      renderAt('/unknown');
+
+      const button = await screen.findByRole('button', { name: '홈으로 돌아가기' });
+      fireEvent.click(button);
+
+      expect(await screen.findByTestId('home-page')).toBeTruthy();
+      expect(useSessionStore.getState().steps.result.completed).toBe(true);
     });
   });
 });
