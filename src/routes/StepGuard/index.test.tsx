@@ -53,6 +53,7 @@ describe('router의 StepGuard 배선', () => {
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
 
   describe('선행 단계 미완료 상태에서 접근하면 홈으로 리다이렉트된다', () => {
@@ -241,8 +242,7 @@ describe('router의 StepGuard 배선', () => {
 
   describe('ErrorPage', () => {
     it('렌더링 중 실제 에러를 던지는 라우트에 접근하면 ErrorPage의 일반 에러 UI가 렌더된다', async () => {
-      const originalError = console.error;
-      console.error = vi.fn();
+      vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const memoryRouter = createMemoryRouter(
         [
@@ -259,8 +259,6 @@ describe('router의 StepGuard 배선', () => {
 
       expect(await screen.findByRole('heading', { name: '문제가 발생했어요' })).toBeTruthy();
       expect(screen.queryByRole('heading', { name: '404' })).toBeNull();
-
-      console.error = originalError;
     });
   });
 });
