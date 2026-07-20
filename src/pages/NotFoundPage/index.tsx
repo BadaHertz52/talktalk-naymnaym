@@ -15,7 +15,7 @@ export default function NotFoundPage() {
     <PageLayout showHeader>
       <div className={styles.content}>
         <h1 className={styles.title}>404</h1>
-        <h2 className={styles.description}>페이지를 찾을 수 없습니다.</h2>
+        <h2 className={styles.description}>페이지를 찾을 수 없어요.</h2>
       </div>
       <Button className={styles.button} onClick={handleGoHome}>
         홈으로 돌아가기
