@@ -24,3 +24,6 @@ export const ASSETS: GameAssets = {
     lightning: '/assets/weather-lightning.webp',
   },
 } as const;
+
+// MeasurePage에서 미리 받아둘 GamePage 에셋 경로 — bunny-eating은 가장 무거워(~300KB) 다음 페이지 진입 전 프리로드 대상
+export const GAME_PAGE_PRELOAD: readonly string[] = [ASSETS.bunny.eating];

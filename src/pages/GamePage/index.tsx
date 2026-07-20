@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { useGameCanvas } from './_hooks/useGameCanvas';
@@ -24,10 +24,6 @@ export default function GamePage() {
     completeGame();
     navigate(PATHS.result);
   }, [completeGame, navigate]);
-
-  useEffect(() => {
-    new Image().src = ASSETS.bunny.eating;
-  }, []);
 
   // 시크릿 모드에서는 캔버스 커버에도 원문이 그려지지 않도록 마스킹 후 전달 (InputPage와 동일한 마스킹 문자)
   const coverText = secretMode ? emotionText.replace(/[^\s]/g, '■') : emotionText;
