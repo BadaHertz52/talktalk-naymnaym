@@ -210,7 +210,7 @@ describe('router의 StepGuard 배선', () => {
       renderAt('/unknown');
 
       expect(await screen.findByRole('heading', { name: '404' })).toBeTruthy();
-      expect(screen.getByRole('heading', { name: '페이지를 찾을 수 없습니다.' })).toBeTruthy();
+      expect(screen.getByRole('heading', { name: '페이지를 찾을 수 없어요.' })).toBeTruthy();
       expect(screen.queryByTestId('home-page')).toBeNull();
       expect(screen.queryByTestId('input-page')).toBeNull();
       expect(screen.queryByTestId('measure-page')).toBeNull();
