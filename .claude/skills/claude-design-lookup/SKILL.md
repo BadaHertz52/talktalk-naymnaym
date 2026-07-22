@@ -36,6 +36,7 @@ description: >
 `.env.local`에 값을 채워달라고 요청한다 (URL을 추측해서 만들어내지 않는다).
 
 `VITE_CLAUDE_DESIGN_URL`에서 다음을 파싱한다:
+
 - `project_id`: `/design/p/` 다음, `?` 앞까지의 경로 세그먼트
 - `file`: `?file=` 쿼리 파라미터 (URL-decode 필요 — 예:
   `%ED%86%A1%ED%86%A1...` → `톡톡냠냠 와이어프레임.dc.html`)

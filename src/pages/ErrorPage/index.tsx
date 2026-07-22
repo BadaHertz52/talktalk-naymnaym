@@ -11,7 +11,7 @@ export default function ErrorPage() {
   if (isRouteErrorResponse(error) && error.status === 404) {
     return <Navigate to={PATHS.notFound} replace />;
   }
-  
+
   if (error instanceof Error) {
     console.error('[에러]:', error.message);
   }
