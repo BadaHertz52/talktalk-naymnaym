@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { StepGuard } from './StepGuard';
 import PageLayout from '@components/PageLayout';
+import LoadingFallback from '@components/LoadingFallback';
 import { PATHS } from '@constants/paths';
 import HomePage from '@pages/HomePage';
 import InputPage from '@pages/InputPage';
@@ -37,7 +38,7 @@ export const router = createBrowserRouter([
               {
                 path: PATHS.game,
                 element: (
-                  <Suspense fallback={null}>
+                  <Suspense fallback={<LoadingFallback />}>
                     <GamePage />
                   </Suspense>
                 ),
