@@ -1,13 +1,14 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
 
 // 각 페이지는 GamePage(Canvas/ResizeObserver)·HomePage(마운트 시 reset 부작용) 등
-// jsdom·테스트 흐름과 충돌하는 내부 구현을 갖고 있다. router.tsx의 실제 라우트 배선(StepGuard 중첩 구조)만
-// 검증 대상이므로 페이지 컴포넌트는 testid만 렌더하는 스텁으로 교체한다.
+// jsdom·테스트 흐름과 충돌하는 내부 구현을 갖고 있다. router.tsx의 실제 라우트 배선(단일 StepGuard가
+// requires 배열로 여러 단계를 한번에 확인하는 구조)만 검증 대상이므로 페이지 컴포넌트는 testid만 렌더하는 스텁으로 교체한다.
+// NotFoundPage는 그런 충돌이 없으므로 실제 컴포넌트를 그대로 렌더해 텍스트·버튼 동작까지 검증한다.
 vi.mock('@pages/HomePage', () => ({ default: () => <div data-testid="home-page" /> }));
 vi.mock('@pages/InputPage', () => ({ default: () => <div data-testid="input-page" /> }));
 vi.mock('@pages/MeasurePage', () => ({ default: () => <div data-testid="measure-page" /> }));
@@ -52,6 +53,7 @@ describe('router의 StepGuard 배선', () => {
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
 
   describe('선행 단계 미완료 상태에서 접근하면 홈으로 리다이렉트된다', () => {
@@ -69,7 +71,7 @@ describe('router의 StepGuard 배선', () => {
       expect(await screen.findByTestId('home-page')).toBeTruthy();
     });
 
-    it('measure 미완료 상태로 /result에 접근하면 첫 번째 가드에서 홈으로 리다이렉트된다', async () => {
+    it('measure 미완료 상태로 /result에 접근하면 requires 배열 중 measure 조건에 걸려 홈으로 리다이렉트된다', async () => {
       completeUpTo('input');
 
       renderAt(PATHS.result);
@@ -77,7 +79,7 @@ describe('router의 StepGuard 배선', () => {
       expect(await screen.findByTestId('home-page')).toBeTruthy();
     });
 
-    it('measure는 완료했지만 game 미완료 상태로 /result에 접근하면 두 번째 가드에서 홈으로 리다이렉트된다', async () => {
+    it('measure는 완료했지만 game 미완료 상태로 /result에 접근하면 requires 배열 중 game 조건에 걸려 홈으로 리다이렉트된다', async () => {
       completeUpTo('measure');
 
       renderAt(PATHS.result);
@@ -205,12 +207,11 @@ describe('router의 StepGuard 배선', () => {
       expect(await screen.findByTestId('home-page')).toBeTruthy();
     });
 
-    it('정의되지 않은 경로 접근 시 우리 페이지 중 아무것도 렌더되지 않고 빈 화면으로 죽지도 않는다', async () => {
+    it('정의되지 않은 경로 접근 시 /not-found로 리다이렉트되어 NotFoundPage가 렌더된다', async () => {
       renderAt('/unknown');
 
-      await waitFor(() => {
-        expect(document.body.textContent).not.toBe('');
-      });
+      expect(await screen.findByRole('heading', { name: '404' })).toBeTruthy();
+      expect(screen.getByRole('heading', { name: '페이지를 찾을 수 없어요.' })).toBeTruthy();
       expect(screen.queryByTestId('home-page')).toBeNull();
       expect(screen.queryByTestId('input-page')).toBeNull();
       expect(screen.queryByTestId('measure-page')).toBeNull();
@@ -218,5 +219,50 @@ describe('router의 StepGuard 배선', () => {
       expect(screen.queryByTestId('result-page')).toBeNull();
       expect(screen.queryByTestId('end-page')).toBeNull();
     });
+
+    it('/not-found에 직접 접근해도 NotFoundPage가 렌더된다', async () => {
+      renderAt(PATHS.notFound);
+
+      expect(await screen.findByRole('heading', { name: '404' })).toBeTruthy();
+      expect(screen.getByRole('heading', { name: '페이지를 찾을 수 없어요.' })).toBeTruthy();
+    });
+
+    it('NotFoundPage에서 홈으로 돌아가기를 클릭하면 /로 이동하고 세션 상태는 변경되지 않는다', async () => {
+      completeUpTo('result');
+
+      renderAt('/unknown');
+
+      const button = await screen.findByRole('button', { name: '홈으로 돌아가기' });
+      fireEvent.click(button);
+
+      expect(await screen.findByTestId('home-page')).toBeTruthy();
+      expect(useSessionStore.getState().steps.result.completed).toBe(true);
+    });
+  });
+
+  describe('ErrorPage', () => {
+    it('렌더링 중 실제 에러를 던지는 라우트에 접근하면 ErrorPage의 일반 에러 UI가 렌더된다', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const memoryRouter = createMemoryRouter(
+        [
+          ...router.routes,
+          {
+            path: '/boom',
+            element: <ThrowingComponent />,
+            errorElement: router.routes[0]?.errorElement,
+          },
+        ],
+        { initialEntries: ['/boom'] },
+      );
+      render(<RouterProvider router={memoryRouter} />);
+
+      expect(await screen.findByRole('heading', { name: '문제가 발생했어요' })).toBeTruthy();
+      expect(screen.queryByRole('heading', { name: '404' })).toBeNull();
+    });
   });
 });
+
+function ThrowingComponent(): never {
+  throw new Error('테스트용 렌더링 에러');
+}
