@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:analyze": "tsc -b && ANALYZE=true vite build",
     "preview": "vite preview",
     "lint": "oxlint",
     "type-check": "tsc -b",
