@@ -2,7 +2,7 @@
 
 ## 원칙
 
-#### Co-location + Index Convention + Folder-based Module 규칙 적용
+### Co-location + Index Convention + Folder-based Module 규칙 적용
 
 함수/컴포넌트/훅에 테스트 파일(`.test.ts(x)`)이나 스타일(`.module.css`)이 딸려 있다면, 별도의 `__tests__/`, `styles/` 폴더로 분리하지 않고 **대상 파일과 같은 디렉터리에 함께 둔다.**
 
