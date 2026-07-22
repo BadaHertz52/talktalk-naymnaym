@@ -16,6 +16,10 @@
   margin: 0;
 }
 
+.resultTitleWarm {
+  color: var(--color-primary);
+}
+
 .moodStrip {
   display: flex;
   align-items: flex-end;
