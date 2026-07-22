@@ -36,6 +36,26 @@
   image-rendering: pixelated;
 }
 
+.grow1 {
+  flex-grow: 52;
+}
+
+.grow2 {
+  flex-grow: 56;
+}
+
+.grow3 {
+  flex-grow: 66;
+}
+
+.active {
+  opacity: 1;
+}
+
+.inactive {
+  opacity: 0.3;
+}
+
 .scoreRow {
   display: flex;
   align-items: center;

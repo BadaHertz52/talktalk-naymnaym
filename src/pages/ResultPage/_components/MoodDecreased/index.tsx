@@ -4,7 +4,7 @@ import { ASSETS } from '@game/assets';
 import ArrowIcon from '../ArrowIcon';
 import styles from './index.module.css';
 
-const STRIP_GROW = [52, 52, 52, 56, 66] as const;
+const STRIP_GROW_CLASS = ['grow1', 'grow1', 'grow1', 'grow2', 'grow3'] as const;
 
 const EMOTION_STEPS: EmotionExpressionStep[] = [1, 2, 3, 4, 5];
 
@@ -25,11 +25,11 @@ export default function MoodDecreased({ expressionStep, intensity, intensityBefo
             src={ASSETS.bunny.expression[lvl]}
             alt=""
             aria-hidden="true"
-            style={{
-              flexGrow: STRIP_GROW[i],
-              opacity: lvl === expressionStep ? 1 : 0.3,
-            }}
-            className={styles.moodImg}
+            className={clsx(
+              styles.moodImg,
+              styles[STRIP_GROW_CLASS[i]],
+              lvl === expressionStep ? styles.active : styles.inactive,
+            )}
           />
         ))}
       </div>
