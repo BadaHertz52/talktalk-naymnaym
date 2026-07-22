@@ -50,8 +50,9 @@ description: >
 
 1. `mcp__claude-design__get_project({ project_id })`로 프로젝트가 유효한지 확인한다.
 2. `mcp__claude-design__list_files({ project_id, depth: -1 })`로 파일 목록을 확인해
-   1단계에서 파싱한 `file` 경로가 실제로 존재하는지 확인한다. 이름이 정확히 안
-   맞으면(공백/인코딩 차이 등) 목록에서 가장 비슷한 파일을 고른다.
+   1단계에서 파싱한 `file` 경로가 실제로 존재하는지 확인한다. 정확히 일치하는
+   파일이 없거나 후보가 여럿이면 자동으로 고르지 않고, 후보 목록을 사용자에게
+   보여주고 확인받은 경로만 다음 단계에 사용한다.
 3. `mcp__claude-design__read_file({ project_id, path: file })`로 읽는다.
    - 파일이 256KiB를 넘으면 한 번에 못 읽으므로, 0단계에서 받은 "확인하고 싶은
      부분"(예: `SCREEN 08`)에 해당하는 대략적인 위치를 먼저 찾아야 한다 —
@@ -76,4 +77,6 @@ description: >
 - 이 스킬은 조회만 한다 — `write_files`, `copy_files`, `delete_files` 등 프로젝트를
   수정하는 도구는 쓰지 않는다.
 - 요청받지 않은 부분까지 통째로 읽지 않는다 (컨텍스트/캡 낭비).
-- `.env.local` 값을 로그나 커밋에 노출하지 않는다.
+- `.env.local` 값(특히 `CLAUDE_DESIGN_MCP_URL`, `VITE_CLAUDE_DESIGN_URL`의 원문/토큰)을
+  로그, 커밋뿐 아니라 보고 내용·도구 인자·오류 메시지 등 사용자에게 보이는 모든
+  출력에도 노출하지 않는다.
