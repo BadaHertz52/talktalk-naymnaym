@@ -17,7 +17,7 @@ export default function PageHeader() {
           onClick={() => navigate(-1)}
           aria-label="이전 페이지로 이동"
         >
-          ‹
+          〈
         </button>
       )}
       <Link to={PATHS.home} className={styles.brand} aria-label="톡톡냠냠 홈으로 이동">
