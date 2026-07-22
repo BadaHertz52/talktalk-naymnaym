@@ -27,7 +27,8 @@ src/
 ├── types/            # 공유 TypeScript 타입
 ├── constants/        # 상수 (EXPRESSION_WEATHER 등)
 ├── game/             # Canvas 게임 로직 (React import 없는 순수 TS)
-└── styles/           # 전역 CSS (tokens, global, reset)
+├── styles/           # 전역 CSS (tokens, global, reset)
+└── assets/           # 이미지·폰트 원본 (import로 참조 — 빌드 시 해시 파일명 부여)
 ```
 
 ---
