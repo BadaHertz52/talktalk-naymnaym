@@ -12,8 +12,8 @@ export default function ErrorPage() {
     return <Navigate to={PATHS.notFound} replace />;
   }
   
-  if('message' in error){
-    console.error('[에러]:',error.message)
+  if (error instanceof Error) {
+    console.error('[에러]:', error.message);
   }
 
   // 이 앱은 loader/action 기반 데이터 패칭이 없어 "다시 시도"가 곧 새로고침과 동치다.
