@@ -1,27 +1,41 @@
 import type { GameAssets } from '../types/game';
+import bunnyIdle from '@assets/images/bunny-idle.webp';
+import bunnyEating from '@assets/images/bunny-eating.webp';
+import bunnyCart from '@assets/images/bunny-cart.webp';
+import bunnyIntensity1 from '@assets/images/bunny-intensity-1.webp';
+import bunnyIntensity2 from '@assets/images/bunny-intensity-2.webp';
+import bunnyIntensity3 from '@assets/images/bunny-intensity-3.webp';
+import bunnyIntensity4 from '@assets/images/bunny-intensity-4.webp';
+import bunnyIntensity5 from '@assets/images/bunny-intensity-5.webp';
+import carrotFull from '@assets/images/carrot-full.webp';
+import weatherSun from '@assets/images/weather-sun.webp';
+import weatherPartlyCloudy from '@assets/images/weather-partly-cloudy.webp';
+import weatherCloudy from '@assets/images/weather-cloudy.webp';
+import weatherOvercast from '@assets/images/weather-overcast.webp';
+import weatherLightning from '@assets/images/weather-lightning.webp';
 
 export const ASSETS: GameAssets = {
   bunny: {
-    idle: '/assets/bunny-idle.webp',
-    eating: '/assets/bunny-eating.webp',
-    cart: '/assets/bunny-cart.webp',
+    idle: bunnyIdle,
+    eating: bunnyEating,
+    cart: bunnyCart,
     expression: {
-      1: '/assets/bunny-intensity-1.webp',
-      2: '/assets/bunny-intensity-2.webp',
-      3: '/assets/bunny-intensity-3.webp',
-      4: '/assets/bunny-intensity-4.webp',
-      5: '/assets/bunny-intensity-5.webp',
+      1: bunnyIntensity1,
+      2: bunnyIntensity2,
+      3: bunnyIntensity3,
+      4: bunnyIntensity4,
+      5: bunnyIntensity5,
     },
   },
   carrot: {
-    full: '/assets/carrot-full.webp',
+    full: carrotFull,
   },
   weather: {
-    sun: '/assets/weather-sun.webp',
-    partlyCloudy: '/assets/weather-partly-cloudy.webp',
-    cloudy: '/assets/weather-cloudy.webp',
-    overcast: '/assets/weather-overcast.webp',
-    lightning: '/assets/weather-lightning.webp',
+    sun: weatherSun,
+    partlyCloudy: weatherPartlyCloudy,
+    cloudy: weatherCloudy,
+    overcast: weatherOvercast,
+    lightning: weatherLightning,
   },
 } as const;
 
