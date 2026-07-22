@@ -31,7 +31,7 @@ export default function MoodNotDecreased({ expressionStep, intensity, intensityB
       <p className={styles.resultNote}>
         덜어지지 않는 날도 있어요.
         <br />
-        속상한 마음은 여기에 적은것만으로도 충분해요.
+        속상한 마음은 여기에 적은 것만으로도 충분해요.
       </p>
     </div>
   );
