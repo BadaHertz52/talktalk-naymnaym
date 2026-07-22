@@ -1,6 +1,19 @@
-@import url('https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css');
 @import './tokens.css';
 @import './reset.css';
+
+@font-face {
+  font-family: Galmuri14;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Galmuri14.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: Galmuri11;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Galmuri11.woff2') format('woff2');
+}
 
 body {
   background: var(--color-black);
