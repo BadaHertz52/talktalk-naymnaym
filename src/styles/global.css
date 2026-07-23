@@ -2,7 +2,7 @@
 @import './reset.css';
 
 @font-face {
-  font-family: Galmuri14;
+  font-family: 'Galmuri14';
   /* woff2가 regular 한 종류뿐 — 범위를 넓혀 bold 요청 시 브라우저 합성(faux) bold 대신 이 face를 그대로 쓰게 함 */
   font-weight: 100 900;
   font-display: swap;
@@ -10,7 +10,7 @@
 }
 
 @font-face {
-  font-family: Galmuri11;
+  font-family: 'Galmuri11';
   font-weight: 100 900;
   font-display: swap;
   src: url('../assets/fonts/Galmuri11.woff2') format('woff2');
