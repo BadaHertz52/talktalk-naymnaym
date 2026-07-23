@@ -1,15 +1,19 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { StepGuard } from './StepGuard';
 import PageLayout from '@components/PageLayout';
+import LoadingFallback from '@components/LoadingFallback';
 import { PATHS } from '@constants/paths';
 import HomePage from '@pages/HomePage';
 import InputPage from '@pages/InputPage';
 import MeasurePage from '@pages/MeasurePage';
-import GamePage from '@pages/GamePage';
 import ResultPage from '@pages/ResultPage';
 import EndPage from '@pages/EndPage';
 import NotFoundPage from '@pages/NotFoundPage';
 import ErrorPage from '@pages/ErrorPage';
+
+// Canvas 게임 로직(src/game/)이 딸려 있어 별도 청크로 분리 — GamePage 진입 전에는 받지 않는다
+const GamePage = lazy(() => import('@pages/GamePage'));
 
 export const router = createBrowserRouter([
   {
@@ -30,7 +34,16 @@ export const router = createBrowserRouter([
           },
           {
             element: <StepGuard requires={['measure']} />,
-            children: [{ path: PATHS.game, element: <GamePage /> }],
+            children: [
+              {
+                path: PATHS.game,
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <GamePage />
+                  </Suspense>
+                ),
+              },
+            ],
           },
           {
             element: <StepGuard requires={['measure', 'game']} />,

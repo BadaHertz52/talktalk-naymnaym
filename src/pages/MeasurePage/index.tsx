@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { EmotionExpressionStep, EmotionIntensity } from '@/types/session';
 import { useSessionStore } from '@stores/sessionStore';
-import { ASSETS } from '@game/assets';
+import { ASSETS, GAME_PAGE_PRELOAD } from '@game/assets';
 import { EXPRESSION_WEATHER } from '@constants/intensity';
 import { toExpressionStep } from '@utils/intensity';
 import { PATHS } from '@constants/paths';
@@ -25,6 +25,12 @@ export default function MeasurePage() {
 
   const [intensity, setIntensity] = useState<EmotionIntensity | null>(intensityBefore);
   const expressionStep = intensity ? toExpressionStep(intensity) : null;
+
+  useEffect(() => {
+    GAME_PAGE_PRELOAD.forEach((src) => {
+      new Image().src = src;
+    });
+  }, []);
 
   const handleNext = () => {
     if (!intensity) return;
