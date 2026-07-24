@@ -1,9 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { EmotionIntensity } from '@/types/session';
+import type { IntensityChange } from '@/types/analytics';
 import { useSessionStore } from '@stores/sessionStore';
 import { toExpressionStep } from '@utils/intensity';
+import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
+import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
+import { useFireOnce } from '@hooks/useFireOnce';
 import IntensitySlider from '@components/IntensitySlider';
 import Button from '@components/Button';
 import MoodEmpty from './_components/MoodEmpty';
@@ -20,6 +24,7 @@ const PROMPTS = [
 
 export default function ResultPage() {
   const navigate = useNavigate();
+  const fireOnce = useFireOnce();
 
   const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
   const { intensityAfter, afterEmotionText } = useSessionStore((s) => s.steps.result.data);
@@ -30,12 +35,28 @@ export default function ResultPage() {
   const prompt = useMemo(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)], []);
 
   const expressionStep = intensity ? toExpressionStep(intensity) : null;
-  const decreased = intensity !== null && intensityBefore !== null && intensity < intensityBefore;
+  const intensityChange: IntensityChange =
+    intensity === null || intensityBefore === null || intensity === intensityBefore
+      ? 'same'
+      : intensity < intensityBefore
+        ? 'decreased'
+        : 'increased';
+  const decreased = intensityChange === 'decreased';
 
   const handleDone = () => {
     if (!intensity) return;
-    completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
-    navigate(PATHS.end);
+
+    fireOnce(() => {
+      completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
+
+      trackEvent(GA_EVENTS.resultComplete, {
+        [GA_PARAMS.intensityBefore]: intensityBefore,
+        [GA_PARAMS.intensityAfter]: intensity,
+        [GA_PARAMS.intensityChange]: intensityChange,
+      });
+
+      navigate(PATHS.end);
+    });
   };
 
   return (

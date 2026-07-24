@@ -5,7 +5,10 @@ import { useSessionStore } from '@stores/sessionStore';
 import { ASSETS, GAME_PAGE_PRELOAD } from '@game/assets';
 import { EXPRESSION_WEATHER } from '@constants/intensity';
 import { toExpressionStep } from '@utils/intensity';
+import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
+import { GA_EVENTS } from '@constants/analytics';
+import { useFireOnce } from '@hooks/useFireOnce';
 import IntensitySlider from '@components/IntensitySlider';
 import Button from '@components/Button';
 import styles from './index.module.css';
@@ -22,6 +25,7 @@ export default function MeasurePage() {
   const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
   const completeMeasure = useSessionStore((s) => s.completeMeasure);
   const navigate = useNavigate();
+  const fireOnce = useFireOnce();
 
   const [intensity, setIntensity] = useState<EmotionIntensity | null>(intensityBefore);
   const expressionStep = intensity ? toExpressionStep(intensity) : null;
@@ -34,8 +38,12 @@ export default function MeasurePage() {
 
   const handleNext = () => {
     if (!intensity) return;
-    completeMeasure(intensity);
-    navigate(PATHS.game);
+
+    fireOnce(() => {
+      completeMeasure(intensity);
+      trackEvent(GA_EVENTS.measureComplete);
+      navigate(PATHS.game);
+    });
   };
 
   return (

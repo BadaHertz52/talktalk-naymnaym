@@ -1,7 +1,10 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { ASSETS } from '@game/assets';
 import { PATHS } from '@constants/paths';
+import { GA_EVENTS } from '@constants/analytics';
+import { trackEvent } from '@utils/analytics';
 import Button from '@components/Button';
 import Mascot from '@components/Mascot';
 import styles from './index.module.css';
@@ -9,6 +12,10 @@ import styles from './index.module.css';
 export default function EndPage() {
   const navigate = useNavigate();
   const reset = useSessionStore((s) => s.reset);
+
+  useEffect(() => {
+    trackEvent(GA_EVENTS.endReached);
+  }, []);
 
   const handleExit = () => {
     reset();
