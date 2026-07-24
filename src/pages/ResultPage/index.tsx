@@ -7,6 +7,7 @@ import { toExpressionStep } from '@utils/intensity';
 import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
 import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
+import { useFireOnce } from '@hooks/useFireOnce';
 import IntensitySlider from '@components/IntensitySlider';
 import Button from '@components/Button';
 import MoodEmpty from './_components/MoodEmpty';
@@ -23,6 +24,7 @@ const PROMPTS = [
 
 export default function ResultPage() {
   const navigate = useNavigate();
+  const fireOnce = useFireOnce();
 
   const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
   const { intensityAfter, afterEmotionText } = useSessionStore((s) => s.steps.result.data);
@@ -43,15 +45,18 @@ export default function ResultPage() {
 
   const handleDone = () => {
     if (!intensity) return;
-    completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
 
-    trackEvent(GA_EVENTS.resultComplete, {
-      [GA_PARAMS.intensityBefore]: intensityBefore,
-      [GA_PARAMS.intensityAfter]: intensity,
-      [GA_PARAMS.intensityChange]: intensityChange,
+    fireOnce(() => {
+      completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
+
+      trackEvent(GA_EVENTS.resultComplete, {
+        [GA_PARAMS.intensityBefore]: intensityBefore,
+        [GA_PARAMS.intensityAfter]: intensity,
+        [GA_PARAMS.intensityChange]: intensityChange,
+      });
+
+      navigate(PATHS.end);
     });
-
-    navigate(PATHS.end);
   };
 
   return (

@@ -10,7 +10,8 @@
       "@game/*": ["./src/game/*"],
       "@pages/*": ["./src/pages/*"],
       "@stores/*": ["./src/stores/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@hooks/*": ["./src/hooks/*"]
     }
   }
 }

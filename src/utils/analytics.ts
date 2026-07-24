@@ -1,4 +1,4 @@
-import type { GaEventName } from '@/types/analytics';
+import type { GaEventName, GaEventParamsMap } from '@/types/analytics';
 
 declare global {
   interface Window {
@@ -6,6 +6,9 @@ declare global {
   }
 }
 
-export function trackEvent(name: GaEventName, params?: Record<string, unknown>): void {
-  window.gtag?.('event', name, params);
+export function trackEvent<E extends GaEventName>(
+  name: E,
+  ...args: E extends keyof GaEventParamsMap ? [params: GaEventParamsMap[E]] : []
+): void {
+  window.gtag?.('event', name, args[0]);
 }

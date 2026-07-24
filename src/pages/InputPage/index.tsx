@@ -5,6 +5,7 @@ import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
 import { GA_EVENTS } from '@constants/analytics';
 import { trackEvent } from '@utils/analytics';
+import { useFireOnce } from '@hooks/useFireOnce';
 import Button from '@components/Button';
 import styles from './index.module.css';
 
@@ -19,15 +20,18 @@ export default function InputPage() {
   const [caretIndex, setCaretIndex] = useState(emotionText.length);
 
   const navigate = useNavigate();
+  const fireOnce = useFireOnce();
 
   const syncCaret = (e: SyntheticEvent<HTMLTextAreaElement>) => {
     setCaretIndex(e.currentTarget.selectionStart);
   };
 
   const handleNext = () => {
-    completeInput({ text: text.trim(), secretMode });
-    trackEvent(GA_EVENTS.inputComplete);
-    navigate(PATHS.measure);
+    fireOnce(() => {
+      completeInput({ text: text.trim(), secretMode });
+      trackEvent(GA_EVENTS.inputComplete);
+      navigate(PATHS.measure);
+    });
   };
 
   return (

@@ -6,6 +6,7 @@ import { ASSETS, RESULT_PAGE_PRELOAD } from '@game/assets';
 import { PATHS } from '@constants/paths';
 import { GA_EVENTS } from '@constants/analytics';
 import { trackEvent } from '@utils/analytics';
+import { useFireOnce } from '@hooks/useFireOnce';
 import styles from './index.module.css';
 import Button from '@/components/Button';
 
@@ -15,6 +16,7 @@ export default function GamePage() {
   const completeGame = useSessionStore((s) => s.completeGame);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const carrotRef = useRef<HTMLImageElement>(null);
+  const fireOnce = useFireOnce();
 
   const [activeNextButton, setActiveNextButton] = useState(false);
 
@@ -22,11 +24,13 @@ export default function GamePage() {
     setActiveNextButton(true);
   }, []);
 
-  const handleNext = useCallback(() => {
-    completeGame();
-    trackEvent(GA_EVENTS.gameComplete);
-    navigate(PATHS.result);
-  }, [completeGame, navigate]);
+  const handleNext = () => {
+    fireOnce(() => {
+      completeGame();
+      trackEvent(GA_EVENTS.gameComplete);
+      navigate(PATHS.result);
+    });
+  };
 
   useEffect(() => {
     RESULT_PAGE_PRELOAD.forEach((src) => {
