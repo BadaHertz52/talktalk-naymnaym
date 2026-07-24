@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { EmotionIntensity } from '@/types/session';
+import type { IntensityChange } from '@/types/analytics';
 import { useSessionStore } from '@stores/sessionStore';
 import { toExpressionStep } from '@utils/intensity';
 import { trackEvent } from '@utils/analytics';
@@ -32,18 +33,18 @@ export default function ResultPage() {
   const prompt = useMemo(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)], []);
 
   const expressionStep = intensity ? toExpressionStep(intensity) : null;
-  const decreased = intensity !== null && intensityBefore !== null && intensity < intensityBefore;
+  const intensityChange: IntensityChange =
+    intensity === null || intensityBefore === null || intensity === intensityBefore
+      ? 'same'
+      : intensity < intensityBefore
+        ? 'decreased'
+        : 'increased';
+  const decreased = intensityChange === 'decreased';
 
   const handleDone = () => {
     if (!intensity) return;
     completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
 
-    const intensityChange =
-      intensityBefore === null || intensity === intensityBefore
-        ? 'same'
-        : intensity < intensityBefore
-          ? 'decreased'
-          : 'increased';
     trackEvent(GA_EVENTS.resultComplete, {
       [GA_PARAMS.intensityBefore]: intensityBefore,
       [GA_PARAMS.intensityAfter]: intensity,
