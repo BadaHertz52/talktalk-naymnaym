@@ -3,6 +3,8 @@ import type { SyntheticEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
+import { GA_EVENTS } from '@constants/analytics';
+import { trackEvent } from '@utils/analytics';
 import Button from '@components/Button';
 import styles from './index.module.css';
 
@@ -24,6 +26,7 @@ export default function InputPage() {
 
   const handleNext = () => {
     completeInput({ text: text.trim(), secretMode });
+    trackEvent(GA_EVENTS.inputComplete);
     navigate(PATHS.measure);
   };
 

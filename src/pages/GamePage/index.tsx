@@ -4,6 +4,8 @@ import { useSessionStore } from '@stores/sessionStore';
 import { useGameCanvas } from './_hooks/useGameCanvas';
 import { ASSETS, RESULT_PAGE_PRELOAD } from '@game/assets';
 import { PATHS } from '@constants/paths';
+import { GA_EVENTS } from '@constants/analytics';
+import { trackEvent } from '@utils/analytics';
 import styles from './index.module.css';
 import Button from '@/components/Button';
 
@@ -22,6 +24,7 @@ export default function GamePage() {
 
   const handleNext = useCallback(() => {
     completeGame();
+    trackEvent(GA_EVENTS.gameComplete);
     navigate(PATHS.result);
   }, [completeGame, navigate]);
 

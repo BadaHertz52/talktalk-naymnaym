@@ -5,7 +5,9 @@ import { useSessionStore } from '@stores/sessionStore';
 import { ASSETS, GAME_PAGE_PRELOAD } from '@game/assets';
 import { EXPRESSION_WEATHER } from '@constants/intensity';
 import { toExpressionStep } from '@utils/intensity';
+import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
+import { GA_EVENTS } from '@constants/analytics';
 import IntensitySlider from '@components/IntensitySlider';
 import Button from '@components/Button';
 import styles from './index.module.css';
@@ -35,6 +37,7 @@ export default function MeasurePage() {
   const handleNext = () => {
     if (!intensity) return;
     completeMeasure(intensity);
+    trackEvent(GA_EVENTS.measureComplete);
     navigate(PATHS.game);
   };
 

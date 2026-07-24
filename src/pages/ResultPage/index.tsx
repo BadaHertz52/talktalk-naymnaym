@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import type { EmotionIntensity } from '@/types/session';
 import { useSessionStore } from '@stores/sessionStore';
 import { toExpressionStep } from '@utils/intensity';
+import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
+import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
 import IntensitySlider from '@components/IntensitySlider';
 import Button from '@components/Button';
 import MoodEmpty from './_components/MoodEmpty';
@@ -35,6 +37,19 @@ export default function ResultPage() {
   const handleDone = () => {
     if (!intensity) return;
     completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
+
+    const intensityChange =
+      intensityBefore === null || intensity === intensityBefore
+        ? 'same'
+        : intensity < intensityBefore
+          ? 'decreased'
+          : 'increased';
+    trackEvent(GA_EVENTS.resultComplete, {
+      [GA_PARAMS.intensityBefore]: intensityBefore,
+      [GA_PARAMS.intensityAfter]: intensity,
+      [GA_PARAMS.intensityChange]: intensityChange,
+    });
+
     navigate(PATHS.end);
   };
 
