@@ -1,6 +1,6 @@
 # 톡톡냠냠
 
-<img src="public/og-image.webp" alt="hero" width="600" />
+<img src="public/og-image.webp" alt="톡톡냠냠 서비스 소개 이미지 — 감정을 적고 당근으로 지우는 토끼 캐릭터" width="600" />
 
 <br/>
 
@@ -45,15 +45,15 @@
 
 **적고 → 강도를 재고 → 당근으로 지우고 → 가벼워진다**
 
-<img src=".github/readme/flow.webp" alt="flow" width="600" />
+<img src=".github/readme/flow.webp" alt="사용 흐름 — 감정을 적고, 강도를 조절하고, 당근으로 지우는 4단계 화면" width="600" />
 
 #### "🤫 비밀 이야기는 시크릿 모드를 사용해보세요."
 
-<img src=".github/readme/secret-mode.gif" alt="시크릿모드" width="120"/>
+<img src=".github/readme/secret-mode.gif" alt="시크릿 모드 켜는 화면 데모" width="120"/>
 
 #### "🐰 감정 기록을 지우면 귀여운 토끼가 나타나요."
 
-<img src=".github/readme/scratch.gif" alt="스크래처" width="120" />
+<img src=".github/readme/scratch.gif" alt="당근으로 감정 기록을 긁어 지우면 토끼가 나타나는 스크래치 게임 데모" width="120" />
 
 ---
 
