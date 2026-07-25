@@ -77,7 +77,3 @@ cd toktok-nyamnyam
 pnpm install
 pnpm dev
 ```
-
----
-
-[**talktalk-naymnaym.vercel.app**](https://talktalk-naymnaym.vercel.app) · License: 없음
