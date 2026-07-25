@@ -1,6 +1,7 @@
 # 톡톡냠냠
 
 <img src="public/og-image.webp" alt="hero" width="600" />
+
 <br/>
 
 **쌓지 않고, 없애요** — 신경 쓰이는 걸 적고, 게임처럼 없애고, 가벼워져요
@@ -11,7 +12,7 @@
 ## 목차
 
 - [서비스 설명](#서비스-설명)
-- [기술 스택 & 시작하기](#기술-스택--시작하기)
+- [기술 스택 &amp; 시작하기](#기술-스택--시작하기)
 
 ---
 
@@ -56,7 +57,7 @@
 
 ---
 
-## 기술 스택 & 시작하기
+## 기술 스택 &amp; 시작하기
 
 ### 기술 스택
 
@@ -72,8 +73,6 @@
 ### 시작하기
 
 ```bash
-git clone https://github.com/<your-org>/toktok-nyamnyam.git
-cd toktok-nyamnyam
 pnpm install
 pnpm dev
 ```
