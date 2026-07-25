@@ -1,0 +1,59 @@
+.heading {
+  composes: heading from '../../styles/shared.module.css';
+}
+
+.sub {
+  composes: sub from '../../styles/shared.module.css';
+}
+
+.previewCard {
+  border: 2px solid var(--color-white);
+  border-radius: 14px;
+  padding: 1.375rem 1rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.previewImageWrap {
+  position: relative;
+  width: 112px;
+  height: 112px;
+}
+
+.bunnyPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+.weatherIcon {
+  position: absolute;
+  top: -10px;
+  right: -8px;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  z-index: 1;
+}
+
+.previewCaption {
+  font-size: 9px;
+  color: var(--color-white);
+  letter-spacing: 0.5px;
+  margin: 0;
+  text-align: center;
+}
+
+.sliderWrap {
+  width: 100%;
+}
+
+.button {
+  width: 100%;
+  margin-top: auto;
+}

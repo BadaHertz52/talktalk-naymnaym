@@ -1,0 +1,40 @@
+{
+  "name": "talktalk-naymnaym",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:analyze": "tsc -b && ANALYZE=true vite build",
+    "preview": "vite preview",
+    "lint": "oxlint",
+    "type-check": "tsc -b",
+    "test": "vitest run --passWithNoTests",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.1",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "jsdom": "^29.1.1",
+    "oxlint": "^1.71.0",
+    "prettier": "^3.9.5",
+    "rollup-plugin-visualizer": "^7.0.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1",
+    "vitest": "^4.1.10"
+  }
+}

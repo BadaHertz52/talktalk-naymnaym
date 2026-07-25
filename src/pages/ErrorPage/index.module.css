@@ -1,0 +1,44 @@
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.375rem;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-pixel);
+  font-size: 48px;
+  color: var(--color-white);
+  letter-spacing: 2px;
+  margin: 0;
+  text-shadow:
+    3px 3px 0 var(--shadow-dark-1),
+    6px 6px 0 var(--shadow-dark-2);
+}
+
+.description {
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  color: var(--color-white);
+  margin: 0;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--color-gray-mid);
+  line-height: 1.9;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 0.625rem;
+  margin-top: 1.25rem;
+}
+
+.button {
+  flex: 1;
+}

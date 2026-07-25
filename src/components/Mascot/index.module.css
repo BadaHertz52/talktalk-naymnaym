@@ -1,0 +1,6 @@
+.mascot {
+  width: auto;
+  height: 120px;
+  image-rendering: pixelated;
+  animation: bob 3s ease-in-out infinite;
+}

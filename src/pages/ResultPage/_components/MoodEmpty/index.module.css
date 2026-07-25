@@ -1,0 +1,24 @@
+.moodEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  height: 100%;
+}
+
+.moodSingle {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.resultTitle {
+  font-family: var(--font-pixel);
+  font-size: 17px;
+  color: var(--color-gray-light);
+  letter-spacing: 1px;
+  line-height: 1.5;
+  margin: 0;
+}

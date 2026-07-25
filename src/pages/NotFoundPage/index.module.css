@@ -1,0 +1,31 @@
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.625rem;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-pixel);
+  font-size: 48px;
+  color: var(--color-white);
+  letter-spacing: 2px;
+  margin: 0;
+  text-shadow:
+    2px 2px 0 var(--shadow-dark-1),
+    4px 4px 0 var(--shadow-dark-2);
+}
+
+.description {
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  color: var(--color-white);
+  margin: 0;
+}
+
+.button {
+  width: 100%;
+}
