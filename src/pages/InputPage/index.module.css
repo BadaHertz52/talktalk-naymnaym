@@ -50,10 +50,13 @@
 
 .textareaMasked {
   color: transparent;
+  caret-color: var(--color-white);
+}
+
+.textareaMasked:not(:placeholder-shown) {
   text-decoration: underline;
   text-decoration-color: var(--color-white);
   text-decoration-thickness: 2px;
-  caret-color: var(--color-white);
 }
 
 .textareaMasked::selection {
