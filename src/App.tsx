@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { OverlayProvider } from 'overlay-kit';
 import { RouterProvider } from 'react-router-dom';
 import { router } from '@/routes/router';
 import { useSessionStore } from '@stores/sessionStore';
@@ -21,5 +22,9 @@ export default function App() {
     return () => window.removeEventListener('beforeunload', warnBeforeUnload);
   }, [hasUnsavedEmotionText]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <OverlayProvider>
+      <RouterProvider router={router} />
+    </OverlayProvider>
+  );
 }
