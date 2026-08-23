@@ -1,13 +1,13 @@
 .main {
   display: flex;
   flex-direction: column;
-  height: 95dvh;
-  max-height: 1200px;
+  height: var(--main-height);
+  max-height: var(--main-max-height);
   padding: 1.625rem 1.375rem 1.875rem;
   gap: 1rem;
-  max-width: 480px;
-  min-width: calc(320px * 0.9);
-  width: 90vw;
+  max-width: var(--main-max-width);
+  min-width: var(--main-min-width);
+  width: var(--main-width);
   background: var(--color-black);
   border: 2px solid var(--color-white);
   border-radius: 14px;
