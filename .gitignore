@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 CLAUDE.local.md
+
+*storybook.log
+storybook-static
