@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
+import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
@@ -19,6 +20,10 @@ export default function InputPage() {
 
   const navigate = useNavigate();
   const fireOnce = useFireOnce();
+
+  const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value.slice(0, MAX));
+  };
 
   const handleNext = () => {
     fireOnce(() => {
@@ -45,9 +50,9 @@ export default function InputPage() {
       <div className={styles.textareaWrapper}>
         <div className={styles.textareaBox}>
           <textarea
-            className={`${styles.textarea}${secretMode ? ` ${styles.textareaMasked}` : ''}`}
+            className={clsx(styles.textarea, secretMode && styles.textareaMasked)}
             value={text}
-            onChange={(e) => setText(e.target.value.slice(0, MAX))}
+            onChange={handleTextChange}
             placeholder="머릿속에 맴도는 걸 그대로 적어요"
             aria-label="스트레스 내용 입력"
             aria-describedby="secret-mode-status"
@@ -60,7 +65,7 @@ export default function InputPage() {
         <div className={styles.textareaFooter}>
           <button
             type="button"
-            className={`${styles.secretToggle}${secretMode ? ` ${styles.secretToggleOn}` : ''}`}
+            className={clsx(styles.secretToggle, secretMode && styles.secretToggleOn)}
             onClick={() => setSecretMode((v) => !v)}
             aria-pressed={secretMode}
             aria-label="시크릿 모드"
