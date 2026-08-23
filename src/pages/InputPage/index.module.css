@@ -50,43 +50,15 @@
 
 .textareaMasked {
   color: transparent;
-  caret-color: transparent;
+  text-decoration: underline;
+  text-decoration-color: var(--color-white);
+  text-decoration-thickness: 2px;
+  caret-color: var(--color-white);
 }
 
-.maskOverlay {
-  position: absolute;
-  inset: 0;
-  color: var(--color-white);
-  font-family: var(--font-pixel);
-  font-size: 14px;
-  line-height: 1.9;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.caret {
-  position: relative;
-  display: inline-block;
-  width: 0;
-}
-
-.caret::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 2px;
-  height: 1em;
-  background: var(--color-white);
-  animation: caretBlink 1s step-end infinite;
-}
-
-@keyframes caretBlink {
-  50% {
-    opacity: 0;
-  }
+.textareaMasked::selection {
+  color: transparent;
+  background: var(--color-gray-dark);
 }
 
 .srOnly {

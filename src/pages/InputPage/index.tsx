@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { SyntheticEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
@@ -17,14 +16,9 @@ export default function InputPage() {
 
   const [text, setText] = useState(emotionText);
   const [secretMode, setSecretMode] = useState(storedSecretMode);
-  const [caretIndex, setCaretIndex] = useState(emotionText.length);
 
   const navigate = useNavigate();
   const fireOnce = useFireOnce();
-
-  const syncCaret = (e: SyntheticEvent<HTMLTextAreaElement>) => {
-    setCaretIndex(e.currentTarget.selectionStart);
-  };
 
   const handleNext = () => {
     fireOnce(() => {
@@ -53,24 +47,11 @@ export default function InputPage() {
           <textarea
             className={`${styles.textarea}${secretMode ? ` ${styles.textareaMasked}` : ''}`}
             value={text}
-            onChange={(e) => {
-              setText(e.target.value.slice(0, MAX));
-              syncCaret(e);
-            }}
-            onSelect={syncCaret}
-            onClick={syncCaret}
-            onKeyUp={syncCaret}
+            onChange={(e) => setText(e.target.value.slice(0, MAX))}
             placeholder="머릿속에 맴도는 걸 그대로 적어요"
             aria-label="스트레스 내용 입력"
             aria-describedby="secret-mode-status"
           />
-          {secretMode && (
-            <div className={styles.maskOverlay} aria-hidden="true">
-              {text.slice(0, caretIndex).replace(/[^\s]/g, '■')}
-              <span className={styles.caret} />
-              {text.slice(caretIndex).replace(/[^\s]/g, '■')}
-            </div>
-          )}
         </div>
         <span id="secret-mode-status" className={styles.srOnly}>
           {secretMode ? `시크릿 모드 켜짐. 입력 내용은 화면에 가려집니다. ` : ''}현재 {text.length}
