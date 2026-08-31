@@ -7,6 +7,7 @@ import { GA_EVENTS } from '@constants/analytics';
 import { trackEvent } from '@utils/analytics';
 import { useFireOnce } from '@hooks/useFireOnce';
 import Button from '@components/Button';
+import { useConfirm } from '@components/Modal/_hooks/useConfirm';
 import styles from './index.module.css';
 
 const MAX = 1000;
@@ -20,9 +21,23 @@ export default function InputPage() {
 
   const navigate = useNavigate();
   const fireOnce = useFireOnce();
+  const confirm = useConfirm();
 
   const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value.slice(0, MAX));
+  };
+
+  const handleToggleSecretMode = async () => {
+    if (secretMode && text.length > 0) {
+      const ok = await confirm({
+        title: '시크릿 모드를 해제할까요?',
+        message: '해제하면 작성한 내용이 화면에 보여요.',
+        confirmText: '해제',
+      });
+      if (!ok) return;
+    }
+
+    setSecretMode((v) => !v);
   };
 
   const handleNext = () => {
@@ -66,7 +81,7 @@ export default function InputPage() {
           <button
             type="button"
             className={clsx(styles.secretToggle, secretMode && styles.secretToggleOn)}
-            onClick={() => setSecretMode((v) => !v)}
+            onClick={handleToggleSecretMode}
             aria-pressed={secretMode}
             aria-label="시크릿 모드"
           >

@@ -26,4 +26,11 @@
   /* 그림자 */
   --shadow-dark-1: #555;
   --shadow-dark-2: #222;
+
+  /* 레이아웃 — .main 프레임 치수 (모달 등이 이 기준으로 파생) */
+  --main-width: 90vw;
+  --main-max-width: 480px;
+  --main-height: 95dvh;
+  --main-max-height: 1200px;
+  --main-min-width: calc(320px * 0.9);
 }
