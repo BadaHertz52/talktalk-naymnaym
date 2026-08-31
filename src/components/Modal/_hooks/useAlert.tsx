@@ -4,15 +4,19 @@ import { overlay } from 'overlay-kit';
 import Button from '@components/Button';
 import Modal from '@components/Modal';
 
+type OpenAsyncOptions = Parameters<typeof overlay.openAsync>[1];
+
 interface AlertOptions {
   title: ReactNode;
   message?: ReactNode;
   confirmText?: string;
+  /** overlay.openAsync에 그대로 전달되는 옵션 (overlayId 등) */
+  overlayOptions?: OpenAsyncOptions;
 }
 
 export function useAlert() {
   return useCallback(
-    ({ title, message, confirmText = '확인' }: AlertOptions) =>
+    ({ title, message, confirmText = '확인', overlayOptions }: AlertOptions) =>
       overlay.openAsync<void>(({ isOpen, close, unmount }) => {
         const done = () => {
           close();
@@ -30,7 +34,7 @@ export function useAlert() {
             </Modal>
           )
         );
-      }),
+      }, overlayOptions),
     [],
   );
 }
