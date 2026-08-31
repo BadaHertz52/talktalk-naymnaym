@@ -34,11 +34,15 @@ export default function Modal({ onClose, className, children }: ModalProps) {
   }
 
   useEffect(() => {
-    dialogRef.current?.showModal();
+    const dialog = dialogRef.current;
+    dialog?.showModal();
 
     document.body.style.overflow = 'hidden';
 
     return () => {
+      // StrictMode의 mount→cleanup→mount 이중 실행 시, dialog가 open 상태로
+      // 남아있으면 재실행된 showModal()이 InvalidStateError를 던진다
+      dialog?.close();
       document.body.style.overflow = '';
 
       const trigger = triggerRef.current;
