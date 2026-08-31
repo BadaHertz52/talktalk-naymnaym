@@ -1,4 +1,9 @@
 .dialog {
+  /* UA 기본 스타일 리셋 — margin:auto, max-width/height:calc(100% - 6px - 2em), color:CanvasText */
+  margin: 0;
+  max-width: none;
+  max-height: none;
+  color: inherit;
   background: transparent;
   border: none;
   padding: 0 28px;
@@ -31,10 +36,10 @@
 
 .header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 10px;
+  position: relative;
 }
 
 .title {
@@ -44,9 +49,13 @@
   font-weight: 700;
   color: var(--color-white);
   text-shadow: 0.6px 0 currentColor;
+  text-align: center;
 }
 
 .closeButton {
+  position: absolute;
+  top:-10px;
+  right:-10px;
   display: inline-flex;
   flex-shrink: 0;
   background: transparent;
@@ -64,10 +73,12 @@
   font-size: 13px;
   color: var(--color-white);
   line-height: 1.75;
+  text-align: center;
 }
 
 .footer {
   display: flex;
+  justify-content: center;
   gap: 10px;
   margin-top: 24px;
 }
@@ -81,4 +92,5 @@
 
 .footer button {
   padding: 8px 0;
+  max-width: 150px;
 }
