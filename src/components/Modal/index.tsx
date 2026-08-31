@@ -28,6 +28,11 @@ export default function Modal({ onClose, className, children }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
+  const triggerRef = useRef<HTMLElement | null>(null);
+  if (triggerRef.current === null) {
+    triggerRef.current = document.activeElement as HTMLElement;
+  }
+
   useEffect(() => {
     dialogRef.current?.showModal();
 
@@ -35,6 +40,9 @@ export default function Modal({ onClose, className, children }: ModalProps) {
 
     return () => {
       document.body.style.overflow = '';
+
+      const trigger = triggerRef.current;
+      if (trigger && document.contains(trigger)) trigger.focus();
     };
   }, []);
 
