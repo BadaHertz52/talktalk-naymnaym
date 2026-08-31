@@ -14,6 +14,7 @@
     "lint": "oxlint",
     "type-check": "tsc -b",
     "test": "vitest run --passWithNoTests",
+    "test:storybook": "vitest run --config vitest.storybook.config.ts",
     "format": "prettier --write .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
