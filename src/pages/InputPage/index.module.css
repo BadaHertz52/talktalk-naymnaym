@@ -72,9 +72,7 @@
 }
 
 .maskedSegment {
-  text-decoration: underline;
-  text-decoration-color: var(--color-white);
-  text-decoration-thickness: 2px;
+  box-shadow: 0 2px 0 0 var(--color-white);
 }
 
 .srOnly {
