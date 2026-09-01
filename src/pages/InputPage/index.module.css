@@ -29,6 +29,7 @@
   position: relative;
   flex: 1;
   display: flex;
+  overflow: hidden;
 }
 
 .textarea {
@@ -53,15 +54,25 @@
   caret-color: var(--color-white);
 }
 
-.textareaMasked:not(:placeholder-shown) {
-  text-decoration: underline;
-  text-decoration-color: var(--color-white);
-  text-decoration-thickness: 2px;
-}
-
 .textareaMasked::selection {
   color: transparent;
   background: var(--color-gray-dark);
+}
+
+.maskOverlay {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  pointer-events: none;
+}
+
+.maskedSegment {
+  box-shadow: 0 2px 0 0 var(--color-white);
 }
 
 .srOnly {

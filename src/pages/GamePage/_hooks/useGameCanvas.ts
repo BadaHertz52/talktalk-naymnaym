@@ -10,6 +10,7 @@ interface UseGameCanvasProps {
   canvasRef: RefObject<HTMLCanvasElement | null>;
   carrotRef: RefObject<HTMLImageElement | null>;
   emotionText: string;
+  secretMode: boolean;
   enableNextStep: () => void;
 }
 
@@ -17,6 +18,7 @@ export function useGameCanvas({
   canvasRef,
   carrotRef,
   emotionText,
+  secretMode,
   enableNextStep,
 }: UseGameCanvasProps): UseGameCanvasResult {
   const [progress, setProgress] = useState(0);
@@ -39,6 +41,7 @@ export function useGameCanvas({
       canvas,
       ctx,
       emotionText,
+      secretMode,
       enableNextStep,
       onProgress: setProgress,
       cursorRef,
@@ -73,7 +76,7 @@ export function useGameCanvas({
       canvas.removeEventListener('pointercancel', controller.handlePointerUp);
       canvas.removeEventListener('keydown', controller.handleKeyDown);
     };
-  }, [canvasRef, carrotRef, emotionText, enableNextStep]);
+  }, [canvasRef, carrotRef, emotionText, secretMode, enableNextStep]);
 
   return { progress };
 }
