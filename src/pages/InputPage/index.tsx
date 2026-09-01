@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import type { SyntheticEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
+import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
@@ -7,6 +7,7 @@ import { GA_EVENTS } from '@constants/analytics';
 import { trackEvent } from '@utils/analytics';
 import { useFireOnce } from '@hooks/useFireOnce';
 import Button from '@components/Button';
+import { useConfirm } from '@components/Modal/_hooks/useConfirm';
 import styles from './index.module.css';
 
 const MAX = 1000;
@@ -17,13 +18,26 @@ export default function InputPage() {
 
   const [text, setText] = useState(emotionText);
   const [secretMode, setSecretMode] = useState(storedSecretMode);
-  const [caretIndex, setCaretIndex] = useState(emotionText.length);
 
   const navigate = useNavigate();
   const fireOnce = useFireOnce();
+  const confirm = useConfirm();
 
-  const syncCaret = (e: SyntheticEvent<HTMLTextAreaElement>) => {
-    setCaretIndex(e.currentTarget.selectionStart);
+  const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value.slice(0, MAX));
+  };
+
+  const handleToggleSecretMode = async () => {
+    if (secretMode && text.length > 0) {
+      const ok = await confirm({
+        title: '시크릿 모드를 해제할까요?',
+        message: '해제하면 작성한 내용이 화면에 보여요.',
+        confirmText: '해제',
+      });
+      if (!ok) return;
+    }
+
+    setSecretMode((v) => !v);
   };
 
   const handleNext = () => {
@@ -51,26 +65,13 @@ export default function InputPage() {
       <div className={styles.textareaWrapper}>
         <div className={styles.textareaBox}>
           <textarea
-            className={`${styles.textarea}${secretMode ? ` ${styles.textareaMasked}` : ''}`}
+            className={clsx(styles.textarea, secretMode && styles.textareaMasked)}
             value={text}
-            onChange={(e) => {
-              setText(e.target.value.slice(0, MAX));
-              syncCaret(e);
-            }}
-            onSelect={syncCaret}
-            onClick={syncCaret}
-            onKeyUp={syncCaret}
+            onChange={handleTextChange}
             placeholder="머릿속에 맴도는 걸 그대로 적어요"
             aria-label="스트레스 내용 입력"
             aria-describedby="secret-mode-status"
           />
-          {secretMode && (
-            <div className={styles.maskOverlay} aria-hidden="true">
-              {text.slice(0, caretIndex).replace(/[^\s]/g, '■')}
-              <span className={styles.caret} />
-              {text.slice(caretIndex).replace(/[^\s]/g, '■')}
-            </div>
-          )}
         </div>
         <span id="secret-mode-status" className={styles.srOnly}>
           {secretMode ? `시크릿 모드 켜짐. 입력 내용은 화면에 가려집니다. ` : ''}현재 {text.length}
@@ -79,8 +80,8 @@ export default function InputPage() {
         <div className={styles.textareaFooter}>
           <button
             type="button"
-            className={`${styles.secretToggle}${secretMode ? ` ${styles.secretToggleOn}` : ''}`}
-            onClick={() => setSecretMode((v) => !v)}
+            className={clsx(styles.secretToggle, secretMode && styles.secretToggleOn)}
+            onClick={handleToggleSecretMode}
             aria-pressed={secretMode}
             aria-label="시크릿 모드"
           >

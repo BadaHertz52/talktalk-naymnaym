@@ -1,0 +1,96 @@
+.dialog {
+  /* UA 기본 스타일 리셋 — margin:auto, max-width/height:calc(100% - 6px - 2em), color:CanvasText */
+  margin: 0;
+  max-width: none;
+  max-height: none;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 0 28px;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  outline: none;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.68);
+}
+
+.inner {
+  position: relative;
+  width: calc(var(--main-width) * 0.9);
+  max-width: calc(var(--main-max-width) * 0.9);
+  max-height: calc(var(--main-max-height) * 0.9);
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: 2px solid var(--color-white);
+  border-radius: 14px;
+  padding: 1.625rem 1.375rem 1.25rem;
+  box-shadow:
+    7px 7px 0 rgb(0 0 0 / 0.55),
+    inset 0 2px 0 0 rgb(255 255 255 / 0.12);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-white);
+  text-shadow: 0.6px 0 currentColor;
+  text-align: center;
+}
+
+.closeButton {
+  position: absolute;
+  top:-10px;
+  right:-10px;
+  display: inline-flex;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  color: var(--color-white);
+}
+
+.body {
+  font-size: 13px;
+  color: var(--color-white);
+  line-height: 1.75;
+  text-align: center;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.footer > * {
+  flex: 1;
+  padding-inline: 0;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.footer button {
+  padding: 8px 0;
+  max-width: 150px;
+}

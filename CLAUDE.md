@@ -1,5 +1,12 @@
 # 톡톡냠냠 — Claude Code 가이드
 
+## 브랜치
+
+- **기본/개발 브랜치**: `master` (`main` 아님)
+- **배포 브랜치**: `release` — `master → release` PR을 머지하면 Vercel이 자동 배포
+
+---
+
 ## 기술 스택
 
 - **UI**: React 19 + TypeScript (strict)
