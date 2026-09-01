@@ -1,14 +1,14 @@
 ---
 name: release-pr
 description: >
-  main 브랜치를 release 브랜치로 배포하는 PR을 생성하고 일반 머지(--merge)한다.
+  master 브랜치를 release 브랜치로 배포하는 PR을 생성하고 일반 머지(--merge)한다.
   머지되면 Vercel이 release 브랜치를 자동 배포한다. 사용자가 "release로 머지해줘",
   "배포 PR 만들어줘", "release PR", "/release-pr" 이라고 할 때 트리거된다.
 ---
 
 # Release PR (톡톡냠냠 전용)
 
-main → release 배포 PR을 생성하고 머지하는 스킬. release 브랜치는 배포 히스토리
+master → release 배포 PR을 생성하고 머지하는 스킬. release 브랜치는 배포 히스토리
 보존이 목적이므로 **일반 머지(--merge)만 사용**한다 (스쿼시 아님).
 
 ## 절차
@@ -17,18 +17,18 @@ main → release 배포 PR을 생성하고 머지하는 스킬. release 브랜�
    ```bash
    git fetch origin
    git status
-   git log origin/release..origin/main --oneline
+   git log origin/release..origin/master --oneline
    ```
-   - main과 release의 차이가 없으면 "배포할 변경 사항 없음"을 알리고 중단한다.
+   - master와 release의 차이가 없으면 "배포할 변경 사항 없음"을 알리고 중단한다.
    - working tree에 uncommitted 변경이 있으면 사용자에게 알리고 진행 여부를 확인한다.
 
 2. **PR 생성**
    ```bash
-   gh pr create --base release --head main \
+   gh pr create --base release --head master \
      --title "release: <핵심 변경 요약>" \
      --body "$(cat <<'EOF'
    ## 이번 릴리즈 변경 사항
-   - <origin/release..origin/main 커밋 로그 기반으로 요약>
+   - <origin/release..origin/master 커밋 로그 기반으로 요약>
 
    🤖 Generated with [Claude Code](https://claude.com/claude-code)
    EOF

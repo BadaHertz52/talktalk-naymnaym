@@ -1,7 +1,7 @@
 ---
 name: github-release-publish
 description: >
-  release 브랜치에 git 태그를 생성하고 GitHub Release를 발행한다. main→release
+  release 브랜치에 git 태그를 생성하고 GitHub Release를 발행한다. master→release
   머지(release-pr 스킬) 이후, 실제 배포 버전을 기록하는 단계에서 사용한다.
   사용자가 "깃허브 레포 release 업데이트해줘", "릴리즈 발행해줘", "태그 만들고
   릴리즈 올려줘", "/github-release-publish" 라고 할 때 트리거된다.
