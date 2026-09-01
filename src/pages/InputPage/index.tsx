@@ -74,7 +74,7 @@ export default function InputPage() {
             className={clsx(styles.textarea, secretMode && styles.textareaMasked)}
             value={text}
             onChange={handleTextChange}
-            onScroll={secretMode ? handleScroll : undefined}
+            onScroll={handleScroll}
             placeholder="머릿속에 맴도는 걸 그대로 적어요"
             aria-label="스트레스 내용 입력"
             aria-describedby="secret-mode-status"
