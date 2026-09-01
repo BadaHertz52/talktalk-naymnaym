@@ -19,6 +19,7 @@ export interface CreateScratchControllerOptions {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   emotionText: string;
+  secretMode: boolean;
   enableNextStep: () => void;
   onProgress: OnProgress;
   cursorRef: { current: Position | null };
@@ -38,6 +39,7 @@ export function createScratchController({
   canvas,
   ctx,
   emotionText,
+  secretMode,
   enableNextStep,
   onProgress,
   cursorRef,
@@ -58,7 +60,7 @@ export function createScratchController({
     canvas.height = cssHeight * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     // 리사이즈 시 지운 진행 상태 보존은 하지 않는다 — 드문 이벤트라 좌표 정합성이 더 중요 (ponytail: 리사이즈 빈도가 문제되면 진행률 보존 재검토)
-    drawScratchCover(ctx, { text: emotionText, width: cssWidth, height: cssHeight });
+    drawScratchCover(ctx, { text: emotionText, width: cssWidth, height: cssHeight, secretMode });
   };
 
   const reportProgressThrottled = () => {

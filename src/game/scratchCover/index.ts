@@ -2,11 +2,15 @@
 // 그 이상 길이는 fitTextToCanvas가 극단 축소/말줄임으로 방어하지만 성능 검증 대상은 아니다.
 
 import type { ScratchCoverOptions } from '@/types/game';
+import { getMaskSegments } from '@utils/secretMask';
 
 const COVER_GRADIENT_TOP = '#2a2a2a';
 const COVER_GRADIENT_BOTTOM = '#0a0a0a';
 const COVER_TEXT_COLOR = '#e0e0e0';
 const COVER_FONT_FAMILY = "'Galmuri14', 'Galmuri11', 'Courier New', monospace";
+const SECRET_UNDERLINE_OFFSET_RATIO = 0.4;
+const SECRET_UNDERLINE_THICKNESS_RATIO = 0.08;
+const SECRET_UNDERLINE_MIN_THICKNESS = 2;
 
 const MAX_FONT_SIZE = 48;
 const MIN_FONT_SIZE = 10;
@@ -192,7 +196,7 @@ export function drawScratchCover(
   ctx: CanvasRenderingContext2D,
   options: ScratchCoverOptions,
 ): void {
-  const { text, width, height, textOpacity = 0.2 } = options;
+  const { text, width, height, textOpacity = 0.2, secretMode = false } = options;
 
   ctx.imageSmoothingEnabled = false;
 
@@ -220,15 +224,47 @@ export function drawScratchCover(
 
   ctx.font = `${fontSize}px ${COVER_FONT_FAMILY}`;
   ctx.fillStyle = COVER_TEXT_COLOR;
-  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
   const startY = (height - totalTextHeight) / 2 + lineHeight / 2;
 
   ctx.save();
-  ctx.globalAlpha = textOpacity;
-  lines.forEach((line, index) => {
-    ctx.fillText(line, width / 2, startY + index * lineHeight);
-  });
+
+  if (secretMode) {
+    // 실제 글자는 그리지 않고, 공백이 아닌 구간 아래에만 밑줄을 그린다 (InputPage와 동일한 마스킹 규칙)
+    ctx.textAlign = 'left';
+
+    const underlineThickness = Math.max(
+      SECRET_UNDERLINE_MIN_THICKNESS,
+      fontSize * SECRET_UNDERLINE_THICKNESS_RATIO,
+    );
+
+    lines.forEach((line, index) => {
+      const lineWidth = measure(line, fontSize);
+      const lineY = startY + index * lineHeight;
+      let x = width / 2 - lineWidth / 2;
+
+      for (const segment of getMaskSegments(line, true)) {
+        const segmentWidth = measure(segment.text, fontSize);
+
+        if (segment.masked) {
+          ctx.fillRect(
+            x,
+            lineY + fontSize * SECRET_UNDERLINE_OFFSET_RATIO,
+            segmentWidth,
+            underlineThickness,
+          );
+        }
+        x += segmentWidth;
+      }
+    });
+  } else {
+    ctx.textAlign = 'center';
+    ctx.globalAlpha = textOpacity;
+    lines.forEach((line, index) => {
+      ctx.fillText(line, width / 2, startY + index * lineHeight);
+    });
+  }
+
   ctx.restore();
 }

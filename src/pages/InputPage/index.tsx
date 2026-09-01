@@ -1,10 +1,11 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent, type UIEvent } from 'react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
 import { GA_EVENTS } from '@constants/analytics';
 import { trackEvent } from '@utils/analytics';
+import { getMaskSegments } from '@utils/secretMask';
 import { useFireOnce } from '@hooks/useFireOnce';
 import Button from '@components/Button';
 import { useConfirm } from '@components/Modal/_hooks/useConfirm';
@@ -18,6 +19,7 @@ export default function InputPage() {
 
   const [text, setText] = useState(emotionText);
   const [secretMode, setSecretMode] = useState(storedSecretMode);
+  const [scrollTop, setScrollTop] = useState(0);
 
   const navigate = useNavigate();
   const fireOnce = useFireOnce();
@@ -25,6 +27,10 @@ export default function InputPage() {
 
   const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value.slice(0, MAX));
+  };
+
+  const handleScroll = (e: UIEvent<HTMLTextAreaElement>) => {
+    setScrollTop(e.currentTarget.scrollTop);
   };
 
   const handleToggleSecretMode = async () => {
@@ -68,10 +74,24 @@ export default function InputPage() {
             className={clsx(styles.textarea, secretMode && styles.textareaMasked)}
             value={text}
             onChange={handleTextChange}
+            onScroll={handleScroll}
             placeholder="머릿속에 맴도는 걸 그대로 적어요"
             aria-label="스트레스 내용 입력"
             aria-describedby="secret-mode-status"
           />
+          {secretMode && text.length > 0 && (
+            <div className={styles.maskOverlay} aria-hidden="true" style={{ marginTop: -scrollTop }}>
+              {getMaskSegments(text, secretMode).map((segment, i) =>
+                segment.masked ? (
+                  <span key={i} className={styles.maskedSegment}>
+                    {segment.text}
+                  </span>
+                ) : (
+                  segment.text
+                ),
+              )}
+            </div>
+          )}
         </div>
         <span id="secret-mode-status" className={styles.srOnly}>
           {secretMode ? `시크릿 모드 켜짐. 입력 내용은 화면에 가려집니다. ` : ''}현재 {text.length}

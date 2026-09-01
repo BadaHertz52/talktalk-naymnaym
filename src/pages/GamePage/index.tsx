@@ -38,12 +38,11 @@ export default function GamePage() {
     });
   }, []);
 
-  // 시크릿 모드에서는 캔버스 커버에도 원문이 그려지지 않도록 마스킹 후 전달 (InputPage와 동일한 마스킹 문자)
-  const coverText = secretMode ? emotionText.replace(/[^\s]/g, '■') : emotionText;
   const { progress } = useGameCanvas({
     canvasRef,
     carrotRef,
-    emotionText: coverText,
+    emotionText,
+    secretMode,
     enableNextStep,
   });
 
