@@ -21,9 +21,9 @@ export default function HomePage() {
       <Mascot src={ASSETS.bunny.cart} alt="톡톡냠냠 마스코트 토끼" />
       <h1 className={styles.title}>톡톡냠냠</h1>
       <p className={styles.description}>
-        토끼가 당근을 굴려서
+        참았던 말들, 눌러뒀던 감정
         <br />
-        신경 쓰이는 걸 없애줘요
+        토끼에게 털어놓고 냠냠 없애버리세요
       </p>
       <Button className={styles.button} onClick={() => navigate(PATHS.input)}>
         시작하기 ▸
