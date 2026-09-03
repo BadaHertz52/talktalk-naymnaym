@@ -23,7 +23,10 @@ export default function MoodDecreased({ expressionStep, intensity, intensityBefo
             src={ASSETS.bunny.expression[lvl]}
             alt=""
             aria-hidden="true"
-            className={clsx(styles.moodImg, lvl === expressionStep ? styles.active : styles.inactive)}
+            className={clsx(
+              styles.moodImg,
+              lvl === expressionStep ? styles.active : styles.inactive,
+            )}
           />
         ))}
       </div>
