@@ -4,8 +4,6 @@ import { ASSETS } from '@game/assets';
 import ArrowIcon from '../ArrowIcon';
 import styles from './index.module.css';
 
-const STRIP_GROW_CLASS = ['grow1', 'grow1', 'grow1', 'grow2', 'grow3'] as const;
-
 const EMOTION_STEPS: EmotionExpressionStep[] = [1, 2, 3, 4, 5];
 
 interface Props {
@@ -19,7 +17,7 @@ export default function MoodDecreased({ expressionStep, intensity, intensityBefo
     <div className={styles.decreasedMood}>
       <p className={clsx(styles.resultTitle, styles.resultTitleWarm)}>한결 가벼워졌어요</p>
       <div className={styles.moodStrip}>
-        {EMOTION_STEPS.map((lvl, i) => (
+        {EMOTION_STEPS.map((lvl) => (
           <img
             key={`emotion-${lvl}`}
             src={ASSETS.bunny.expression[lvl]}
@@ -27,7 +25,6 @@ export default function MoodDecreased({ expressionStep, intensity, intensityBefo
             aria-hidden="true"
             className={clsx(
               styles.moodImg,
-              styles[STRIP_GROW_CLASS[i]],
               lvl === expressionStep ? styles.active : styles.inactive,
             )}
           />

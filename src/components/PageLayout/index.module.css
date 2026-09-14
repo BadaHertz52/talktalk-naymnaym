@@ -3,6 +3,7 @@
   flex-direction: column;
   height: var(--main-height);
   max-height: var(--main-max-height);
+  overflow-y: auto;
   padding: 1.625rem 1.375rem 1.875rem;
   gap: 1rem;
   max-width: var(--main-max-width);
