@@ -39,4 +39,8 @@ export interface GameAssets {
     bunny: string;
     success: string;
   };
+  modeThumb: {
+    scratch: string;
+    pull: string;
+  };
 }

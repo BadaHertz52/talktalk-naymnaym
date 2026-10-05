@@ -18,6 +18,8 @@ import bufferSceneStill from '@assets/images/buffer-scene-still.webp';
 import dirtGround from '@assets/images/dirt-ground.webp';
 import bunnyPullingCarrot from '@assets/images/bunny-pulling-carrot.webp';
 import bunnyCarrotSuccess from '@assets/images/bunny-carrot-success.webp';
+import modeThumbScratch from '@assets/images/game-mode-scratch.webp';
+import modeThumbPull from '@assets/images/game-mode-pull.webp';
 
 export const ASSETS: GameAssets = {
   bunny: {
@@ -50,6 +52,10 @@ export const ASSETS: GameAssets = {
     dirt: dirtGround,
     bunny: bunnyPullingCarrot,
     success: bunnyCarrotSuccess,
+  },
+  modeThumb: {
+    scratch: modeThumbScratch,
+    pull: modeThumbPull,
   },
 } as const;
 
