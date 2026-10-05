@@ -30,4 +30,13 @@ export interface GameAssets {
     full: string;
   };
   weather: Record<WeatherIcon, string>;
+  buffer: {
+    scene: string;
+    sceneStill: string;
+  };
+  pull: {
+    dirt: string;
+    bunny: string;
+    success: string;
+  };
 }
