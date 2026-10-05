@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { EmotionExpressionStep, EmotionIntensity } from '@/types/session';
+import { overlay } from 'overlay-kit';
+import type { EmotionExpressionStep, EmotionIntensity, GameMode } from '@/types/session';
 import { useSessionStore } from '@stores/sessionStore';
 import { ASSETS, GAME_PAGE_PRELOAD } from '@game/assets';
 import { EXPRESSION_WEATHER } from '@constants/intensity';
@@ -8,9 +9,11 @@ import { toExpressionStep } from '@utils/intensity';
 import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
 import { GA_EVENTS } from '@constants/analytics';
+import { ENABLED_GAME_MODES } from '@constants/gameMode';
 import { useFireOnce } from '@hooks/useFireOnce';
 import IntensitySlider from '@components/IntensitySlider';
 import Button from '@components/Button';
+import GameModeModal from './_components/GameModeModal';
 import styles from './index.module.css';
 
 const WEATHER_LABEL: Record<EmotionExpressionStep, string> = {
@@ -36,11 +39,25 @@ export default function MeasurePage() {
     });
   }, []);
 
-  const handleNext = () => {
+  const selectGameMode = () =>
+    overlay.openAsync<GameMode | null>(({ isOpen, close, unmount }) => {
+      const done = (mode: GameMode | null) => {
+        close(mode);
+        unmount();
+      };
+
+      return isOpen && <GameModeModal onSelect={(mode) => done(mode)} onClose={() => done(null)} />;
+    });
+
+  const handleNext = async () => {
     if (!intensity) return;
 
+    const gameMode =
+      ENABLED_GAME_MODES.length === 1 ? ENABLED_GAME_MODES[0] : await selectGameMode();
+    if (!gameMode) return;
+
     fireOnce(() => {
-      completeMeasure(intensity);
+      completeMeasure({ intensity, gameMode });
       trackEvent(GA_EVENTS.measureComplete);
       navigate(PATHS.game);
     });

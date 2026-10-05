@@ -1,13 +1,13 @@
 import { create } from 'zustand';
-import type { EmotionIntensity, SessionSteps, Step } from '@/types/session';
+import type { EmotionIntensity, GameMode, SessionSteps, Step } from '@/types/session';
 
 // 단계 추가/삭제가 드물고 수동이므로 배열이면 충분 — config 객체 불필요
 const STEP_ORDER: readonly Step[] = ['input', 'measure', 'game', 'result'];
 
 const initialSteps: SessionSteps = {
   input: { completed: false, data: { emotionText: '', secretMode: false } },
-  measure: { completed: false, data: { intensityBefore: null } },
-  game: { completed: false, data: {} },
+  measure: { completed: false, data: { intensityBefore: null, gameMode: null } },
+  game: { completed: false, data: { cleared: false, replayCount: 0 } },
   result: { completed: false, data: { intensityAfter: null, afterEmotionText: '' } },
 };
 
@@ -55,8 +55,9 @@ function applyStep<K extends Step>({
 interface SessionStore {
   steps: SessionSteps;
   completeInput: (args: { text: string; secretMode: boolean }) => void;
-  completeMeasure: (v: EmotionIntensity) => void;
-  completeGame: () => void;
+  completeMeasure: (args: { intensity: EmotionIntensity; gameMode: GameMode }) => void;
+  completeGame: (args: { cleared: boolean }) => void;
+  incrementReplayCount: () => void;
   completeResult: (args: { intensityAfter: EmotionIntensity; afterEmotionText: string }) => void;
   reset: () => void;
 }
@@ -72,13 +73,32 @@ export const useSessionStore = create<SessionStore>()((set) => ({
         compareKeys: { emotionText: text },
       }),
     })),
-  completeMeasure: (v) =>
+  completeMeasure: ({ intensity, gameMode }) =>
     set((s) => ({
-      steps: applyStep({ steps: s.steps, step: 'measure', data: { intensityBefore: v } }),
+      steps: applyStep({
+        steps: s.steps,
+        step: 'measure',
+        data: { intensityBefore: intensity, gameMode },
+      }),
     })),
-  completeGame: () =>
+  completeGame: ({ cleared }) =>
     set((s) => ({
-      steps: applyStep({ steps: s.steps, step: 'game', data: {} }),
+      steps: applyStep({
+        steps: s.steps,
+        step: 'game',
+        data: { cleared, replayCount: s.steps.game.data.replayCount },
+      }),
+    })),
+  // 재플레이는 게임 단계 안에서 일어나는 일이라 완료 여부·이후 단계를 건드리지 않는다
+  incrementReplayCount: () =>
+    set((s) => ({
+      steps: {
+        ...s.steps,
+        game: {
+          ...s.steps.game,
+          data: { ...s.steps.game.data, replayCount: s.steps.game.data.replayCount + 1 },
+        },
+      },
     })),
   completeResult: ({ intensityAfter, afterEmotionText }) =>
     set((s) => ({

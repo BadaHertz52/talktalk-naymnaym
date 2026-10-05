@@ -4,6 +4,8 @@ export type EmotionExpressionStep = 1 | 2 | 3 | 4 | 5;
 
 export type WeatherIcon = 'sun' | 'partlyCloudy' | 'cloudy' | 'overcast' | 'lightning';
 
+export type GameMode = 'scratch' | 'pull';
+
 export type Step = 'input' | 'measure' | 'game' | 'result';
 
 export interface StepState<Data> {
@@ -18,9 +20,13 @@ export interface InputData {
 
 export interface MeasureData {
   intensityBefore: EmotionIntensity | null;
+  gameMode: GameMode | null;
 }
 
-export type GameData = Record<string, never>;
+export interface GameData {
+  cleared: boolean;
+  replayCount: number;
+}
 
 export interface ResultData {
   intensityAfter: EmotionIntensity | null;

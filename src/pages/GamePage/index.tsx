@@ -13,6 +13,7 @@ import Button from '@/components/Button';
 export default function GamePage() {
   const navigate = useNavigate();
   const { emotionText, secretMode } = useSessionStore((s) => s.steps.input.data);
+  const gameMode = useSessionStore((s) => s.steps.measure.data.gameMode);
   const completeGame = useSessionStore((s) => s.completeGame);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const carrotRef = useRef<HTMLImageElement>(null);
@@ -26,11 +27,15 @@ export default function GamePage() {
 
   const handleNext = () => {
     fireOnce(() => {
-      completeGame();
+      completeGame({ cleared: true });
       trackEvent(GA_EVENTS.gameComplete);
       navigate(PATHS.result);
     });
   };
+
+  useEffect(() => {
+    if (gameMode === null) navigate(PATHS.measure, { replace: true });
+  }, [gameMode, navigate]);
 
   useEffect(() => {
     RESULT_PAGE_PRELOAD.forEach((src) => {

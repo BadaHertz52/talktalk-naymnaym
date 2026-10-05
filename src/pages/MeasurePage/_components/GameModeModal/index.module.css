@@ -1,0 +1,96 @@
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (min-width: 400px) {
+  .cards {
+    flex-direction: row;
+  }
+
+  .card {
+    flex: 1;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--color-black);
+  color: var(--color-white);
+  border: 2px solid var(--color-white);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.card:hover {
+  background: var(--color-surface);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.thumbnail {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border: 1.5px solid var(--color-gray-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.carrot {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 40px;
+  margin: auto;
+  image-rendering: pixelated;
+}
+
+/* 문지른 자국 — 사선 줄무늬 */
+.scratch::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(135deg, transparent 0 8px, var(--color-gray-dark) 8px 11px);
+}
+
+/* ponytail: 흙 타원은 CSS 플레이스홀더 — dirt-ground 에셋 등록(#53) 후 이미지로 교체 */
+.pull .carrot {
+  inset: auto 0 14px;
+}
+
+.pull::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 4px;
+  z-index: 2;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary-deep);
+}
+
+.name {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.description {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-gray-light);
+}
