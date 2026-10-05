@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { overlay } from 'overlay-kit';
 import type { EmotionExpressionStep, EmotionIntensity, GameMode } from '@/types/session';
@@ -49,18 +49,26 @@ export default function MeasurePage() {
       return isOpen && <GameModeModal onSelect={(mode) => done(mode)} onClose={() => done(null)} />;
     });
 
+  // 모달을 await하는 동안에도 버튼이 살아 있어, 가드가 없으면 연타 시 dialog가 겹쳐 쌓인다
+  const selectingRef = useRef(false);
+
   const handleNext = async () => {
-    if (!intensity) return;
+    if (!intensity || selectingRef.current) return;
 
-    const gameMode =
-      ENABLED_GAME_MODES.length === 1 ? ENABLED_GAME_MODES[0] : await selectGameMode();
-    if (!gameMode) return;
+    selectingRef.current = true;
+    try {
+      const gameMode =
+        ENABLED_GAME_MODES.length === 1 ? ENABLED_GAME_MODES[0] : await selectGameMode();
+      if (!gameMode) return;
 
-    fireOnce(() => {
-      completeMeasure({ intensity, gameMode });
-      trackEvent(GA_EVENTS.measureComplete);
-      navigate(PATHS.game);
-    });
+      fireOnce(() => {
+        completeMeasure({ intensity, gameMode });
+        trackEvent(GA_EVENTS.measureComplete);
+        navigate(PATHS.game);
+      });
+    } finally {
+      selectingRef.current = false;
+    }
   };
 
   return (

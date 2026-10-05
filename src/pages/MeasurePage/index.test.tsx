@@ -74,7 +74,7 @@ describe('MeasurePage 모드 선택', () => {
 
       clickNext();
 
-      const dialog = await screen.findByRole('dialog', { name: '어떤 방식이 지금 손에 맞아요?' });
+      const dialog = await screen.findByRole('dialog', { name: '다음 단계를 선택해주세요.' });
       const cards = within(dialog).getAllByRole('button', { name: /^당근/ });
       expect(cards).toHaveLength(2);
       expect(cards[0]?.textContent).toContain('당근으로 지우기');
