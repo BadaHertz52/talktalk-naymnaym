@@ -19,7 +19,9 @@
 .scene {
   position: relative;
   width: 100%;
-  aspect-ratio: 720 / 640;
+  /* 와이어프레임 05a~05e의 박스 비율(카드 콘텐츠 폭 346 × 높이 378).
+     GIF 원본은 720×640이라 좌우가 잘리는데, 장면이 가운데 정렬이라 의도된 크롭이다 */
+  aspect-ratio: 346 / 378;
   margin-top: 16px;
   border: 2px solid var(--color-white);
   border-radius: 16px;
