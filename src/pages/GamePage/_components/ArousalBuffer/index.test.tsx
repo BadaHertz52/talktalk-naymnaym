@@ -13,17 +13,24 @@ function stubReducedMotion(reduce: boolean) {
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: reduce }));
 }
 
-function renderArousalBuffer({
-  topMessage = '당근 다 뽑았어요!',
-  onSkip = vi.fn(),
-}: {
-  topMessage?: string;
-  onSkip?: (dwellMs: number) => void;
-} = {}) {
-  const footer = <button>다음 ▸</button>;
-  const result = render(<ArousalBuffer topMessage={topMessage} footer={footer} onSkip={onSkip} />);
+function renderArousalBuffer({ topMessage = '당근 다 뽑았어요!' }: { topMessage?: string } = {}) {
+  const footerCalls: { skipped: boolean; getDwellMs: () => number }[] = [];
+  const result = render(
+    <ArousalBuffer
+      topMessage={topMessage}
+      footer={(ctx) => {
+        footerCalls.push(ctx);
 
-  return { ...result, onSkip };
+        return <button>다음 ▸</button>;
+      }}
+    />,
+  );
+
+  return { ...result, footerCalls };
+}
+
+function clickSkip() {
+  fireEvent.click(screen.getByRole('button', { name: '건너뛰기' }));
 }
 
 describe('ArousalBuffer', () => {
@@ -94,19 +101,49 @@ describe('ArousalBuffer', () => {
   });
 
   describe('건너뛰기를 누르면', () => {
-    it('onSkip이 호출되고 체류 시간이 함께 전달된다', () => {
+    it('하단 문구와 footer가 즉시 나타난다', () => {
       setupFakeClock();
       stubReducedMotion(false);
-      const onSkip = vi.fn();
-      renderArousalBuffer({ onSkip });
+      renderArousalBuffer();
+
+      clickSkip();
+
+      expect(screen.getByText(bottomMessage)).toBeTruthy();
+      expect(screen.getByRole('button', { name: '다음 ▸' })).toBeTruthy();
+    });
+
+    it('건너뛰기 버튼이 사라진다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer();
+
+      clickSkip();
+
+      expect(screen.queryByRole('button', { name: '건너뛰기' })).toBeNull();
+    });
+
+    it('footer에 skipped가 true로 전달된다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      const { footerCalls } = renderArousalBuffer();
+
+      clickSkip();
+
+      expect(footerCalls.at(-1)?.skipped).toBe(true);
+    });
+  });
+
+  describe('3.0초를 기다려서 footer가 나타나면', () => {
+    it('footer에 skipped가 false로 전달된다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      const { footerCalls } = renderArousalBuffer();
 
       act(() => {
-        vi.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(3000);
       });
-      fireEvent.click(screen.getByRole('button', { name: '건너뛰기' }));
 
-      expect(onSkip).toHaveBeenCalledTimes(1);
-      expect(onSkip.mock.calls[0]?.[0]).toEqual(expect.any(Number));
+      expect(footerCalls.at(-1)?.skipped).toBe(false);
     });
   });
 

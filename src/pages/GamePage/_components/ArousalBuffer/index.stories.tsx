@@ -38,9 +38,6 @@ const meta = {
       </CardFrame>
     ),
   ],
-  args: {
-    onSkip: (dwellMs: number) => console.log('onSkip', dwellMs),
-  },
 } satisfies Meta<typeof ArousalBuffer>;
 
 export default meta;
@@ -54,10 +51,10 @@ type Story = StoryObj<typeof meta>;
 export const 뽑기: Story = {
   args: {
     topMessage: '당근 다 뽑았어요!',
-    footer: (
+    footer: ({ getDwellMs, skipped }) => (
       <>
         <Button variant="outline">한 번 더 뽑기</Button>
-        <Button>다음 ▸</Button>
+        <Button onClick={() => console.log({ skipped, dwellMs: getDwellMs() })}>다음 ▸</Button>
       </>
     ),
   },
@@ -67,7 +64,7 @@ export const 뽑기: Story = {
 export const 뽑기3판완료: Story = {
   args: {
     topMessage: '당근 다 뽑았어요!',
-    footer: (
+    footer: ({ getDwellMs, skipped }) => (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
         <p
           style={{
@@ -79,7 +76,7 @@ export const 뽑기3판완료: Story = {
         >
           충분히 했어요. 이제 결과를 볼까요?
         </p>
-        <Button>다음 ▸</Button>
+        <Button onClick={() => console.log({ skipped, dwellMs: getDwellMs() })}>다음 ▸</Button>
       </div>
     ),
   },
@@ -89,6 +86,8 @@ export const 뽑기3판완료: Story = {
 export const 스크래치: Story = {
   args: {
     topMessage: '글자 다 지웠어요!',
-    footer: <Button>다음 ▸</Button>,
+    footer: ({ getDwellMs, skipped }) => (
+      <Button onClick={() => console.log({ skipped, dwellMs: getDwellMs() })}>다음 ▸</Button>
+    ),
   },
 };
