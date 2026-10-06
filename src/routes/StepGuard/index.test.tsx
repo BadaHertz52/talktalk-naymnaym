@@ -27,11 +27,11 @@ function completeUpTo(step: 'input' | 'measure' | 'game' | 'result') {
 
   if (step === 'input') return;
 
-  useSessionStore.getState().completeMeasure(5);
+  useSessionStore.getState().completeMeasure({ intensity: 5, gameMode: 'scratch' });
 
   if (step === 'measure') return;
 
-  useSessionStore.getState().completeGame();
+  useSessionStore.getState().completeGame({ cleared: true });
 
   if (step === 'game') return;
 
