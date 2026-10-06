@@ -55,10 +55,10 @@ export const 뽑기: Story = {
   args: {
     topMessage: '당근 다 뽑았어요!',
     footer: (
-      <div style={{ display: 'flex', gap: 10, width: '100%' }}>
+      <>
         <Button variant="outline">한 번 더 뽑기</Button>
         <Button>다음 ▸</Button>
-      </div>
+      </>
     ),
   },
 };
@@ -68,7 +68,7 @@ export const 뽑기3판완료: Story = {
   args: {
     topMessage: '당근 다 뽑았어요!',
     footer: (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 9, width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
         <p
           style={{
             margin: 0,

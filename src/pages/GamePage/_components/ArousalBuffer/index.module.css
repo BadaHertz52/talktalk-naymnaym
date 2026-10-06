@@ -73,8 +73,23 @@
 .footer {
   display: flex;
   align-items: center;
+  gap: 10px;
+  width: 100%;
   min-height: 64px;
   margin-top: auto;
+}
+
+/* 호출부가 버튼을 몇 개 넘기든 가로를 균등하게 나눠 갖는다 —
+   와이어프레임 05c는 두 버튼이 같은 너비, 05e는 단독 버튼이 폭을 꽉 채운다 */
+.footer > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 너비를 flex로 받으므로 공용 Button의 좌우 패딩(2.875rem)이 필요 없다.
+   그대로 두면 390px 카드에서 두 버튼이 나란히 설 때 라벨이 줄바꿈된다 */
+.footer > button {
+  padding-inline: 0;
 }
 
 .footerVisible {
