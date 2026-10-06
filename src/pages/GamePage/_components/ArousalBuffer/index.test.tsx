@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ASSETS } from '@game/assets';
 import ArousalBuffer from '.';
 
 const bottomMessage = '쉿, 토끼가 자요. 옆에서 쉬어도 돼요.';
@@ -90,13 +91,16 @@ describe('ArousalBuffer', () => {
   });
 
   describe('reducedMotion이면', () => {
-    it('하단 문구와 footer가 마운트 즉시 전부 보인다', () => {
+    it('GIF 대신 정지 프레임을 쓰고 노출 타이밍은 동일하다', () => {
       setupFakeClock();
       stubReducedMotion(true);
       renderArousalBuffer();
 
-      expect(screen.getByText(bottomMessage)).toBeTruthy();
-      expect(screen.getByRole('button', { name: '다음 ▸' })).toBeTruthy();
+      const scene = document.querySelector('img');
+
+      expect(scene?.getAttribute('src')).toBe(ASSETS.buffer.sceneStill);
+      expect(screen.queryByText(bottomMessage)).toBeNull();
+      expect(screen.queryByRole('button', { name: '다음 ▸' })).toBeNull();
     });
   });
 

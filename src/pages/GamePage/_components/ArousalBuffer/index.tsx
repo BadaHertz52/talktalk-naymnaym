@@ -20,9 +20,9 @@ interface Props {
 
 export default function ArousalBuffer({ topMessage, footer }: Props) {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const [showBottomMessage, setShowBottomMessage] = useState(reducedMotion);
+  const [showBottomMessage, setShowBottomMessage] = useState(false);
   const [skipped, setSkipped] = useState(false);
-  const { showCta, getDwellMs } = useArousalBuffer({ reducedMotion });
+  const { showCta, getDwellMs } = useArousalBuffer();
   const showFooter = showCta || skipped;
 
   const handleSkip = () => {
@@ -31,10 +31,6 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
   };
 
   useEffect(() => {
-    if (reducedMotion) {
-      return;
-    }
-
     const timeoutId = setTimeout(() => {
       setShowBottomMessage(true);
     }, BOTTOM_MESSAGE_DELAY_MS);
@@ -42,7 +38,7 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [reducedMotion]);
+  }, []);
 
   return (
     <section className={styles.buffer}>
