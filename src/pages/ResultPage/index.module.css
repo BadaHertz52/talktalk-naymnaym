@@ -64,3 +64,11 @@
   width: 100%;
   margin-top: auto;
 }
+
+.quitMessage {
+  font-size: 13px;
+  color: var(--color-gray-light);
+  line-height: 1.7;
+  text-align: center;
+  margin: 0.625rem 0 0;
+}

@@ -27,6 +27,7 @@ export default function ResultPage() {
   const fireOnce = useFireOnce();
 
   const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
+  const cleared = useSessionStore((s) => s.steps.game.data.cleared);
   const { intensityAfter, afterEmotionText } = useSessionStore((s) => s.steps.result.data);
   const completeResult = useSessionStore((s) => s.completeResult);
 
@@ -61,6 +62,7 @@ export default function ResultPage() {
 
   return (
     <>
+      {!cleared && <p className={styles.quitMessage}>시작한 것만으로도 오늘 몫은 했어요.</p>}
       <div className={`${styles.resultCard} ${decreased ? styles.resultCardWarm : ''}`}>
         {expressionStep === null ? (
           <MoodEmpty />
