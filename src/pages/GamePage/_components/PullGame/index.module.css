@@ -35,16 +35,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 2px 8px;
+  gap: 2px 4px;
 }
 
 /* 좁은 폭에서 설명 문구가 글자 단위로 잘리지 않고 통째로 다음 줄로 넘어가게 한다 */
 .instructionRow > * {
   flex-shrink: 0;
-}
-
-.instructionLabel {
-  min-width: 64px;
 }
 
 .textButton {
