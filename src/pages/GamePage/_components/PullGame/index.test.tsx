@@ -365,10 +365,8 @@ describe('PullGame', () => {
       setupFakeClock();
       const { container } = renderPullGame();
 
-      expect(screen.getByText('한 번 뽑기')).toBeTruthy();
-      expect(screen.getByText('- 스페이스바, 엔터, ⬆️ 또는 뽑기 버튼')).toBeTruthy();
-      expect(screen.getByText('쭈욱 뽑기')).toBeTruthy();
-      expect(screen.getByText('- 스페이스바 + ⬆️')).toBeTruthy();
+      expect(screen.getByTestId('single-pull-instruction')).toBeTruthy();
+      expect(screen.getByTestId('continuous-pull-instruction')).toBeTruthy();
       expect(container.querySelector('kbd')).toBeNull();
     });
 
