@@ -1,34 +1,40 @@
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { GameMode } from '@/types/session';
 import { useSessionStore } from '@stores/sessionStore';
-import { useGameCanvas } from './_hooks/useGameCanvas';
-import { ASSETS, RESULT_PAGE_PRELOAD } from '@game/assets';
+import { RESULT_PAGE_PRELOAD } from '@game/assets';
 import { PATHS } from '@constants/paths';
 import { GA_EVENTS } from '@constants/analytics';
 import { trackEvent } from '@utils/analytics';
 import { useFireOnce } from '@hooks/useFireOnce';
-import styles from './index.module.css';
 import Button from '@/components/Button';
+import ScratchGame from './_components/ScratchGame';
+import ArousalBuffer from './_components/ArousalBuffer';
+
+const BUFFER_TOP_MESSAGE: Record<GameMode, string> = {
+  scratch: '글자 다 지웠어요!',
+  pull: '당근 다 뽑았어요!',
+};
 
 export default function GamePage() {
   const navigate = useNavigate();
-  const { emotionText, secretMode } = useSessionStore((s) => s.steps.input.data);
   const gameMode = useSessionStore((s) => s.steps.measure.data.gameMode);
   const completeGame = useSessionStore((s) => s.completeGame);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const carrotRef = useRef<HTMLImageElement>(null);
   const fireOnce = useFireOnce();
+  const [phase, setPhase] = useState<'playing' | 'buffer'>('playing');
 
-  const [activeNextButton, setActiveNextButton] = useState(false);
-
-  const enableNextStep = useCallback(() => {
-    setActiveNextButton(true);
-  }, []);
-
-  const handleNext = () => {
+  const finish = () => {
     fireOnce(() => {
       completeGame({ cleared: true });
       trackEvent(GA_EVENTS.gameComplete);
+      navigate(PATHS.result);
+    });
+  };
+
+  // 중도 이탈은 버퍼를 거치지 않는다 (기획 §2)
+  const quit = () => {
+    fireOnce(() => {
+      completeGame({ cleared: false });
       navigate(PATHS.result);
     });
   };
@@ -43,42 +49,18 @@ export default function GamePage() {
     });
   }, []);
 
-  const { progress } = useGameCanvas({
-    canvasRef,
-    carrotRef,
-    emotionText,
-    secretMode,
-    enableNextStep,
-  });
+  if (gameMode === null) {
+    return null;
+  }
 
-  return (
-    <>
-      <h1 className={styles.heading}>냠냠… 없애는 중</h1>
-      <p className={styles.sub}>당근을 움직여 글자를 지워보세요.</p>
-      <div className={styles.field}>
-        <div className={styles.eatingImgWrapper}>
-          <img src={ASSETS.bunny.eating} alt="당근을 먹는 토끼" className={styles.eatingImg} />
-        </div>
-        <canvas
-          ref={canvasRef}
-          tabIndex={0}
-          className={styles.canvas}
-          aria-label="글자 지우기 스크래치 영역"
-        />
-        <img
-          ref={carrotRef}
-          src={ASSETS.carrot.full}
-          alt=""
-          aria-hidden="true"
-          className={styles.carrotImg}
-        />
-      </div>
-      <p className={styles.progress} aria-live="polite">
-        사라지는 중 {Math.round(progress * 100)}%
-      </p>
-      <Button className={styles.button} onClick={handleNext} disabled={!activeNextButton}>
-        다음 ▸
-      </Button>
-    </>
-  );
+  if (phase === 'buffer') {
+    return (
+      <ArousalBuffer
+        topMessage={BUFFER_TOP_MESSAGE[gameMode]}
+        footer={() => <Button onClick={finish}>다음 ▸</Button>}
+      />
+    );
+  }
+
+  return <ScratchGame onNext={() => setPhase('buffer')} onQuit={quit} />;
 }

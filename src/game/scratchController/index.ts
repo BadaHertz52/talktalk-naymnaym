@@ -47,8 +47,9 @@ export function createScratchController({
 }: CreateScratchControllerOptions): ScratchController {
   // 리사이즈/회전 시 갱신되는 최신 CSS 크기 — clampToCanvas/getBrushRadius/키보드 이동이 항상 이 값을 참조한다
   const size = { width: 0, height: 0 };
-  const completionTracker = createCompletionTracker(enableNextStep);
   let lastProgressAt = 0;
+  let ended = false;
+  let capturedPointerId: number | null = null;
 
   const resize = () => {
     const { width: cssWidth, height: cssHeight } = canvas.getBoundingClientRect();
@@ -82,6 +83,10 @@ export function createScratchController({
   };
 
   const eraseTo = (pos: Position) => {
+    if (ended) {
+      return;
+    }
+
     const from = cursorRef.current ?? pos;
 
     eraseStroke({ ctx, from, to: pos, radius: getBrushRadius(size.width) });
@@ -102,7 +107,12 @@ export function createScratchController({
   };
 
   const handlePointerDown = (e: PointerEvent) => {
+    if (ended) {
+      return;
+    }
+
     canvas.setPointerCapture(e.pointerId);
+    capturedPointerId = e.pointerId;
     cursorRef.current = toCanvasPos(e.clientX, e.clientY);
     eraseTo(toCanvasPos(e.clientX, e.clientY));
   };
@@ -116,7 +126,20 @@ export function createScratchController({
 
   const handlePointerUp = () => {
     cursorRef.current = null;
+
+    // iOS Safari는 하드 종료로 손가락을 떼기 전에 입력이 끊기면 capture가 남는다 — 명시적으로 해제한다
+    if (capturedPointerId !== null && canvas.hasPointerCapture(capturedPointerId)) {
+      canvas.releasePointerCapture(capturedPointerId);
+    }
+    capturedPointerId = null;
   };
+
+  // 70% 도달 = 게임 하드 종료: 이후 입력은 eraseTo/handlePointerDown 가드에서 무시된다
+  const completionTracker = createCompletionTracker(() => {
+    ended = true;
+    handlePointerUp();
+    enableNextStep();
+  });
 
   const handleKeyDown = (e: KeyboardEvent) => {
     const delta = KEY_DELTA[e.key];
