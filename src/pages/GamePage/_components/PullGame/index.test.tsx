@@ -5,10 +5,8 @@ import { useSessionStore } from '@stores/sessionStore';
 import PullGame from '.';
 
 const PRIMARY_LABEL = '영차! 뽑기';
-const HOLD_LABEL = '꾹 눌러서 뽑기';
 const NEXT_LABEL = '다음 ▸';
 const QUIT_LABEL = '여기까지 할래요 ▸';
-const STAGE_LABEL = /당근 뽑기 무대/;
 
 function setupFakeClock() {
   vi.useFakeTimers({
@@ -44,14 +42,6 @@ function getPrimaryButton() {
   return screen.getByRole('button', { name: PRIMARY_LABEL });
 }
 
-function getHoldButton() {
-  return screen.getByRole('button', { name: HOLD_LABEL });
-}
-
-function getStage() {
-  return screen.getByRole('group', { name: STAGE_LABEL });
-}
-
 function getProgressValue() {
   return Number(screen.getByRole('progressbar').getAttribute('aria-valuenow'));
 }
@@ -76,6 +66,7 @@ describe('PullGame', () => {
     cleanup();
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   describe('연타 버튼', () => {
@@ -139,140 +130,166 @@ describe('PullGame', () => {
     });
   });
 
-  describe('키보드', () => {
-    it.each([' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'])(
-      '무대에 포커스된 채 %j 키를 누르면 1타가 되고 기본 동작이 취소된다',
-      (key) => {
-        setupFakeClock();
-        renderPullGame();
-
-        const notCancelled = fireEvent.keyDown(getStage(), { key });
-
-        expect(getProgressValue()).toBe(2);
-        expect(notCancelled).toBe(false);
-      },
-    );
-
-    it('repeat 키다운은 타수에 포함되지 않는다', () => {
+  describe('키보드 한 번 뽑기', () => {
+    it('포커스가 어디에도 없어도 Space를 누르면 1타가 된다', () => {
       setupFakeClock();
       renderPullGame();
-      const stage = getStage();
 
-      fireEvent.keyDown(stage, { key: ' ' });
-      fireEvent.keyDown(stage, { key: ' ', repeat: true });
-      fireEvent.keyDown(stage, { key: ' ', repeat: true });
+      fireEvent.keyDown(document.body, { key: ' ' });
 
       expect(getProgressValue()).toBe(2);
     });
 
-    it('허용되지 않은 키는 타수에 포함되지 않는다', () => {
+    it('Enter와 ↑도 각각 1타가 된다', () => {
       setupFakeClock();
       renderPullGame();
 
-      fireEvent.keyDown(getStage(), { key: 'a' });
+      fireEvent.keyDown(document.body, { key: 'Enter' });
+      fireEvent.keyDown(document.body, { key: 'ArrowUp' });
 
-      expect(getProgressValue()).toBe(0);
+      expect(getProgressValue()).toBe(5);
     });
 
-    it.each(['Enter', ' '])(
-      '주 버튼에 포커스된 채 %j 키를 누르면 keydown과 뒤이은 click을 합쳐 1타만 센다',
-      (key) => {
-        setupFakeClock();
-        renderPullGame();
-        const button = getPrimaryButton();
-
-        const notCancelled = fireEvent.keyDown(button, { key });
-        fireEvent.keyUp(button, { key });
-        fireEvent.click(button, { detail: 0 });
-
-        expect(getProgressValue()).toBe(2);
-        expect(notCancelled).toBe(false);
-      },
-    );
-
-    it('여기까지 할래요 ▸에 포커스된 채 Enter를 누르면 타수에 포함되지 않는다', () => {
+    it('←·→·↓는 타수에 포함되지 않는다', () => {
       setupFakeClock();
       renderPullGame();
 
-      fireEvent.keyDown(screen.getByRole('button', { name: QUIT_LABEL }), { key: 'Enter' });
+      fireEvent.keyDown(document.body, { key: ' ' });
+      fireEvent.keyDown(document.body, { key: 'ArrowLeft' });
+      fireEvent.keyDown(document.body, { key: 'ArrowRight' });
+      fireEvent.keyDown(document.body, { key: 'ArrowDown' });
+
+      expect(getProgressValue()).toBe(2);
+    });
+
+    it('키를 누르고 있어 repeat 이벤트가 와도 게이지가 오르지 않는다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      fireEvent.keyDown(document.body, { key: ' ', repeat: false });
+      fireEvent.keyDown(document.body, { key: ' ', repeat: true });
+
+      expect(getProgressValue()).toBe(2);
+    });
+
+    it('여기까지 할래요 ▸에 포커스된 채 Space를 누르면 1타가 아니라 이탈이 동작한다', () => {
+      setupFakeClock();
+      const { onQuit } = renderPullGame();
+      const quitButton = screen.getByRole('button', { name: QUIT_LABEL });
+
+      fireEvent.keyDown(quitButton, { key: ' ' });
+      fireEvent.click(quitButton, { detail: 0 });
 
       expect(getProgressValue()).toBe(0);
+      expect(onQuit).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('꾹 눌러서 뽑기', () => {
-    it('1초 누르고 있으면 약 10% 충전된다', () => {
+  describe('누르고 있기', () => {
+    it('영차! 뽑기를 누른 채 떼지 않으면 게이지가 오르지 않는다', () => {
       setupFakeClock();
       renderPullGame();
 
-      fireEvent.pointerDown(getHoldButton());
+      fireEvent.pointerDown(getPrimaryButton());
       advance(1000);
 
-      expect(getProgressValue()).toBeGreaterThanOrEqual(9);
-      expect(getProgressValue()).toBeLessThanOrEqual(10);
+      expect(getProgressValue()).toBe(0);
     });
 
-    it.each(['pointerUp', 'pointerCancel', 'lostPointerCapture'] as const)(
-      '%s 이후에는 충전이 멈추고 진행률이 유지된다',
-      (eventName) => {
-        setupFakeClock();
-        renderPullGame();
-        const holdButton = getHoldButton();
-
-        fireEvent.pointerDown(holdButton);
-        advance(1000);
-        fireEvent[eventName](holdButton);
-        const afterRelease = getProgressValue();
-        advance(2000);
-
-        expect(afterRelease).toBeGreaterThanOrEqual(9);
-        expect(getProgressValue()).toBe(afterRelease);
-      },
-    );
-
-    it('탭과 홀드의 기여분이 같은 게이지에 합산된다', () => {
+    it('꾹 눌러서 뽑기 버튼이 없다', () => {
       setupFakeClock();
       renderPullGame();
 
-      tap(4);
-      fireEvent.pointerDown(getHoldButton());
+      expect(screen.queryByRole('button', { name: '꾹 눌러서 뽑기' })).toBeNull();
+    });
+  });
+
+  describe('쭉쭉 뽑기 (Space+↑)', () => {
+    it('Space와 ↑를 함께 누르고 있으면 1초에 약 10% 오른다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      fireEvent.keyDown(document.body, { key: ' ' });
+      fireEvent.keyDown(document.body, { key: 'ArrowUp' });
       advance(1000);
 
-      expect(getProgressValue()).toBeGreaterThanOrEqual(19);
-      expect(getProgressValue()).toBeLessThanOrEqual(20);
+      expect(getProgressValue()).toBeGreaterThanOrEqual(11);
+      expect(getProgressValue()).toBeLessThanOrEqual(13);
     });
 
-    it('홀드 중 언마운트하면 예약된 애니메이션 프레임과 타이머가 남지 않는다', () => {
+    it('둘 중 하나를 떼면 충전이 멈추고 진행률이 유지된다', () => {
       setupFakeClock();
+      renderPullGame();
+
+      fireEvent.keyDown(document.body, { key: ' ' });
+      fireEvent.keyDown(document.body, { key: 'ArrowUp' });
+      advance(1000);
+      const afterCharge = getProgressValue();
+      fireEvent.keyUp(document.body, { key: 'ArrowUp' });
+      advance(2000);
+
+      expect(afterCharge).toBeGreaterThanOrEqual(9);
+      expect(getProgressValue()).toBe(afterCharge);
+    });
+
+    it('동시 입력을 완성하는 두 번째 키는 별도 1타로 세지 않는다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      fireEvent.keyDown(document.body, { key: ' ' });
+      fireEvent.keyDown(document.body, { key: 'ArrowUp' });
+
+      expect(getProgressValue()).toBe(2);
+    });
+
+    it('Space만 계속 누르고 있으면 첫 1타 이후 게이지가 오르지 않는다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      fireEvent.keyDown(document.body, { key: ' ' });
+      fireEvent.keyDown(document.body, { key: ' ', repeat: true });
+      fireEvent.keyDown(document.body, { key: ' ', repeat: true });
+      advance(1000);
+
+      expect(getProgressValue()).toBe(2);
+    });
+
+    it('쭉쭉 뽑기 중에는 8초가 지나도 무입력으로 보지 않는다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      fireEvent.keyDown(document.body, { key: ' ' });
+      fireEvent.keyDown(document.body, { key: 'ArrowUp' });
+      advance(8000);
+
+      expect(screen.queryByRole('button', { name: '천천히 해도 괜찮아요' })).toBeNull();
+    });
+
+    it('언마운트하면 window 키 리스너와 예약된 애니메이션 프레임이 남지 않는다', () => {
+      setupFakeClock();
+      const addEventListener = vi.spyOn(window, 'addEventListener');
+      const removeEventListener = vi.spyOn(window, 'removeEventListener');
       const { unmount } = renderPullGame();
 
-      fireEvent.pointerDown(getHoldButton());
-      advance(100);
+      fireEvent.keyDown(document.body, { key: ' ' });
+      fireEvent.keyDown(document.body, { key: 'ArrowUp' });
       unmount();
 
+      expect(addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
+      expect(removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
       expect(vi.getTimerCount()).toBe(0);
-    });
-
-    it('주 버튼과 동시에 존재한다', () => {
-      setupFakeClock();
-      renderPullGame();
-
-      fireEvent.pointerDown(getHoldButton());
-
-      expect(getPrimaryButton()).toBeTruthy();
-      expect(getHoldButton()).toBeTruthy();
     });
   });
 
   describe('완료(100%) 이후', () => {
-    it('탭·키·홀드 입력을 모두 무시한다', () => {
+    it('탭과 키 입력을 모두 무시한다', () => {
       setupFakeClock();
       renderPullGame();
       tap(40);
 
-      fireEvent.keyDown(getStage(), { key: ' ' });
-      fireEvent.pointerDown(getHoldButton());
-      advance(1000);
+      fireEvent.keyDown(document.body, { key: ' ' });
 
       expect(getProgressValue()).toBe(100);
     });
@@ -348,7 +365,7 @@ describe('PullGame', () => {
 
       tap(40);
       const afterComplete = liveRegion?.textContent;
-      fireEvent.keyDown(getStage(), { key: ' ' });
+      fireEvent.keyDown(document.body, { key: ' ' });
 
       expect(beforeComplete).toBe('');
       expect(afterComplete).toBe('당근 다 뽑았어요!');
@@ -366,27 +383,40 @@ describe('PullGame', () => {
     });
   });
 
-  describe('카피', () => {
-    it('정밀 포인터면 데스크톱 안내문과 Space 키캡을 보여준다', () => {
+  describe('안내문', () => {
+    it('정밀 포인터면 한 번 뽑기와 쭉쭉 뽑기 두 줄 안내를 보여준다', () => {
       setupFakeClock();
       renderPullGame();
 
-      expect(
-        screen.getByText(
-          '스페이스바를 연타하거나 버튼을 눌러주세요. 꾹 눌러도 돼요. 속도는 상관없어요.',
-        ),
-      ).toBeTruthy();
-      expect(screen.getByText('␣ Space')).toBeTruthy();
+      expect(screen.getByText('한 번 뽑기')).toBeTruthy();
+      expect(screen.getByText('␣')).toBeTruthy();
+      expect(screen.getByText('Enter')).toBeTruthy();
+      expect(screen.getByText('↑')).toBeTruthy();
+      expect(screen.getByText('또는 뽑기 버튼 누르기')).toBeTruthy();
+      expect(screen.getByText('쭉쭉 뽑기')).toBeTruthy();
+      expect(screen.getByText('꾹 누르기')).toBeTruthy();
     });
 
-    it('coarse 포인터면 모바일 안내문을 보여주고 Space 키캡을 숨긴다', () => {
+    it('coarse 포인터면 키보드 안내 대신 모바일 안내문을 보여준다', () => {
       setupFakeClock();
       renderPullGame({ coarse: true });
 
-      expect(
-        screen.getByText('버튼을 연타해주세요. 꾹 눌러도 돼요. 속도는 상관없어요.'),
-      ).toBeTruthy();
-      expect(screen.queryByText('␣ Space')).toBeNull();
+      expect(screen.getByText('버튼을 연타해주세요. 속도는 상관없어요.')).toBeTruthy();
+      expect(screen.queryByText('한 번 뽑기')).toBeNull();
+      expect(screen.queryByText('␣')).toBeNull();
+    });
+
+    it('어떤 포인터에서도 꾹 눌러도 돼요 문구와 게이지 아래 Space 키캡이 없다', () => {
+      setupFakeClock();
+      const { container } = renderPullGame();
+      const preciseText = container.textContent;
+      cleanup();
+      const coarseResult = renderPullGame({ coarse: true });
+
+      expect(preciseText).not.toContain('꾹 눌러도 돼요');
+      expect(preciseText).not.toContain('␣ Space');
+      expect(coarseResult.container.textContent).not.toContain('꾹 눌러도 돼요');
+      expect(coarseResult.container.textContent).not.toContain('␣ Space');
     });
 
     it('포인터 판정은 마운트 시 1회만 한다', () => {
@@ -475,14 +505,5 @@ describe('PullGame', () => {
       expect(screen.getByRole('button', { name: '천천히 해도 괜찮아요' })).toBeTruthy();
     });
 
-    it('꾹 누르고 있는 동안에는 8초가 지나도 무입력으로 보지 않는다', () => {
-      setupFakeClock();
-      renderPullGame();
-
-      fireEvent.pointerDown(getHoldButton());
-      advance(8000);
-
-      expect(screen.queryByRole('button', { name: '천천히 해도 괜찮아요' })).toBeNull();
-    });
   });
 });

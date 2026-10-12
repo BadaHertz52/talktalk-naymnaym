@@ -19,6 +19,32 @@
   margin-top: 8px;
 }
 
+.instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--color-gray-light);
+}
+
+.instructionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.instructionLabel {
+  min-width: 64px;
+  color: var(--color-white);
+}
+
+.keycaps {
+  display: flex;
+  gap: 4px;
+}
+
 .textButton {
   align-self: center;
   min-width: 44px;
@@ -35,20 +61,6 @@
 .textButton:focus-visible {
   outline: 2px solid var(--color-primary-light);
   outline-offset: 2px;
-}
-
-.holdButton {
-  color: var(--color-white);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  touch-action: none;
-}
-
-.holding {
-  color: var(--color-primary-light);
 }
 
 .field {
@@ -203,19 +215,18 @@
   transition: width 80ms linear;
 }
 
-.keycapRow {
-  margin: 12px 0 0;
-  text-align: center;
-}
-
 .keycap {
-  padding: 4px 9px;
-  font-family: var(--font-pixel);
+  padding: 2px 6px;
+  font-family: 'Galmuri11', var(--font-pixel);
   font-size: 11px;
-  letter-spacing: 1px;
+  line-height: 1;
   color: var(--color-black);
   background: var(--color-white);
-  border-radius: 5px;
+  border-radius: 4px;
+}
+
+.keycap[data-key]::before {
+  content: attr(data-key);
 }
 
 /* 공용 Button(약 53px)은 건드리지 않고 이 화면에서만 터치 타깃을 키운다 */

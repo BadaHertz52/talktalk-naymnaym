@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react';
+import type { MouseEvent } from 'react';
 import { clsx } from 'clsx';
 import Button from '@components/Button';
 import { ASSETS } from '@game/assets';
@@ -7,7 +7,8 @@ import { createPullPower, getTotalTaps } from '@game/pullPower';
 import styles from './index.module.css';
 
 const BURIED_PX = 110;
-const PULL_KEYS = new Set([' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+const TAP_KEYS = new Set([' ', 'Enter', 'ArrowUp']);
+const HOLD_KEYS = new Set([' ', 'ArrowUp']);
 const IDLE_RELAX_MS = 3000;
 const IDLE_SLOW_MS = 8000;
 const IDLE_REST_MS = 20_000;
@@ -42,7 +43,11 @@ export default function PullGame({ onNext, onQuit }: Props) {
   const [inputCount, setInputCount] = useState(0);
   const [holding, setHolding] = useState(false);
   const [idleLevel, setIdleLevel] = useState<IdleLevel>('none');
+  const powerRef = useRef(power);
+  powerRef.current = power;
   const holdFrameRef = useRef<number | null>(null);
+  const holdLastTimeRef = useRef<number | null>(null);
+  const pressedKeysRef = useRef(new Set<string>());
   const suppressKeyClickRef = useRef(false);
   const nextArmedRef = useRef(false);
   const restShownRef = useRef(false);
@@ -59,28 +64,6 @@ export default function PullGame({ onNext, onQuit }: Props) {
     setProgress(power.getProgress());
     setHitCount((count) => count + 1);
     setInputCount((count) => count + 1);
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-    if (!PULL_KEYS.has(e.key)) {
-      return;
-    }
-
-    e.preventDefault();
-    // 버튼 위 Enter/Space는 브라우저가 click을 따로 합성할 수 있어, 그 click이 2타가 되지 않게 표시해 둔다
-    suppressKeyClickRef.current = true;
-
-    if (e.repeat) {
-      return;
-    }
-
-    tap(() => power.keyDown({ repeat: e.repeat }));
-  };
-
-  const handlePrimaryKeyUp = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (PULL_KEYS.has(e.key)) {
-      e.preventDefault();
-    }
   };
 
   // 포인터 입력은 pointerup에서 이미 셌으므로 click은 보조기기 활성화(detail 0)만 1타로 센다
@@ -100,26 +83,27 @@ export default function PullGame({ onNext, onQuit }: Props) {
 
   const stopHold = () => {
     if (holdFrameRef.current === null) {
+      setHolding(false);
+
       return;
     }
 
     cancelAnimationFrame(holdFrameRef.current);
     holdFrameRef.current = null;
+    holdLastTimeRef.current = null;
     setHolding(false);
-    setInputCount((count) => count + 1);
   };
 
-  const startHold = (e: PointerEvent<HTMLButtonElement>) => {
+  const startHold = () => {
     if (power.isComplete() || holdFrameRef.current !== null) {
       return;
     }
 
-    e.currentTarget.setPointerCapture?.(e.pointerId);
-    let last = performance.now();
     const frame = () => {
       const now = performance.now();
+      const last = holdLastTimeRef.current ?? now;
       power.hold(now - last);
-      last = now;
+      holdLastTimeRef.current = now;
       setProgress(power.getProgress());
 
       if (power.isComplete()) {
@@ -131,8 +115,30 @@ export default function PullGame({ onNext, onQuit }: Props) {
 
       holdFrameRef.current = requestAnimationFrame(frame);
     };
+    holdLastTimeRef.current = performance.now();
     holdFrameRef.current = requestAnimationFrame(frame);
     setHolding(true);
+  };
+
+  const isPrimaryTarget = (target: EventTarget | null): boolean => {
+    if (!(target instanceof Element)) {
+      return false;
+    }
+
+    return target.closest('[data-pull-primary]') !== null;
+  };
+
+  const isBlockedTarget = (target: EventTarget | null): boolean => {
+    if (!(target instanceof Element)) {
+      return false;
+    }
+
+    const button = target.closest('button');
+
+    return (
+      (button !== null && !button.hasAttribute('data-pull-primary')) ||
+      Boolean(target.closest('a, input, textarea, select, [contenteditable="true"]'))
+    );
   };
 
   // 마지막 타의 pointerup 직후 같은 자리에 나타난 "다음 ▸"이 뒤따르는 click을 받지 않도록,
@@ -145,11 +151,99 @@ export default function PullGame({ onNext, onQuit }: Props) {
     onNext();
   };
 
+  const handlersRef = useRef({
+    isPrimaryTarget,
+    isBlockedTarget,
+    tap,
+    startHold,
+    stopHold,
+  });
+  handlersRef.current = {
+    isPrimaryTarget,
+    isBlockedTarget,
+    tap,
+    startHold,
+    stopHold,
+  };
+
   useEffect(() => {
     return () => {
       if (holdFrameRef.current !== null) {
         cancelAnimationFrame(holdFrameRef.current);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    const cleanupStopHold = handlersRef.current.stopHold;
+    const pressedKeys = pressedKeysRef.current;
+
+    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      const handlers = handlersRef.current;
+
+      if (!TAP_KEYS.has(e.key) || handlers.isBlockedTarget(e.target)) {
+        return;
+      }
+
+      const primaryTarget = handlers.isPrimaryTarget(e.target);
+      e.preventDefault();
+
+      if (primaryTarget) {
+        suppressKeyClickRef.current = true;
+      }
+
+      if (e.repeat || pressedKeys.has(e.key)) {
+        return;
+      }
+
+      const isCompletingHold = HOLD_KEYS.has(e.key) && [...pressedKeys].some((key) =>
+        HOLD_KEYS.has(key),
+      );
+      pressedKeys.add(e.key);
+
+      if (!isCompletingHold) {
+        handlers.tap(() => powerRef.current.keyDown({ repeat: e.repeat }));
+      }
+
+      if (
+        HOLD_KEYS.has(e.key) &&
+        pressedKeys.has(' ') &&
+        pressedKeys.has('ArrowUp')
+      ) {
+        handlers.startHold();
+      }
+    };
+
+    const handleKeyUp = (e: globalThis.KeyboardEvent) => {
+      const handlers = handlersRef.current;
+
+      if (!TAP_KEYS.has(e.key) || handlers.isBlockedTarget(e.target)) {
+        return;
+      }
+
+      e.preventDefault();
+      pressedKeys.delete(e.key);
+
+      if (!pressedKeys.has(' ') || !pressedKeys.has('ArrowUp')) {
+        handlers.stopHold();
+      }
+    };
+
+    const handleBlur = () => {
+      pressedKeys.clear();
+      handlersRef.current.stopHold();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+      pressedKeys.clear();
+      cleanupStopHold();
     };
   }, []);
 
@@ -181,27 +275,36 @@ export default function PullGame({ onNext, onQuit }: Props) {
       <h1 className={styles.heading}>냠냠… 뽑는 중</h1>
       <p className={styles.sub}>
         {isCoarse
-          ? '버튼을 연타해주세요. 꾹 눌러도 돼요. 속도는 상관없어요.'
-          : '스페이스바를 연타하거나 버튼을 눌러주세요. 꾹 눌러도 돼요. 속도는 상관없어요.'}
+          ? '버튼을 연타해주세요. 속도는 상관없어요.'
+          : null}
       </p>
-      <button
-        type="button"
-        className={clsx(styles.textButton, styles.holdButton, holding && styles.holding)}
-        onPointerDown={startHold}
-        onPointerUp={stopHold}
-        onPointerCancel={stopHold}
-        onLostPointerCapture={stopHold}
-        onContextMenu={(e) => e.preventDefault()}
-      >
-        꾹 눌러서 뽑기
-      </button>
+      {!isCoarse && (
+        <div className={styles.instructions}>
+          <div className={styles.instructionRow}>
+            <span className={styles.instructionLabel}>한 번 뽑기</span>
+            <span className={styles.keycaps}>
+              <kbd className={styles.keycap} aria-label="Space">␣</kbd>
+              <kbd className={styles.keycap}>Enter</kbd>
+              <kbd className={styles.keycap}>↑</kbd>
+            </span>
+            <span>또는 뽑기 버튼 누르기</span>
+          </div>
+          <div className={styles.instructionRow}>
+            <span className={styles.instructionLabel}>쭉쭉 뽑기</span>
+            <span className={styles.keycaps}>
+              <kbd className={styles.keycap} aria-label="Space" data-key="␣" />
+              <kbd className={styles.keycap} aria-label="ArrowUp" data-key="↑" />
+            </span>
+            <span>꾹 누르기</span>
+          </div>
+        </div>
+      )}
 
       <div
         role="group"
         aria-label="당근 뽑기 무대 — Space, Enter, 화살표 키로 뽑아요"
         tabIndex={0}
         className={styles.field}
-        onKeyDown={handleKeyDown}
       >
         {!completed && (
           <p className={styles.hint}>
@@ -255,11 +358,6 @@ export default function PullGame({ onNext, onQuit }: Props) {
         >
           <div className={styles.fill} style={{ width: `${progress}%` }} />
         </div>
-        {!isCoarse && (
-          <p className={styles.keycapRow} aria-hidden="true">
-            <span className={styles.keycap}>␣ Space</span>
-          </p>
-        )}
       </div>
 
       {completed ? (
@@ -280,8 +378,7 @@ export default function PullGame({ onNext, onQuit }: Props) {
             suppressKeyClickRef.current = false;
           }}
           onPointerUp={() => tap(power.tap)}
-          onKeyDown={handleKeyDown}
-          onKeyUp={handlePrimaryKeyUp}
+          data-pull-primary
           onClick={handlePrimaryClick}
         >
           {idleLevel === 'slow' || idleLevel === 'rest' ? '천천히 해도 괜찮아요' : '영차! 뽑기'}
