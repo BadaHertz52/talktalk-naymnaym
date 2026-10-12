@@ -80,7 +80,11 @@ export default function InputPage() {
             aria-describedby="secret-mode-status"
           />
           {secretMode && text.length > 0 && (
-            <div className={styles.maskOverlay} aria-hidden="true" style={{ marginTop: -scrollTop }}>
+            <div
+              className={styles.maskOverlay}
+              aria-hidden="true"
+              style={{ marginTop: -scrollTop }}
+            >
               {getMaskSegments(text, secretMode).map((segment, i) =>
                 segment.masked ? (
                   <span key={i} className={styles.maskedSegment}>

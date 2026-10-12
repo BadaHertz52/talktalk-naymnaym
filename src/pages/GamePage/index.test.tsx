@@ -103,9 +103,9 @@ describe('GamePage', () => {
       enterScratchGame();
 
       expect(screen.getByRole('button', { name: '다음 ▸' }).hasAttribute('disabled')).toBe(true);
-      expect(screen.getByRole('button', { name: '여기까지 할래요 ▸' }).hasAttribute('disabled')).toBe(
-        false,
-      );
+      expect(
+        screen.getByRole('button', { name: '여기까지 할래요 ▸' }).hasAttribute('disabled'),
+      ).toBe(false);
     });
 
     it('"여기까지 할래요 ▸"를 누르면 버퍼 없이 cleared:false로 /result에 간다', () => {

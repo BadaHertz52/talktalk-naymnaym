@@ -14,6 +14,7 @@ master → release 배포 PR을 생성하고 머지하는 스킬. release 브랜
 ## 절차
 
 1. **사전 확인**
+
    ```bash
    git fetch origin
    git status
@@ -23,6 +24,7 @@ master → release 배포 PR을 생성하고 머지하는 스킬. release 브랜
    - working tree에 uncommitted 변경이 있으면 사용자에게 알리고 진행 여부를 확인한다.
 
 2. **PR 생성**
+
    ```bash
    gh pr create --base release --head master \
      --title "release: <핵심 변경 요약>" \
@@ -40,6 +42,7 @@ master → release 배포 PR을 생성하고 머지하는 스킬. release 브랜
    - PR 링크를 사용자에게 보여주고 머지해도 되는지 확인한다 (배포를 트리거하는
      행위이므로 반드시 확인 후 진행).
    - 승인되면:
+
    ```bash
    gh pr merge --merge
    ```
