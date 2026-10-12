@@ -10,7 +10,7 @@ function CardFrame({ children }: { children: ReactNode }) {
       style={{
         width: 'var(--main-width)',
         maxWidth: 'var(--main-max-width)',
-        height: 'var(--main-height)',
+        aspectRatio: 'var(--main-aspect-ratio)',
         margin: '0 auto',
         padding: '26px 22px 30px',
         background: 'var(--color-black)',
@@ -69,17 +69,4 @@ export const 진행90이상: Story = {
 /** 100% — 완료 이미지 + CLEAR!! 1회 팝 + 주 버튼 자리에 "다음 ▸". */
 export const 완료: Story = {
   play: ({ canvasElement }) => tapTimes(canvasElement, 40),
-};
-
-/** 포인터 판정은 마운트 시 1회라, 렌더 전에 matchMedia를 coarse로 바꿔 둔다. */
-export const 모바일coarse: Story = {
-  beforeEach: () => {
-    const original = window.matchMedia;
-    window.matchMedia = (query: string) =>
-      query === '(pointer: coarse)' ? ({ matches: true } as MediaQueryList) : original(query);
-
-    return () => {
-      window.matchMedia = original;
-    };
-  },
 };

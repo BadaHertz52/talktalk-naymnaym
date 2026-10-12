@@ -11,7 +11,7 @@ function CardFrame({ children }: { children: ReactNode }) {
       style={{
         width: 'var(--main-width)',
         maxWidth: 'var(--main-max-width)',
-        height: 'var(--main-height)',
+        aspectRatio: 'var(--main-aspect-ratio)',
         margin: '0 auto',
         padding: '26px 22px 30px',
         background: 'var(--color-black)',
