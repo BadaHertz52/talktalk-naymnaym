@@ -40,6 +40,30 @@ function enterScratchGame() {
   return renderGamePage();
 }
 
+function enterPullGame() {
+  vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false }));
+  useSessionStore.getState().reset();
+  useSessionStore.getState().completeInput({ text: '속상해', secretMode: false });
+  useSessionStore.getState().completeMeasure({ intensity: 5, gameMode: 'pull' });
+
+  return renderGamePage();
+}
+
+// 정밀 포인터(matchMedia matches:false) 기준 40타면 100%
+function finishPull() {
+  const button = screen.getByRole('button', { name: '영차! 뽑기' });
+
+  for (let index = 0; index < 40; index++) {
+    fireEvent.pointerUp(button);
+  }
+}
+
+function playPullToBufferFooter() {
+  finishPull();
+  clickButton('다음 ▸');
+  clickButton('건너뛰기');
+}
+
 function hardEndGame() {
   act(() => {
     gameCanvas.enableNextStep();
@@ -140,6 +164,87 @@ describe('GamePage', () => {
       expect(game.completed).toBe(true);
       expect(game.data.cleared).toBe(true);
       expect(router.state.location.pathname).toBe(PATHS.result);
+    });
+  });
+
+  describe('당근 뽑기', () => {
+    it('gameMode가 pull이면 뽑기 화면이 렌더되고 스크래치는 렌더되지 않는다', () => {
+      enterPullGame();
+
+      expect(screen.getByRole('heading', { name: '냠냠… 뽑는 중' })).toBeTruthy();
+      expect(screen.queryByRole('heading', { name: '냠냠… 없애는 중' })).toBeNull();
+    });
+
+    it('완료 후 "다음 ▸"을 누르면 상단 "당근 다 뽑았어요!" 버퍼가 렌더된다', () => {
+      enterPullGame();
+      finishPull();
+
+      clickButton('다음 ▸');
+
+      expect(screen.getByText('당근 다 뽑았어요!')).toBeTruthy();
+      expect(screen.queryByRole('heading', { name: '냠냠… 뽑는 중' })).toBeNull();
+    });
+
+    it('버퍼 footer의 "한 번 더 뽑기"를 누르면 replayCount가 늘고 게임이 0%로 다시 시작된다', () => {
+      enterPullGame();
+      playPullToBufferFooter();
+
+      clickButton('한 번 더 뽑기');
+
+      expect(useSessionStore.getState().steps.game.data.replayCount).toBe(1);
+      expect(screen.getByRole('heading', { name: '냠냠… 뽑는 중' })).toBeTruthy();
+      expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0');
+    });
+
+    it('다시 완료하면 버퍼가 처음부터 다시 재생된다', () => {
+      enterPullGame();
+      playPullToBufferFooter();
+      clickButton('한 번 더 뽑기');
+      finishPull();
+
+      clickButton('다음 ▸');
+
+      expect(screen.getByRole('button', { name: '건너뛰기' })).toBeTruthy();
+      expect(screen.queryByRole('button', { name: '한 번 더 뽑기' })).toBeNull();
+    });
+
+    it('3플레이를 마치면 "한 번 더 뽑기" 대신 유도 문구와 "다음 ▸"이 보인다', () => {
+      enterPullGame();
+      playPullToBufferFooter();
+      clickButton('한 번 더 뽑기');
+      playPullToBufferFooter();
+      clickButton('한 번 더 뽑기');
+
+      playPullToBufferFooter();
+
+      expect(screen.queryByRole('button', { name: '한 번 더 뽑기' })).toBeNull();
+      expect(screen.getByText('충분히 했어요. 이제 결과를 볼까요?')).toBeTruthy();
+      expect(screen.getByRole('button', { name: '다음 ▸' })).toBeTruthy();
+    });
+
+    it('"여기까지 할래요 ▸"를 누르면 버퍼 없이 cleared:false로 /result에 간다', () => {
+      const router = enterPullGame();
+
+      clickButton('여기까지 할래요 ▸');
+
+      const { game } = useSessionStore.getState().steps;
+      expect(game.completed).toBe(true);
+      expect(game.data.cleared).toBe(false);
+      expect(router.state.location.pathname).toBe(PATHS.result);
+      expect(screen.queryByText('당근 다 뽑았어요!')).toBeNull();
+    });
+  });
+
+  describe('스크래치 버퍼 footer', () => {
+    it('"한 번 더 뽑기" 없이 "다음 ▸"만 있다', () => {
+      enterScratchGame();
+      hardEndGame();
+      clickButton('다음 ▸');
+
+      clickButton('건너뛰기');
+
+      expect(screen.queryByRole('button', { name: '한 번 더 뽑기' })).toBeNull();
+      expect(screen.getByRole('button', { name: '다음 ▸' })).toBeTruthy();
     });
   });
 });
