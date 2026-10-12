@@ -20,22 +20,12 @@ function setupFakeClock() {
   });
 }
 
-function stubPointer(coarse: boolean) {
-  const matchMedia = vi.fn((query: string) => ({
-    matches: query === '(pointer: coarse)' ? coarse : false,
-  }));
-  vi.stubGlobal('matchMedia', matchMedia);
-
-  return matchMedia;
-}
-
-function renderPullGame({ coarse = false }: { coarse?: boolean } = {}) {
-  const matchMedia = stubPointer(coarse);
+function renderPullGame() {
   const onNext = vi.fn();
   const onQuit = vi.fn();
   const result = render(<PullGame onNext={onNext} onQuit={onQuit} />);
 
-  return { ...result, onNext, onQuit, matchMedia };
+  return { ...result, onNext, onQuit };
 }
 
 function getPrimaryButton() {
@@ -65,12 +55,11 @@ describe('PullGame', () => {
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
-    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
   describe('연타 버튼', () => {
-    it('정밀 포인터에서 39타면 미완료이고 40타면 100%가 되며 다음 ▸이 나타난다', () => {
+    it('39타면 미완료이고 40타면 100%가 되며 다음 ▸이 나타난다', () => {
       setupFakeClock();
       renderPullGame();
 
@@ -84,18 +73,6 @@ describe('PullGame', () => {
       expect(getProgressValue()).toBe(100);
       expect(screen.getByRole('button', { name: NEXT_LABEL })).toBeTruthy();
       expect(screen.queryByRole('button', { name: PRIMARY_LABEL })).toBeNull();
-    });
-
-    it('coarse 포인터에서 29타면 미완료이고 30타면 100%가 된다', () => {
-      setupFakeClock();
-      renderPullGame({ coarse: true });
-
-      tap(29);
-      const beforeComplete = getProgressValue();
-      tap(1);
-
-      expect(beforeComplete).toBe(96);
-      expect(getProgressValue()).toBe(100);
     });
 
     it('pointerdown만 하고 떼지 않으면 진행률이 오르지 않는다', () => {
@@ -204,7 +181,7 @@ describe('PullGame', () => {
     });
   });
 
-  describe('쭉쭉 뽑기 (Space+↑)', () => {
+  describe('쭈욱 뽑기 (Space+↑)', () => {
     it('Space와 ↑를 함께 누르고 있으면 1초에 약 10% 오른다', () => {
       setupFakeClock();
       renderPullGame();
@@ -254,7 +231,7 @@ describe('PullGame', () => {
       expect(getProgressValue()).toBe(2);
     });
 
-    it('쭉쭉 뽑기 중에는 8초가 지나도 무입력으로 보지 않는다', () => {
+    it('쭈욱 뽑기 중에는 8초가 지나도 무입력으로 보지 않는다', () => {
       setupFakeClock();
       renderPullGame();
 
@@ -384,51 +361,23 @@ describe('PullGame', () => {
   });
 
   describe('안내문', () => {
-    it('정밀 포인터면 한 번 뽑기와 쭉쭉 뽑기 두 줄 안내를 보여준다', () => {
-      setupFakeClock();
-      renderPullGame();
-
-      expect(screen.getByText('한 번 뽑기')).toBeTruthy();
-      expect(screen.getByText('␣')).toBeTruthy();
-      expect(screen.getByText('Enter')).toBeTruthy();
-      expect(screen.getByText('↑')).toBeTruthy();
-      expect(screen.getByText('또는 뽑기 버튼 누르기')).toBeTruthy();
-      expect(screen.getByText('쭉쭉 뽑기')).toBeTruthy();
-      expect(screen.getByText('꾹 누르기')).toBeTruthy();
-    });
-
-    it('coarse 포인터면 키보드 안내 대신 모바일 안내문을 보여준다', () => {
-      setupFakeClock();
-      renderPullGame({ coarse: true });
-
-      expect(screen.getByText('버튼을 연타해주세요. 속도는 상관없어요.')).toBeTruthy();
-      expect(screen.queryByText('한 번 뽑기')).toBeNull();
-      expect(screen.queryByText('␣')).toBeNull();
-    });
-
-    it('어떤 포인터에서도 꾹 눌러도 돼요 문구와 게이지 아래 Space 키캡이 없다', () => {
+    it('한 번 뽑기와 쭈욱 뽑기 안내를 키캡 없이 문장으로 보여준다', () => {
       setupFakeClock();
       const { container } = renderPullGame();
-      const preciseText = container.textContent;
-      cleanup();
-      const coarseResult = renderPullGame({ coarse: true });
 
-      expect(preciseText).not.toContain('꾹 눌러도 돼요');
-      expect(preciseText).not.toContain('␣ Space');
-      expect(coarseResult.container.textContent).not.toContain('꾹 눌러도 돼요');
-      expect(coarseResult.container.textContent).not.toContain('␣ Space');
+      expect(screen.getByText('한 번 뽑기 -')).toBeTruthy();
+      expect(screen.getByText('스페이스바, 엔터, ↑ 또는 뽑기 버튼 누르기')).toBeTruthy();
+      expect(screen.getByText('쭈욱 뽑기 -')).toBeTruthy();
+      expect(screen.getByText('스페이스바, ↑ 꾹 누르기')).toBeTruthy();
+      expect(container.querySelector('kbd')).toBeNull();
     });
 
-    it('포인터 판정은 마운트 시 1회만 한다', () => {
+    it('꾹 눌러도 돼요 문구와 게이지 아래 Space 키캡이 없다', () => {
       setupFakeClock();
-      const { matchMedia } = renderPullGame();
+      const { container } = renderPullGame();
 
-      tap(5);
-      const coarseQueries = matchMedia.mock.calls.filter(
-        ([query]) => query === '(pointer: coarse)',
-      );
-
-      expect(coarseQueries).toHaveLength(1);
+      expect(container.textContent).not.toContain('꾹 눌러도 돼요');
+      expect(container.textContent).not.toContain('␣ Space');
     });
 
     it('진행률 0~60% / 60~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {
@@ -504,6 +453,5 @@ describe('PullGame', () => {
 
       expect(screen.getByRole('button', { name: '천천히 해도 괜찮아요' })).toBeTruthy();
     });
-
   });
 });

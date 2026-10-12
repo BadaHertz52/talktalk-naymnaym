@@ -1,9 +1,16 @@
 .pullGame {
   display: flex;
-  flex: 1;
   flex-direction: column;
+  justify-content: space-between;
   width: 100%;
-  min-height: 0;
+  height: 100%;
+}
+
+.contentGroup,
+.actionGroup {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
 }
 
 .heading {
@@ -14,18 +21,13 @@
   letter-spacing: 1px;
 }
 
-.sub {
-  composes: sub from '../../../../styles/shared.module.css';
-  margin-top: 8px;
-}
-
 .instructions {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 0;
+  margin: 0 0 14px;
   font-size: 12px;
-  line-height: 1;
+  line-height: 1.7;
   color: var(--color-gray-light);
 }
 
@@ -43,12 +45,6 @@
 
 .instructionLabel {
   min-width: 64px;
-  color: var(--color-white);
-}
-
-.keycaps {
-  display: flex;
-  gap: 4px;
 }
 
 .textButton {
@@ -71,8 +67,8 @@
 
 .field {
   position: relative;
-  width: min(100%, 84.6734cqh);
-  aspect-ratio: 337 / 398;
+  width: 100%;
+  aspect-ratio: 1;
   container-type: size;
   background: var(--color-black);
   border: 2px solid var(--color-white);
@@ -82,12 +78,10 @@
 
 .fieldSlot {
   display: flex;
-  flex: 1 1 0;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  min-height: 0;
   margin-top: 6px;
-  container-type: size;
 }
 
 .field:focus-visible {
@@ -227,21 +221,6 @@
 .fill {
   height: 100%;
   background: var(--color-primary);
-  transition: width 80ms linear;
-}
-
-.keycap {
-  padding: 2px 6px;
-  font-family: 'Galmuri11', var(--font-pixel);
-  font-size: 11px;
-  line-height: 1;
-  color: var(--color-black);
-  background: var(--color-white);
-  border-radius: 4px;
-}
-
-.keycap[data-key]::before {
-  content: attr(data-key);
 }
 
 /* 공용 Button(약 53px)은 건드리지 않고 이 화면에서만 터치 타깃을 키운다 */

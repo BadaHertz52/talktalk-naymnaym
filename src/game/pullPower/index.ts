@@ -1,7 +1,6 @@
 import { createCompletionTracker } from '@game/scratchProgress';
 
-export const FINE_POINTER_TOTAL_TAPS = 40;
-export const COARSE_POINTER_TOTAL_TAPS = 30;
+export const TOTAL_TAPS = 40;
 export const HOLD_CHARGE_PERCENT_PER_SECOND = 10;
 export const OBSERVATION_ONLY_OUTLIER_TAPS = 60;
 export const OBSERVATION_ONLY_OUTLIER_MS = 20_000;
@@ -21,14 +20,6 @@ export interface PullPower {
   getTapCount(): number;
   getInputMethod(): PullInputMethod;
   isComplete(): boolean;
-}
-
-export function getTotalTaps(isCoarsePointer: boolean): number {
-  if (isCoarsePointer) {
-    return COARSE_POINTER_TOTAL_TAPS;
-  }
-
-  return FINE_POINTER_TOTAL_TAPS;
 }
 
 export function createPullPower({ totalTaps, onComplete }: CreatePullPowerOptions): PullPower {
