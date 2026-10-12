@@ -6,7 +6,7 @@ import { ASSETS } from '@game/assets';
 import { createPullPower, getTotalTaps } from '@game/pullPower';
 import styles from './index.module.css';
 
-const BURIED_PX = 110;
+const BURIED_FIELD_HEIGHT_RATIO = 110 / 398;
 const TAP_KEYS = new Set([' ', 'Enter', 'ArrowUp']);
 const HOLD_KEYS = new Set([' ', 'ArrowUp']);
 const IDLE_RELAX_MS = 3000;
@@ -196,20 +196,15 @@ export default function PullGame({ onNext, onQuit }: Props) {
         return;
       }
 
-      const isCompletingHold = HOLD_KEYS.has(e.key) && [...pressedKeys].some((key) =>
-        HOLD_KEYS.has(key),
-      );
+      const isCompletingHold =
+        HOLD_KEYS.has(e.key) && [...pressedKeys].some((key) => HOLD_KEYS.has(key));
       pressedKeys.add(e.key);
 
       if (!isCompletingHold) {
         handlers.tap(() => powerRef.current.keyDown({ repeat: e.repeat }));
       }
 
-      if (
-        HOLD_KEYS.has(e.key) &&
-        pressedKeys.has(' ') &&
-        pressedKeys.has('ArrowUp')
-      ) {
+      if (HOLD_KEYS.has(e.key) && pressedKeys.has(' ') && pressedKeys.has('ArrowUp')) {
         handlers.startHold();
       }
     };
@@ -273,17 +268,15 @@ export default function PullGame({ onNext, onQuit }: Props) {
   return (
     <section className={clsx(styles.pullGame, idleLevel !== 'none' && styles.idle)}>
       <h1 className={styles.heading}>냠냠… 뽑는 중</h1>
-      <p className={styles.sub}>
-        {isCoarse
-          ? '버튼을 연타해주세요. 속도는 상관없어요.'
-          : null}
-      </p>
+      <p className={styles.sub}>{isCoarse ? '버튼을 연타해주세요. 속도는 상관없어요.' : null}</p>
       {!isCoarse && (
         <div className={styles.instructions}>
           <div className={styles.instructionRow}>
             <span className={styles.instructionLabel}>한 번 뽑기</span>
             <span className={styles.keycaps}>
-              <kbd className={styles.keycap} aria-label="Space">␣</kbd>
+              <kbd className={styles.keycap} aria-label="Space">
+                ␣
+              </kbd>
               <kbd className={styles.keycap}>Enter</kbd>
               <kbd className={styles.keycap}>↑</kbd>
             </span>
@@ -300,47 +293,51 @@ export default function PullGame({ onNext, onQuit }: Props) {
         </div>
       )}
 
-      <div
-        role="group"
-        aria-label="당근 뽑기 무대 — Space, Enter, 화살표 키로 뽑아요"
-        tabIndex={0}
-        className={styles.field}
-      >
-        {!completed && (
-          <p className={styles.hint}>
-            {idleLevel === 'rest' ? '쉬어도 괜찮아요. 준비되면 이어서 해요.' : getHint(progress)}
-          </p>
-        )}
-        <div className={styles.bunnyArea}>
-          {completed ? (
-            <img
-              src={ASSETS.pull.success}
-              alt="당근을 뽑아 든 토끼"
-              className={clsx(styles.bunnyImage, styles.success)}
-            />
-          ) : (
-            <div
-              className={styles.bunnyLayer}
-              style={{ transform: `translateY(${(1 - t) * BURIED_PX}px)` }}
-            >
+      <div className={styles.fieldSlot}>
+        <div
+          role="group"
+          aria-label="당근 뽑기 무대 — Space, Enter, 화살표 키로 뽑아요"
+          tabIndex={0}
+          className={styles.field}
+        >
+          {!completed && (
+            <p className={styles.hint}>
+              {idleLevel === 'rest' ? '쉬어도 괜찮아요. 준비되면 이어서 해요.' : getHint(progress)}
+            </p>
+          )}
+          <div className={styles.bunnyArea}>
+            {completed ? (
               <img
-                key={hitCount}
-                src={ASSETS.pull.bunny}
-                alt="당근을 뽑는 토끼"
-                className={clsx(styles.bunnyImage, hitCount > 0 && styles.shake)}
+                src={ASSETS.pull.success}
+                alt="당근을 뽑아 든 토끼"
+                className={clsx(styles.bunnyImage, styles.success)}
               />
-            </div>
+            ) : (
+              <div
+                className={styles.bunnyLayer}
+                style={{
+                  transform: `translateY(${(1 - t) * BURIED_FIELD_HEIGHT_RATIO * 100}cqh)`,
+                }}
+              >
+                <img
+                  key={hitCount}
+                  src={ASSETS.pull.bunny}
+                  alt="당근을 뽑는 토끼"
+                  className={clsx(styles.bunnyImage, hitCount > 0 && styles.shake)}
+                />
+              </div>
+            )}
+          </div>
+          <div className={styles.dirt} aria-hidden="true">
+            <img src={ASSETS.pull.dirt} alt="" />
+            <img src={ASSETS.pull.dirt} alt="" />
+          </div>
+          {completed && (
+            <p className={styles.clear} aria-hidden="true">
+              CLEAR!!
+            </p>
           )}
         </div>
-        <div className={styles.dirt} aria-hidden="true">
-          <img src={ASSETS.pull.dirt} alt="" />
-          <img src={ASSETS.pull.dirt} alt="" />
-        </div>
-        {completed && (
-          <p className={styles.clear} aria-hidden="true">
-            CLEAR!!
-          </p>
-        )}
       </div>
 
       <div className={styles.gauge}>
