@@ -169,7 +169,6 @@ describe('PullGame', () => {
 
       expect(getProgressValue()).toBe(0);
     });
-
   });
 
   describe('쭈욱 뽑기 (Space+↑)', () => {
@@ -300,7 +299,7 @@ describe('PullGame', () => {
       expect(onNext).toHaveBeenCalledTimes(1);
     });
 
-    it('뽑는 토끼 대신 완료 이미지와 CLEAR!!가 보인다', () => {
+    it('완료하면 완료 상태와 성공 이미지가 보인다', () => {
       setupFakeClock();
       renderPullGame();
       const completionBefore = screen.queryByTestId(PULL_GAME_TEST_IDS.completionState);
@@ -309,8 +308,8 @@ describe('PullGame', () => {
 
       expect(completionBefore).toBeNull();
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.completionState)).toBeTruthy();
-      expect(screen.getByAltText('당근을 뽑아 든 토끼')).toBeTruthy();
-      expect(screen.queryByAltText('당근을 뽑는 토끼')).toBeNull();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.successVisual)).toBeTruthy();
+      expect(screen.queryByTestId(PULL_GAME_TEST_IDS.pullingVisual)).toBeNull();
     });
   });
 

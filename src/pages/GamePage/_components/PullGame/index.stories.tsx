@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactNode } from 'react';
 import { fireEvent, fn, within } from 'storybook/test';
+import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import PullGame from '.';
 
 // 게임은 앱 카드(검정 프레임) 안에 들어가는 화면이라, 카드 치수를 재현해야 실제 비율로 보인다
@@ -26,7 +27,7 @@ function CardFrame({ children }: { children: ReactNode }) {
 }
 
 function tapTimes(canvasElement: HTMLElement, times: number) {
-  const button = within(canvasElement).getByRole('button', { name: '영차! 뽑기' });
+  const button = within(canvasElement).getByTestId(PULL_GAME_TEST_IDS.pullAction);
 
   for (let index = 0; index < times; index++) {
     fireEvent.pointerUp(button);

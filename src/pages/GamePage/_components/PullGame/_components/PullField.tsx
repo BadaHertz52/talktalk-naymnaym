@@ -39,6 +39,7 @@ export default function PullField({ progress, hitCount, completed, resting }: Pu
               src={ASSETS.pull.success}
               alt="당근을 뽑아 든 토끼"
               className={clsx(styles.bunnyImage, styles.success)}
+              data-testid={PULL_GAME_TEST_IDS.successVisual}
             />
           ) : (
             <div
@@ -50,6 +51,7 @@ export default function PullField({ progress, hitCount, completed, resting }: Pu
                 src={ASSETS.pull.bunny}
                 alt="당근을 뽑는 토끼"
                 className={clsx(styles.bunnyImage, hitCount > 0 && styles.shake)}
+                data-testid={PULL_GAME_TEST_IDS.pullingVisual}
               />
             </div>
           )}

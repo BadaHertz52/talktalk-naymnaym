@@ -11,6 +11,7 @@ import Button from '@/components/Button';
 import ScratchGame from './_components/ScratchGame';
 import PullGame from './_components/PullGame';
 import ArousalBuffer from './_components/ArousalBuffer';
+import { BUFFER_TEST_IDS } from './_constants/gameTestIds';
 import styles from './index.module.css';
 
 const BUFFER_TOP_MESSAGE: Record<GameMode, string> = {
@@ -72,24 +73,34 @@ export default function GamePage() {
         topMessage={BUFFER_TOP_MESSAGE[gameMode]}
         footer={() => {
           if (gameMode === 'scratch') {
-            return <Button onClick={finish}>다음 ▸</Button>;
+            return (
+              <Button onClick={finish} data-testid={BUFFER_TEST_IDS.nextAction}>
+                다음 ▸
+              </Button>
+            );
           }
 
           if (replayCount >= MAX_PULL_REPLAYS) {
             return (
               <div className={styles.enoughFooter}>
-                <p className={styles.enoughText}>충분히 했어요. 이제 결과를 볼까요?</p>
-                <Button onClick={finish}>다음 ▸</Button>
+                <p className={styles.enoughText} data-testid={BUFFER_TEST_IDS.enoughMessage}>
+                  충분히 했어요. 이제 결과를 볼까요?
+                </p>
+                <Button onClick={finish} data-testid={BUFFER_TEST_IDS.nextAction}>
+                  다음 ▸
+                </Button>
               </div>
             );
           }
 
           return (
             <>
-              <Button variant="outline" onClick={replay}>
+              <Button variant="outline" onClick={replay} data-testid={BUFFER_TEST_IDS.replayAction}>
                 한 번 더 뽑기
               </Button>
-              <Button onClick={finish}>다음 ▸</Button>
+              <Button onClick={finish} data-testid={BUFFER_TEST_IDS.nextAction}>
+                다음 ▸
+              </Button>
             </>
           );
         }}

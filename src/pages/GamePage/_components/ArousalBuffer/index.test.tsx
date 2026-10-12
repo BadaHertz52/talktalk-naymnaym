@@ -2,9 +2,8 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ASSETS } from '@game/assets';
+import { BUFFER_TEST_IDS } from '../../_constants/gameTestIds';
 import ArousalBuffer from '.';
-
-const bottomMessage = '쉿, 토끼가 자요. 옆에서 쉬어도 돼요.';
 
 function setupFakeClock() {
   vi.useFakeTimers();
@@ -22,7 +21,7 @@ function renderArousalBuffer({ topMessage = '당근 다 뽑았어요!' }: { topM
       footer={(ctx) => {
         footerCalls.push(ctx);
 
-        return <button>다음 ▸</button>;
+        return <button data-testid={BUFFER_TEST_IDS.nextAction}>다음 ▸</button>;
       }}
     />,
   );
@@ -31,7 +30,7 @@ function renderArousalBuffer({ topMessage = '당근 다 뽑았어요!' }: { topM
 }
 
 function clickSkip() {
-  fireEvent.click(screen.getByRole('button', { name: '건너뛰기' }));
+  fireEvent.click(screen.getByTestId(BUFFER_TEST_IDS.skipAction));
 }
 
 describe('ArousalBuffer', () => {
@@ -47,8 +46,8 @@ describe('ArousalBuffer', () => {
       stubReducedMotion(false);
       renderArousalBuffer();
 
-      expect(screen.getByText('당근 다 뽑았어요!')).toBeTruthy();
-      expect(screen.getByRole('button', { name: '건너뛰기' })).toBeTruthy();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.topMessage)).toBeTruthy();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.skipAction)).toBeTruthy();
     });
 
     it('하단 문구와 footer 버튼은 아직 DOM에 없다', () => {
@@ -56,8 +55,8 @@ describe('ArousalBuffer', () => {
       stubReducedMotion(false);
       renderArousalBuffer();
 
-      expect(screen.queryByText(bottomMessage)).toBeNull();
-      expect(screen.queryByRole('button', { name: '다음 ▸' })).toBeNull();
+      expect(screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeNull();
+      expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
     });
   });
 
@@ -71,8 +70,8 @@ describe('ArousalBuffer', () => {
         vi.advanceTimersByTime(1200);
       });
 
-      expect(screen.getByText(bottomMessage)).toBeTruthy();
-      expect(screen.queryByRole('button', { name: '다음 ▸' })).toBeNull();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeTruthy();
+      expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
     });
   });
 
@@ -86,7 +85,7 @@ describe('ArousalBuffer', () => {
         vi.advanceTimersByTime(3000);
       });
 
-      expect(screen.getByRole('button', { name: '다음 ▸' })).toBeTruthy();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
     });
   });
 
@@ -99,8 +98,8 @@ describe('ArousalBuffer', () => {
       const scene = document.querySelector('img');
 
       expect(scene?.getAttribute('src')).toBe(ASSETS.buffer.sceneStill);
-      expect(screen.queryByText(bottomMessage)).toBeNull();
-      expect(screen.queryByRole('button', { name: '다음 ▸' })).toBeNull();
+      expect(screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeNull();
+      expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
     });
   });
 
@@ -112,8 +111,8 @@ describe('ArousalBuffer', () => {
 
       clickSkip();
 
-      expect(screen.getByText(bottomMessage)).toBeTruthy();
-      expect(screen.getByRole('button', { name: '다음 ▸' })).toBeTruthy();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeTruthy();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
     });
 
     it('건너뛰기 버튼이 사라진다', () => {
@@ -123,7 +122,7 @@ describe('ArousalBuffer', () => {
 
       clickSkip();
 
-      expect(screen.queryByRole('button', { name: '건너뛰기' })).toBeNull();
+      expect(screen.queryByTestId(BUFFER_TEST_IDS.skipAction)).toBeNull();
     });
 
     it('footer에 skipped가 true로 전달된다', () => {
