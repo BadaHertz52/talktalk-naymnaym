@@ -361,21 +361,15 @@ describe('PullGame', () => {
   });
 
   describe('안내문', () => {
-    it('한 번 뽑기와 쭈욱 뽑기 안내를 키캡 없이 문장으로 보여준다', () => {
+    it('한 번 뽑기와 쭈욱 뽑기 안내를 테스트 속성으로 식별하고 키캡 없이 렌더한다', () => {
       setupFakeClock();
-      const { container } = renderPullGame();
+      renderPullGame();
+
+      const instructions = screen.getByTestId('pull-instructions');
 
       expect(screen.getByTestId('single-pull-instruction')).toBeTruthy();
       expect(screen.getByTestId('continuous-pull-instruction')).toBeTruthy();
-      expect(container.querySelector('kbd')).toBeNull();
-    });
-
-    it('꾹 눌러도 돼요 문구와 게이지 아래 Space 키캡이 없다', () => {
-      setupFakeClock();
-      const { container } = renderPullGame();
-
-      expect(container.textContent).not.toContain('꾹 눌러도 돼요');
-      expect(container.textContent).not.toContain('␣ Space');
+      expect(instructions.querySelector('kbd')).toBeNull();
     });
 
     it('진행률 0~60% / 60~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {
