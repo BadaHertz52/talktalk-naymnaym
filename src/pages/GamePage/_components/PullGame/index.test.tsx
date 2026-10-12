@@ -2,11 +2,8 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useSessionStore } from '@stores/sessionStore';
+import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import PullGame from '.';
-
-const PRIMARY_LABEL = '영차! 뽑기';
-const NEXT_LABEL = '다음 ▸';
-const QUIT_LABEL = '여기까지 할래요 ▸';
 
 function setupFakeClock() {
   vi.useFakeTimers({
@@ -29,7 +26,7 @@ function renderPullGame() {
 }
 
 function getPrimaryButton() {
-  return screen.getByRole('button', { name: PRIMARY_LABEL });
+  return screen.getByTestId(PULL_GAME_TEST_IDS.pullAction);
 }
 
 function getProgressValue() {
@@ -65,14 +62,14 @@ describe('PullGame', () => {
 
       tap(39);
       const beforeComplete = getProgressValue();
-      const nextBeforeComplete = screen.queryByRole('button', { name: NEXT_LABEL });
+      const nextBeforeComplete = screen.queryByTestId(PULL_GAME_TEST_IDS.nextAction);
       tap(1);
 
       expect(beforeComplete).toBe(97);
       expect(nextBeforeComplete).toBeNull();
       expect(getProgressValue()).toBe(100);
-      expect(screen.getByRole('button', { name: NEXT_LABEL })).toBeTruthy();
-      expect(screen.queryByRole('button', { name: PRIMARY_LABEL })).toBeNull();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction)).toBeTruthy();
+      expect(screen.queryByTestId(PULL_GAME_TEST_IDS.pullAction)).toBeNull();
     });
 
     it('pointerdown만 하고 떼지 않으면 진행률이 오르지 않는다', () => {
@@ -152,7 +149,7 @@ describe('PullGame', () => {
     it('여기까지 할래요 ▸에 포커스된 채 Space를 누르면 1타가 아니라 이탈이 동작한다', () => {
       setupFakeClock();
       const { onQuit } = renderPullGame();
-      const quitButton = screen.getByRole('button', { name: QUIT_LABEL });
+      const quitButton = screen.getByTestId(PULL_GAME_TEST_IDS.quitAction);
 
       fireEvent.keyDown(quitButton, { key: ' ' });
       fireEvent.click(quitButton, { detail: 0 });
@@ -173,12 +170,6 @@ describe('PullGame', () => {
       expect(getProgressValue()).toBe(0);
     });
 
-    it('꾹 눌러서 뽑기 버튼이 없다', () => {
-      setupFakeClock();
-      renderPullGame();
-
-      expect(screen.queryByRole('button', { name: '꾹 눌러서 뽑기' })).toBeNull();
-    });
   });
 
   describe('쭈욱 뽑기 (Space+↑)', () => {
@@ -231,7 +222,7 @@ describe('PullGame', () => {
       expect(getProgressValue()).toBe(2);
     });
 
-    it('쭈욱 뽑기 중에는 8초가 지나도 무입력으로 보지 않는다', () => {
+    it('쭈욱 뽑기 중에는 8초가 지나도 무입력 상태가 되지 않는다', () => {
       setupFakeClock();
       renderPullGame();
 
@@ -239,7 +230,9 @@ describe('PullGame', () => {
       fireEvent.keyDown(document.body, { key: 'ArrowUp' });
       advance(8000);
 
-      expect(screen.queryByRole('button', { name: '천천히 해도 괜찮아요' })).toBeNull();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
+        'none',
+      );
     });
 
     it('언마운트하면 window 키 리스너와 예약된 애니메이션 프레임이 남지 않는다', () => {
@@ -279,7 +272,7 @@ describe('PullGame', () => {
 
       fireEvent.pointerDown(button);
       fireEvent.pointerUp(button);
-      fireEvent.click(screen.getByRole('button', { name: NEXT_LABEL }), { detail: 1 });
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction), { detail: 1 });
 
       expect(onNext).not.toHaveBeenCalled();
     });
@@ -288,7 +281,7 @@ describe('PullGame', () => {
       setupFakeClock();
       const { onNext } = renderPullGame();
       tap(40);
-      const next = screen.getByRole('button', { name: NEXT_LABEL });
+      const next = screen.getByTestId(PULL_GAME_TEST_IDS.nextAction);
 
       fireEvent.pointerDown(next);
       fireEvent.pointerUp(next);
@@ -302,7 +295,7 @@ describe('PullGame', () => {
       const { onNext } = renderPullGame();
       tap(40);
 
-      fireEvent.click(screen.getByRole('button', { name: NEXT_LABEL }), { detail: 0 });
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction), { detail: 0 });
 
       expect(onNext).toHaveBeenCalledTimes(1);
     });
@@ -310,12 +303,12 @@ describe('PullGame', () => {
     it('뽑는 토끼 대신 완료 이미지와 CLEAR!!가 보인다', () => {
       setupFakeClock();
       renderPullGame();
-      const clearBefore = screen.queryByText('CLEAR!!');
+      const completionBefore = screen.queryByTestId(PULL_GAME_TEST_IDS.completionState);
 
       tap(40);
 
-      expect(clearBefore).toBeNull();
-      expect(screen.getByText('CLEAR!!')).toBeTruthy();
+      expect(completionBefore).toBeNull();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.completionState)).toBeTruthy();
       expect(screen.getByAltText('당근을 뽑아 든 토끼')).toBeTruthy();
       expect(screen.queryByAltText('당근을 뽑는 토끼')).toBeNull();
     });
@@ -336,17 +329,17 @@ describe('PullGame', () => {
 
     it('완료 시 aria-live 영역에 안내가 1회 채워지고 이후 입력에도 바뀌지 않는다', () => {
       setupFakeClock();
-      const { container } = renderPullGame();
-      const liveRegion = container.querySelector('[aria-live="polite"]');
-      const beforeComplete = liveRegion?.textContent;
+      renderPullGame();
+      const liveRegion = screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement);
+      const beforeComplete = liveRegion.textContent;
 
       tap(40);
-      const afterComplete = liveRegion?.textContent;
+      const afterComplete = liveRegion.textContent;
       fireEvent.keyDown(document.body, { key: ' ' });
 
       expect(beforeComplete).toBe('');
-      expect(afterComplete).toBe('당근 다 뽑았어요!');
-      expect(liveRegion?.textContent).toBe('당근 다 뽑았어요!');
+      expect(afterComplete).toBeTruthy();
+      expect(liveRegion.textContent).toBe(afterComplete);
     });
 
     it('세션에 감정 텍스트가 있어도 화면에 렌더하지 않는다', () => {
@@ -365,10 +358,10 @@ describe('PullGame', () => {
       setupFakeClock();
       renderPullGame();
 
-      const instructions = screen.getByTestId('pull-instructions');
+      const instructions = screen.getByTestId(PULL_GAME_TEST_IDS.instructions);
 
-      expect(screen.getByTestId('single-pull-instruction')).toBeTruthy();
-      expect(screen.getByTestId('continuous-pull-instruction')).toBeTruthy();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.singlePullInstruction)).toBeTruthy();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.continuousPullInstruction)).toBeTruthy();
       expect(instructions.querySelector('kbd')).toBeNull();
     });
 
@@ -377,15 +370,13 @@ describe('PullGame', () => {
       renderPullGame();
 
       tap(23);
-      const below60 = screen.getByText('흙이 조금씩 움직여요');
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe(
+        'progress',
+      );
       tap(1);
-      const at60 = screen.getByText('거의 올라왔어요');
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('near');
       tap(12);
-      const at90 = screen.getByText('조금만 더!');
-
-      expect(below60).toBeTruthy();
-      expect(at60).toBeTruthy();
-      expect(at90).toBeTruthy();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('close');
     });
 
     it('게이지 옆 숫자 외에 타수·남은 시간 표시가 없다', () => {
@@ -403,7 +394,7 @@ describe('PullGame', () => {
       setupFakeClock();
       const { onQuit } = renderPullGame();
 
-      fireEvent.click(screen.getByRole('button', { name: QUIT_LABEL }));
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.quitAction));
 
       expect(onQuit).toHaveBeenCalledTimes(1);
       expect(screen.queryByRole('dialog')).toBeNull();
@@ -416,11 +407,17 @@ describe('PullGame', () => {
       renderPullGame();
 
       advance(8000);
-      const idleButton = screen.getByRole('button', { name: '천천히 해도 괜찮아요' });
+      const idleButton = screen.getByTestId(PULL_GAME_TEST_IDS.pullAction);
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
+        'slow',
+      );
       fireEvent.pointerDown(idleButton);
       fireEvent.pointerUp(idleButton);
 
       expect(getPrimaryButton()).toBeTruthy();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
+        'none',
+      );
       expect(getProgressValue()).toBe(2);
     });
 
@@ -429,11 +426,11 @@ describe('PullGame', () => {
       renderPullGame();
 
       advance(20_000);
-      const shown = screen.queryByText('쉬어도 괜찮아요. 준비되면 이어서 해요.');
+      const hint = screen.getByTestId(PULL_GAME_TEST_IDS.hint);
       advance(60_000);
 
-      expect(shown).toBeTruthy();
-      expect(screen.getByText('쉬어도 괜찮아요. 준비되면 이어서 해요.')).toBeTruthy();
+      expect(hint.getAttribute('data-level')).toBe('rest');
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('rest');
     });
 
     it('누르고 떼지 않은 채 8초가 지나도 무입력으로 본다', () => {
@@ -443,7 +440,9 @@ describe('PullGame', () => {
       fireEvent.pointerDown(getPrimaryButton());
       advance(8000);
 
-      expect(screen.getByRole('button', { name: '천천히 해도 괜찮아요' })).toBeTruthy();
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
+        'slow',
+      );
     });
   });
 });

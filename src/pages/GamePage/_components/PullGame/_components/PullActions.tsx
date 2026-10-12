@@ -1,6 +1,7 @@
 import { clsx } from 'clsx';
 import type { MouseEvent } from 'react';
 import Button from '@components/Button';
+import { PULL_GAME_TEST_IDS } from '../../../_constants/pullGameTestIds';
 import type { IdleLevel } from '../_hooks/usePullIdleLevel';
 import styles from '../index.module.css';
 
@@ -30,7 +31,12 @@ export default function PullActions({
   return (
     <div className={styles.actionGroup}>
       {completed ? (
-        <Button className={styles.mainButton} onPointerDown={onArmNext} onClick={onNextClick}>
+        <Button
+          className={styles.mainButton}
+          onPointerDown={onArmNext}
+          onClick={onNextClick}
+          data-testid={PULL_GAME_TEST_IDS.nextAction}
+        >
           다음 ▸
         </Button>
       ) : (
@@ -40,6 +46,7 @@ export default function PullActions({
           onPointerDown={onResetPrimaryClickSuppression}
           onPointerUp={onTap}
           data-pull-primary
+          data-testid={PULL_GAME_TEST_IDS.pullAction}
           onClick={onPrimaryClick}
         >
           {isIdleEmphasis ? '천천히 해도 괜찮아요' : '영차! 뽑기'}
@@ -53,6 +60,7 @@ export default function PullActions({
           isIdleEmphasis && styles.quitEmphasis,
         )}
         onClick={onQuit}
+        data-testid={PULL_GAME_TEST_IDS.quitAction}
       >
         여기까지 할래요 ▸
       </button>
