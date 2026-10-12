@@ -1,20 +1,13 @@
-import { useEffect, useId, useRef, useState } from 'react';
-import type { MouseEvent } from 'react';
+import { useId } from 'react';
 import { clsx } from 'clsx';
 import Button from '@components/Button';
 import { ASSETS } from '@game/assets';
-import { createPullPower, TOTAL_TAPS } from '@game/pullPower';
+import { usePullIdleLevel } from './_hooks/usePullIdleLevel';
+import { usePullSession } from './_hooks/usePullSession';
 import styles from './index.module.css';
 
 const DIRT_HEIGHT_RATIO = 96 / 398;
-const TAP_KEYS = new Set([' ', 'Enter', 'ArrowUp']);
-const HOLD_KEYS = new Set([' ', 'ArrowUp']);
-const IDLE_RELAX_MS = 3000;
-const IDLE_SLOW_MS = 8000;
-const IDLE_REST_MS = 20_000;
 const COMPLETE_ANNOUNCEMENT = '당근 다 뽑았어요!';
-
-type IdleLevel = 'none' | 'relax' | 'slow' | 'rest';
 
 interface Props {
   onNext: () => void;
@@ -34,235 +27,13 @@ function getHint(progress: number): string {
 }
 
 export default function PullGame({ onNext, onQuit }: Props) {
-  const [power] = useState(() => createPullPower({ totalTaps: TOTAL_TAPS, onComplete: () => {} }));
-  const [progress, setProgress] = useState(0);
-  const [hitCount, setHitCount] = useState(0);
-  const [inputCount, setInputCount] = useState(0);
-  const [holding, setHolding] = useState(false);
-  const [idleLevel, setIdleLevel] = useState<IdleLevel>('none');
-  const powerRef = useRef(power);
-  powerRef.current = power;
-  const holdFrameRef = useRef<number | null>(null);
-  const holdLastTimeRef = useRef<number | null>(null);
-  const pressedKeysRef = useRef(new Set<string>());
-  const suppressKeyClickRef = useRef(false);
-  const nextArmedRef = useRef(false);
-  const restShownRef = useRef(false);
+  const session = usePullSession({ onNext });
+  const { progress, hitCount, inputCount, holding, completed } = session;
+  const idleLevel = usePullIdleLevel({ inputCount, holding, completed });
   const gaugeLabelId = useId();
-  const completed = progress === 100;
   const displayedProgress = Math.floor(progress);
   const t = progress / 100;
   const bunnyOffset = (1 - t) * DIRT_HEIGHT_RATIO * 100;
-
-  const tap = (pull: () => void) => {
-    if (power.isComplete()) {
-      return;
-    }
-
-    pull();
-    setProgress(power.getProgress());
-    setHitCount((count) => count + 1);
-    setInputCount((count) => count + 1);
-  };
-
-  // 포인터 입력은 pointerup에서 이미 셌으므로 click은 보조기기 활성화(detail 0)만 1타로 센다
-  const handlePrimaryClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (e.detail !== 0) {
-      return;
-    }
-
-    if (suppressKeyClickRef.current) {
-      suppressKeyClickRef.current = false;
-
-      return;
-    }
-
-    tap(power.tap);
-  };
-
-  const stopHold = () => {
-    if (holdFrameRef.current === null) {
-      setHolding(false);
-
-      return;
-    }
-
-    cancelAnimationFrame(holdFrameRef.current);
-    holdFrameRef.current = null;
-    holdLastTimeRef.current = null;
-    setHolding(false);
-  };
-
-  const startHold = () => {
-    if (power.isComplete() || holdFrameRef.current !== null) {
-      return;
-    }
-
-    const frame = () => {
-      const now = performance.now();
-      const last = holdLastTimeRef.current ?? now;
-      power.hold(now - last);
-      holdLastTimeRef.current = now;
-      setProgress(power.getProgress());
-
-      if (power.isComplete()) {
-        holdFrameRef.current = null;
-        setHolding(false);
-
-        return;
-      }
-
-      holdFrameRef.current = requestAnimationFrame(frame);
-    };
-    holdLastTimeRef.current = performance.now();
-    holdFrameRef.current = requestAnimationFrame(frame);
-    setHolding(true);
-  };
-
-  const isPrimaryTarget = (target: EventTarget | null): boolean => {
-    if (!(target instanceof Element)) {
-      return false;
-    }
-
-    return target.closest('[data-pull-primary]') !== null;
-  };
-
-  const isBlockedTarget = (target: EventTarget | null): boolean => {
-    if (!(target instanceof Element)) {
-      return false;
-    }
-
-    const button = target.closest('button');
-
-    return (
-      (button !== null && !button.hasAttribute('data-pull-primary')) ||
-      Boolean(target.closest('a, input, textarea, select, [contenteditable="true"]'))
-    );
-  };
-
-  // 마지막 타의 pointerup 직후 같은 자리에 나타난 "다음 ▸"이 뒤따르는 click을 받지 않도록,
-  // 이 버튼 위에서 새로 시작한 포인터 입력이나 키보드 활성화(detail 0)만 받는다
-  const handleNextClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (e.detail !== 0 && !nextArmedRef.current) {
-      return;
-    }
-
-    onNext();
-  };
-
-  const handlersRef = useRef({
-    isPrimaryTarget,
-    isBlockedTarget,
-    tap,
-    startHold,
-    stopHold,
-  });
-  handlersRef.current = {
-    isPrimaryTarget,
-    isBlockedTarget,
-    tap,
-    startHold,
-    stopHold,
-  };
-
-  useEffect(() => {
-    return () => {
-      if (holdFrameRef.current !== null) {
-        cancelAnimationFrame(holdFrameRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const cleanupStopHold = handlersRef.current.stopHold;
-    const pressedKeys = pressedKeysRef.current;
-
-    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
-      const handlers = handlersRef.current;
-
-      if (!TAP_KEYS.has(e.key) || handlers.isBlockedTarget(e.target)) {
-        return;
-      }
-
-      const primaryTarget = handlers.isPrimaryTarget(e.target);
-      e.preventDefault();
-
-      if (primaryTarget) {
-        suppressKeyClickRef.current = true;
-      }
-
-      if (e.repeat || pressedKeys.has(e.key)) {
-        return;
-      }
-
-      const isCompletingHold =
-        HOLD_KEYS.has(e.key) && [...pressedKeys].some((key) => HOLD_KEYS.has(key));
-      pressedKeys.add(e.key);
-
-      if (!isCompletingHold) {
-        handlers.tap(() => powerRef.current.keyDown({ repeat: e.repeat }));
-      }
-
-      if (HOLD_KEYS.has(e.key) && pressedKeys.has(' ') && pressedKeys.has('ArrowUp')) {
-        handlers.startHold();
-      }
-    };
-
-    const handleKeyUp = (e: globalThis.KeyboardEvent) => {
-      const handlers = handlersRef.current;
-
-      if (!TAP_KEYS.has(e.key) || handlers.isBlockedTarget(e.target)) {
-        return;
-      }
-
-      e.preventDefault();
-      pressedKeys.delete(e.key);
-
-      if (!pressedKeys.has(' ') || !pressedKeys.has('ArrowUp')) {
-        handlers.stopHold();
-      }
-    };
-
-    const handleBlur = () => {
-      pressedKeys.clear();
-      handlersRef.current.stopHold();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    window.addEventListener('blur', handleBlur);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-      window.removeEventListener('blur', handleBlur);
-      pressedKeys.clear();
-      cleanupStopHold();
-    };
-  }, []);
-
-  useEffect(() => {
-    setIdleLevel('none');
-
-    if (completed || holding) {
-      return;
-    }
-
-    const timeoutIds = [
-      setTimeout(() => setIdleLevel('relax'), IDLE_RELAX_MS),
-      setTimeout(() => setIdleLevel('slow'), IDLE_SLOW_MS),
-      setTimeout(() => {
-        if (!restShownRef.current) {
-          restShownRef.current = true;
-          setIdleLevel('rest');
-        }
-      }, IDLE_REST_MS),
-    ];
-
-    return () => {
-      timeoutIds.forEach(clearTimeout);
-    };
-  }, [inputCount, holding, completed]);
 
   return (
     <section className={clsx(styles.pullGame, idleLevel !== 'none' && styles.idle)}>
@@ -350,10 +121,8 @@ export default function PullGame({ onNext, onQuit }: Props) {
         {completed ? (
           <Button
             className={styles.mainButton}
-            onPointerDown={() => {
-              nextArmedRef.current = true;
-            }}
-            onClick={handleNextClick}
+            onPointerDown={session.armNext}
+            onClick={session.handleNextClick}
           >
             다음 ▸
           </Button>
@@ -361,12 +130,10 @@ export default function PullGame({ onNext, onQuit }: Props) {
           <Button
             variant="outline"
             className={styles.mainButton}
-            onPointerDown={() => {
-              suppressKeyClickRef.current = false;
-            }}
-            onPointerUp={() => tap(power.tap)}
+            onPointerDown={session.resetPrimaryClickSuppression}
+            onPointerUp={session.tap}
             data-pull-primary
-            onClick={handlePrimaryClick}
+            onClick={session.handlePrimaryClick}
           >
             {idleLevel === 'slow' || idleLevel === 'rest' ? '천천히 해도 괜찮아요' : '영차! 뽑기'}
           </Button>
