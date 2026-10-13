@@ -16,7 +16,6 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
     return createPullPower({ totalTaps: getTotalTaps(isCoarsePointer), onComplete: () => {} });
   });
   const [progress, setProgress] = useState(0);
-  const [hitCount, setHitCount] = useState(0);
   const [inputCount, setInputCount] = useState(0);
   const [holding, setHolding] = useState(false);
   const holdFrameRef = useRef<number | null>(null);
@@ -31,7 +30,6 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
 
     pull();
     setProgress(power.getProgress());
-    setHitCount((count) => count + 1);
     setInputCount((count) => count + 1);
   };
 
@@ -153,7 +151,6 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
 
   return {
     progress,
-    hitCount,
     inputCount,
     holding,
     completed,

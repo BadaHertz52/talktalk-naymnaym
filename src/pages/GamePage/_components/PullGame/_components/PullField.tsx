@@ -7,12 +7,11 @@ const DIRT_HEIGHT_RATIO = 96 / 398;
 
 interface PullFieldProps {
   progress: number;
-  hitCount: number;
   completed: boolean;
   resting: boolean;
 }
 
-export default function PullField({ progress, hitCount, completed, resting }: PullFieldProps) {
+export default function PullField({ progress, completed, resting }: PullFieldProps) {
   const bunnyOffset = (1 - progress / 100) * DIRT_HEIGHT_RATIO * 100;
 
   return (
@@ -47,10 +46,9 @@ export default function PullField({ progress, hitCount, completed, resting }: Pu
               style={{ transform: `translateY(${bunnyOffset}cqh)` }}
             >
               <img
-                key={hitCount}
                 src={ASSETS.pull.bunny}
                 alt="당근을 뽑는 토끼"
-                className={clsx(styles.bunnyImage, hitCount > 0 && styles.shake)}
+                className={styles.bunnyImage}
                 data-testid={PULL_GAME_TEST_IDS.pullingVisual}
               />
             </div>

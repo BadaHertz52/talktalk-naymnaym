@@ -17,7 +17,7 @@ interface Props {
 
 export default function PullGame({ onNext, onQuit }: Props) {
   const session = usePullSession({ onNext });
-  const { progress, hitCount, inputCount, holding, completed } = session;
+  const { progress, inputCount, holding, completed } = session;
   const idleLevel = usePullIdleLevel({ inputCount, holding, completed });
   return (
     <section
@@ -27,12 +27,7 @@ export default function PullGame({ onNext, onQuit }: Props) {
     >
       <div className={styles.contentGroup}>
         <PullInstructions />
-        <PullField
-          progress={progress}
-          hitCount={hitCount}
-          completed={completed}
-          resting={idleLevel === 'rest'}
-        />
+        <PullField progress={progress} completed={completed} resting={idleLevel === 'rest'} />
         <PullGauge progress={progress} />
       </div>
 
