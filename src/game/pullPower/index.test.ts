@@ -3,11 +3,12 @@ import {
   HOLD_CHARGE_PERCENT_PER_SECOND,
   OBSERVATION_ONLY_OUTLIER_MS,
   OBSERVATION_ONLY_OUTLIER_TAPS,
-  TOTAL_TAPS,
+  FINE_POINTER_TOTAL_TAPS,
   createPullPower,
+  getTotalTaps,
 } from '.';
 
-function createPower(totalTaps: number = TOTAL_TAPS) {
+function createPower(totalTaps: number = FINE_POINTER_TOTAL_TAPS) {
   const onComplete = vi.fn();
   const power = createPullPower({ totalTaps, onComplete });
 
@@ -25,21 +26,21 @@ function tapTimes(count: number, totalTaps: number) {
 }
 
 describe('pullPower', () => {
-  describe(`${TOTAL_TAPS}타 게이지`, () => {
+  describe(`${FINE_POINTER_TOTAL_TAPS}타 게이지`, () => {
     it('0타, 1타, N-1타, N타, N+1타이면 경계 진행률을 유지한다', () => {
-      const zeroTaps = tapTimes(0, TOTAL_TAPS);
-      const oneTap = tapTimes(1, TOTAL_TAPS);
-      const beforeComplete = tapTimes(TOTAL_TAPS - 1, TOTAL_TAPS);
-      const complete = tapTimes(TOTAL_TAPS, TOTAL_TAPS);
-      const overComplete = tapTimes(TOTAL_TAPS + 1, TOTAL_TAPS);
+      const zeroTaps = tapTimes(0, FINE_POINTER_TOTAL_TAPS);
+      const oneTap = tapTimes(1, FINE_POINTER_TOTAL_TAPS);
+      const beforeComplete = tapTimes(FINE_POINTER_TOTAL_TAPS - 1, FINE_POINTER_TOTAL_TAPS);
+      const complete = tapTimes(FINE_POINTER_TOTAL_TAPS, FINE_POINTER_TOTAL_TAPS);
+      const overComplete = tapTimes(FINE_POINTER_TOTAL_TAPS + 1, FINE_POINTER_TOTAL_TAPS);
 
       expect(zeroTaps.power.getProgress()).toBe(0);
-      expect(oneTap.power.getProgress()).toBeCloseTo(100 / TOTAL_TAPS);
-      expect(beforeComplete.power.getProgress()).toBeCloseTo((100 * (TOTAL_TAPS - 1)) / TOTAL_TAPS);
+      expect(oneTap.power.getProgress()).toBeCloseTo(100 / FINE_POINTER_TOTAL_TAPS);
+      expect(beforeComplete.power.getProgress()).toBeCloseTo((100 * (FINE_POINTER_TOTAL_TAPS - 1)) / FINE_POINTER_TOTAL_TAPS);
       expect(complete.power.getProgress()).toBe(100);
       expect(overComplete.power.getProgress()).toBe(100);
-      expect(complete.power.getTapCount()).toBe(TOTAL_TAPS);
-      expect(overComplete.power.getTapCount()).toBe(TOTAL_TAPS);
+      expect(complete.power.getTapCount()).toBe(FINE_POINTER_TOTAL_TAPS);
+      expect(overComplete.power.getTapCount()).toBe(FINE_POINTER_TOTAL_TAPS);
     });
   });
 
@@ -104,10 +105,10 @@ describe('pullPower', () => {
   });
 
   it('60타를 초과해도 진행률이 100을 넘지 않는다', () => {
-    const { power } = tapTimes(OBSERVATION_ONLY_OUTLIER_TAPS + 1, TOTAL_TAPS);
+    const { power } = tapTimes(OBSERVATION_ONLY_OUTLIER_TAPS + 1, FINE_POINTER_TOTAL_TAPS);
 
     expect(power.getProgress()).toBe(100);
-    expect(power.getTapCount()).toBe(TOTAL_TAPS);
+    expect(power.getTapCount()).toBe(FINE_POINTER_TOTAL_TAPS);
   });
 
   it('관찰 전용 이상치 상수는 60타와 20000ms로 제공된다', () => {
@@ -119,12 +120,22 @@ describe('pullPower', () => {
   it('탭으로 완료하면 완료 콜백이 정확히 한 번 호출된다', () => {
     const { power, onComplete } = createPower();
 
-    for (let index = 0; index < TOTAL_TAPS + 1; index++) {
+    for (let index = 0; index < FINE_POINTER_TOTAL_TAPS + 1; index++) {
       power.tap();
     }
 
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(power.isComplete()).toBe(true);
+  });
+
+  describe('getTotalTaps', () => {
+    it('coarse 포인터이면 30타를 반환한다', () => {
+      expect(getTotalTaps(true)).toBe(30);
+    });
+
+    it('coarse 포인터가 아니면 40타를 반환한다', () => {
+      expect(getTotalTaps(false)).toBe(40);
+    });
   });
 
   it('홀드로 초과 완료해도 완료 콜백이 정확히 한 번 호출된다', () => {

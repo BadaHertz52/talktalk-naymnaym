@@ -1,9 +1,14 @@
 import { createCompletionTracker } from '@game/scratchProgress';
 
-export const TOTAL_TAPS = 40;
+export const FINE_POINTER_TOTAL_TAPS = 40;
+export const COARSE_POINTER_TOTAL_TAPS = 30;
 export const HOLD_CHARGE_PERCENT_PER_SECOND = 10;
 export const OBSERVATION_ONLY_OUTLIER_TAPS = 60;
 export const OBSERVATION_ONLY_OUTLIER_MS = 20_000;
+
+export function getTotalTaps(isCoarsePointer: boolean): number {
+  return isCoarsePointer ? COARSE_POINTER_TOTAL_TAPS : FINE_POINTER_TOTAL_TAPS;
+}
 
 export type PullInputMethod = 'tap' | 'hold' | 'mixed' | null;
 

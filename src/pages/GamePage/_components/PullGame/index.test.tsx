@@ -17,7 +17,8 @@ function setupFakeClock() {
   });
 }
 
-function renderPullGame() {
+function renderPullGame({ coarse = false }: { coarse?: boolean } = {}) {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: coarse })));
   const onNext = vi.fn();
   const onQuit = vi.fn();
   const result = render(<PullGame onNext={onNext} onQuit={onQuit} />);
@@ -56,6 +57,40 @@ describe('PullGame', () => {
   });
 
   describe('연타 버튼', () => {
+    it('정밀 포인터에서 39타면 미완료이고 40타면 100%가 된다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      tap(39);
+      const beforeComplete = getProgressValue();
+      tap(1);
+
+      expect(beforeComplete).toBe(97);
+      expect(getProgressValue()).toBe(100);
+    });
+
+    it('coarse 포인터에서 29타면 미완료이고 30타면 100%가 된다', () => {
+      setupFakeClock();
+      renderPullGame({ coarse: true });
+
+      tap(29);
+      const beforeComplete = getProgressValue();
+      tap(1);
+
+      expect(beforeComplete).toBe(96);
+      expect(getProgressValue()).toBe(100);
+    });
+
+    it('포인터 판정은 마운트 시 1회만 한다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const matchMedia = vi.mocked(window.matchMedia);
+
+      tap(1);
+
+      expect(matchMedia).toHaveBeenCalledTimes(1);
+    });
+
     it('39타면 미완료이고 40타면 100%가 되며 다음 ▸이 나타난다', () => {
       setupFakeClock();
       renderPullGame();

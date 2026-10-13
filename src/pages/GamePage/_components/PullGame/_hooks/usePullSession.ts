@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
-import { createPullPower, TOTAL_TAPS } from '@game/pullPower';
+import { createPullPower, getTotalTaps } from '@game/pullPower';
 
 const TAP_KEYS = new Set([' ', 'Enter', 'ArrowUp']);
 const HOLD_KEYS = new Set([' ', 'ArrowUp']);
@@ -10,7 +10,11 @@ interface UsePullSessionOptions {
 }
 
 export function usePullSession({ onNext }: UsePullSessionOptions) {
-  const [power] = useState(() => createPullPower({ totalTaps: TOTAL_TAPS, onComplete: () => {} }));
+  const [power] = useState(() => {
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+
+    return createPullPower({ totalTaps: getTotalTaps(isCoarsePointer), onComplete: () => {} });
+  });
   const [progress, setProgress] = useState(0);
   const [hitCount, setHitCount] = useState(0);
   const [inputCount, setInputCount] = useState(0);
