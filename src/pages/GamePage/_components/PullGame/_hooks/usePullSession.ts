@@ -98,7 +98,9 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
   };
 
   const handlersRef = useRef({ isPrimaryTarget, isBlockedTarget, tap, startHold, stopHold });
-  handlersRef.current = { isPrimaryTarget, isBlockedTarget, tap, startHold, stopHold };
+  useEffect(() => {
+    handlersRef.current = { isPrimaryTarget, isBlockedTarget, tap, startHold, stopHold };
+  });
 
   useEffect(() => {
     if (completed) completedAtRef.current = performance.now();
