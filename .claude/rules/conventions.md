@@ -131,6 +131,13 @@ color: #e08a3e;
 
 `src/game/` 내 파일은 **React import 없는 순수 TypeScript**만 허용. `src/pages/`, `src/components/` import 금지.
 
+**도메인 폴더 구조**: `src/game/{도메인}/`도 위 [유틸/훅/상수 스코프 규칙](#유틸훅상수-스코프-규칙)과 같은 기준을 따른다.
+
+- 상수나 유틸이 여러 개 모이면 `constants.ts`, `utils.ts`로 분리하고 테스트(`utils.test.ts`)는 대상 옆에 둔다. 2~3개 정도면 `index.ts`에 둔다.
+- `index.ts`는 공개 API만 선언한다. 내부 파일을 re-export하지 않는다.
+- 외부(`pages/`, `components/`)는 `@game/{도메인}` 진입점만 import한다. 내부 파일(`@game/scratchCover/utils` 등)을 직접 import하지 않는다.
+- 게임 엔진 전용 상수는 `game/`에 두고 페이지로 옮기지 않는다.
+
 ---
 
 ## 코딩 스타일

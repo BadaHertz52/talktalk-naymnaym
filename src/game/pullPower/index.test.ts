@@ -4,9 +4,8 @@ import {
   OBSERVATION_ONLY_OUTLIER_MS,
   OBSERVATION_ONLY_OUTLIER_TAPS,
   FINE_POINTER_TOTAL_TAPS,
-  createPullPower,
-  getTotalTaps,
-} from '.';
+} from './constants';
+import { createPullPower, getTotalTaps } from '.';
 
 function createPower(totalTaps: number = FINE_POINTER_TOTAL_TAPS) {
   const onComplete = vi.fn();
