@@ -15,6 +15,7 @@ release 브랜치 기준으로 SemVer 태그를 만들고 GitHub Release를 발�
 ## 절차
 
 1. **버전 결정**
+
    ```bash
    git fetch --tags
    gh release list --limit 1
@@ -24,6 +25,7 @@ release 브랜치 기준으로 SemVer 태그를 만들고 GitHub Release를 발�
    - 사용자가 버전을 직접 지정하면 그것을 따른다.
 
 2. **release 브랜치 최신 상태 확인**
+
    ```bash
    git fetch origin
    git log origin/release --oneline -5
@@ -31,6 +33,7 @@ release 브랜치 기준으로 SemVer 태그를 만들고 GitHub Release를 발�
 
 3. **태그 생성 및 push (사용자 확인 후)**
    - 어떤 태그를 어떤 커밋에 생성할지 보여주고 확인받는다.
+
    ```bash
    git checkout release
    git pull origin release
@@ -41,6 +44,7 @@ release 브랜치 기준으로 SemVer 태그를 만들고 GitHub Release를 발�
 4. **GitHub Release 발행**
    - release 대상 기간의 커밋 로그(`git log <이전태그>..vX.Y.Z --oneline`)를 바탕으로
      릴리즈 노트를 직접 요약해 작성한다.
+
    ```bash
    gh release create vX.Y.Z \
      --title "vX.Y.Z - <한 줄 요약>" \

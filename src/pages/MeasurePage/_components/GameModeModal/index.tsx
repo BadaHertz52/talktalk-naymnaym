@@ -32,7 +32,12 @@ export default function GameModeModal({ onSelect, onClose }: Props) {
       <div className={styles.cards}>
         {ENABLED_GAME_MODES.map((mode) => (
           <button key={mode} type="button" className={styles.card} onClick={() => onSelect(mode)}>
-            <img src={ASSETS.modeThumb[mode]} alt="" aria-hidden="true" className={styles.thumbnail} />
+            <img
+              src={ASSETS.modeThumb[mode]}
+              alt=""
+              aria-hidden="true"
+              className={styles.thumbnail}
+            />
             <span className={styles.text}>
               <span className={styles.name}>{CARD_COPY[mode].name}</span>
               <span className={styles.description}>

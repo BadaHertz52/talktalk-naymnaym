@@ -1,31 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactNode } from 'react';
 import { expect, waitFor, within } from 'storybook/test';
 import { useSessionStore } from '@stores/sessionStore';
+import { withAppFrame } from '../../../../../.storybook/withAppFrame';
+import { SCRATCH_GAME_TEST_IDS } from '../../_constants/gameTestIds';
 import ScratchGame from '.';
-
-// 게임 화면은 앱 카드(.main) 안에 들어가므로 카드 치수·flex 컬럼을 재현해야 실제 비율로 보인다
-function CardFrame({ children }: { children: ReactNode }) {
-  return (
-    <div
-      style={{
-        width: 'var(--main-width)',
-        maxWidth: 'var(--main-max-width)',
-        height: 'var(--main-height)',
-        margin: '0 auto',
-        padding: '26px 22px 30px',
-        background: 'var(--color-black)',
-        border: '2px solid var(--color-white)',
-        borderRadius: 14,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 const meta = {
   title: 'GamePage/ScratchGame',
@@ -44,12 +22,9 @@ const meta = {
         secretMode: false,
       });
 
-      return (
-        <CardFrame>
-          <Story />
-        </CardFrame>
-      );
+      return <Story />;
     },
+    withAppFrame,
   ],
 } satisfies Meta<typeof ScratchGame>;
 
@@ -97,6 +72,6 @@ export const 하드종료: Story = {
     pointer(canvas, 'pointerup', width / 2, height / 2);
 
     const ui = within(canvasElement);
-    await waitFor(() => expect(ui.getByRole('button', { name: '다음 ▸' })).toBeEnabled());
+    await waitFor(() => expect(ui.getByTestId(SCRATCH_GAME_TEST_IDS.nextAction)).toBeEnabled());
   },
 };

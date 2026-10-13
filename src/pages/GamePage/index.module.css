@@ -1,0 +1,14 @@
+/* 와이어프레임 05d — 3플레이 후 footer는 유도 문구를 "다음 ▸" 위에 세로로 쌓는다 */
+.enoughFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.enoughText {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  text-align: center;
+  color: var(--color-gray-mid);
+}

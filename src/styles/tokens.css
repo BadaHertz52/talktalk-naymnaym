@@ -32,5 +32,6 @@
   --main-max-width: 480px;
   --main-height: 95svh;
   --main-max-height: 1200px;
+  --main-aspect-ratio: 384 / 718;
   --main-min-width: calc(320px * 0.9);
 }

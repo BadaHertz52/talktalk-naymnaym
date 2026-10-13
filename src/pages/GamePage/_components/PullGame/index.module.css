@@ -1,0 +1,283 @@
+.pullGame {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.contentGroup,
+.actionGroup {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+}
+
+.heading {
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  color: var(--color-white);
+  margin: 0.375rem 0 0;
+  letter-spacing: 1px;
+}
+
+.instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--color-gray-light);
+}
+
+.instructionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 4px;
+}
+
+/* 좁은 폭에서 설명 문구가 글자 단위로 잘리지 않고 통째로 다음 줄로 넘어가게 한다 */
+.instructionRow > * {
+  flex-shrink: 0;
+}
+
+.textButton {
+  align-self: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 12px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  letter-spacing: 1px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.textButton:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.field {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  container-type: size;
+  background: var(--color-black);
+  border: 2px solid var(--color-white);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.fieldSlot {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.field:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.hint {
+  position: absolute;
+  top: 3.5176cqh;
+  left: 0;
+  z-index: 4;
+  width: 100%;
+  margin: 0;
+  font-size: clamp(9px, 2.7638cqh, 11px);
+  letter-spacing: 1px;
+  text-align: center;
+  color: var(--color-gray-mid);
+}
+
+/* 와이어프레임 03c의 토끼 래퍼(250×280, 흙 높이만큼 띄움) */
+.bunnyArea {
+  position: absolute;
+  bottom: 24.1206cqh;
+  left: 50%;
+  z-index: 1;
+  width: 74.184cqw;
+  height: 70.3518cqh;
+  translate: -50% 0;
+  transition: transform 300ms ease;
+}
+
+.idle .bunnyArea {
+  transform: translateY(2px);
+}
+
+.bunnyLayer {
+  width: 100%;
+  height: 100%;
+  transition: transform 180ms ease-out;
+  will-change: transform;
+}
+
+.bunnyImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  image-rendering: pixelated;
+}
+
+.success {
+  animation: pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+
+/* 이음선 없는 타일이 아니라서 repeat 대신 같은 이미지 2장을 반씩 나란히 둔다.
+   원본 좌우 끝 2px가 반투명이라 정확히 50%씩 붙이면 이음선으로 뒤가 비치므로 4px 겹친다 */
+.dirt {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  width: 100%;
+  height: 24.1206cqh;
+  /* 원본 위·아래 끝 행도 반투명이라, 흙 속에 있어야 할 당근 끝이 비치지 않게 막는다 */
+  background: var(--color-black);
+}
+
+.dirt img {
+  display: block;
+  width: calc(50% + 2px);
+  height: 100%;
+  object-fit: fill;
+  image-rendering: pixelated;
+}
+
+.dirt img + img {
+  margin-left: -4px;
+}
+
+.clear {
+  position: absolute;
+  right: 0;
+  bottom: 7.5377cqh;
+  left: 0;
+  z-index: 5;
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: clamp(12px, 7.5377cqh, 30px);
+  line-height: 1;
+  letter-spacing: 4px;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--color-white);
+  text-shadow:
+    2px 0 0 var(--color-black),
+    -2px 0 0 var(--color-black),
+    0 2px 0 var(--color-black),
+    0 -2px 0 var(--color-black),
+    4px 4px 0 var(--color-black);
+  -webkit-font-smoothing: none;
+  pointer-events: none;
+  animation: pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+
+.gauge {
+  margin-top: 18px;
+  transition: filter 300ms ease;
+}
+
+.idle .gauge {
+  filter: saturate(0.8);
+}
+
+.gaugeLabel {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--color-gray-light);
+}
+
+/* IntensitySlider .track 패턴(흰 테두리 2px, radius 10px) */
+.track {
+  height: 20px;
+  overflow: hidden;
+  border: 2px solid var(--color-white);
+  border-radius: 10px;
+}
+
+.fill {
+  height: 100%;
+  background: var(--color-primary);
+}
+
+/* 공용 Button(약 53px)은 건드리지 않고 이 화면에서만 터치 타깃을 키운다 */
+.mainButton {
+  width: 100%;
+  min-height: 64px;
+  margin-top: 18px;
+  padding-inline: 0;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.quitButton {
+  margin-top: 6px;
+  color: var(--color-gray-mid);
+}
+
+.quitEmphasis {
+  color: var(--color-gray-light);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.86);
+  }
+
+  55% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.06);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bunnyLayer,
+  .fill,
+  .bunnyArea {
+    transition: none;
+  }
+
+  .idle .bunnyArea {
+    transform: none;
+  }
+
+  .success,
+  .clear {
+    animation: none;
+  }
+}

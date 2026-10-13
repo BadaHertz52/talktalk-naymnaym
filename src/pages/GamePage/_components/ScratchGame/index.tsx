@@ -4,6 +4,7 @@ import { useSessionStore } from '@stores/sessionStore';
 import { useGameCanvas } from '../../_hooks/useGameCanvas';
 import { ASSETS } from '@game/assets';
 import Button from '@components/Button';
+import { SCRATCH_GAME_TEST_IDS } from '../../_constants/gameTestIds';
 import styles from './index.module.css';
 
 interface Props {
@@ -33,7 +34,9 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
 
   return (
     <>
-      <h1 className={styles.heading}>냠냠… 없애는 중</h1>
+      <h1 className={styles.heading} data-testid={SCRATCH_GAME_TEST_IDS.heading}>
+        냠냠… 없애는 중
+      </h1>
       <p className={styles.sub}>당근을 움직여 글자를 지워보세요.</p>
       <div className={styles.field}>
         <div className={styles.eatingImgWrapper}>
@@ -53,13 +56,23 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
           className={styles.carrotImg}
         />
       </div>
-      <p className={clsx(styles.progress, ended && styles.progressDone)} aria-live="polite">
+      <p
+        className={clsx(styles.progress, ended && styles.progressDone)}
+        aria-live="polite"
+        data-testid={SCRATCH_GAME_TEST_IDS.progress}
+        data-percent={percent}
+      >
         사라지는 중 {percent}%
       </p>
-      <Button onClick={onNext} disabled={!ended}>
+      <Button onClick={onNext} disabled={!ended} data-testid={SCRATCH_GAME_TEST_IDS.nextAction}>
         다음 ▸
       </Button>
-      <button type="button" className={styles.quitButton} onClick={onQuit}>
+      <button
+        type="button"
+        className={styles.quitButton}
+        onClick={onQuit}
+        data-testid={SCRATCH_GAME_TEST_IDS.quitAction}
+      >
         여기까지 할래요 ▸
       </button>
     </>

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
 import { ASSETS } from '@game/assets';
 import { useArousalBuffer } from '../../_hooks/useArousalBuffer';
+import { BUFFER_TEST_IDS } from '../../_constants/gameTestIds';
 import styles from './index.module.css';
 
 const BOTTOM_MESSAGE_DELAY_MS = 1200;
@@ -42,7 +43,9 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
 
   return (
     <section className={styles.buffer}>
-      <h2 className={styles.topMessage}>{topMessage}</h2>
+      <h2 className={styles.topMessage} data-testid={BUFFER_TEST_IDS.topMessage}>
+        {topMessage}
+      </h2>
       <div className={styles.scene}>
         <img
           src={reducedMotion ? ASSETS.buffer.sceneStill : ASSETS.buffer.scene}
@@ -50,13 +53,20 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
           aria-hidden="true"
           className={styles.sceneImage}
         />
-        {!skipped && (
-          <button type="button" className={styles.skipButton} onClick={handleSkip}>
+        {!showFooter && (
+          <button
+            type="button"
+            className={styles.skipButton}
+            onClick={handleSkip}
+            data-testid={BUFFER_TEST_IDS.skipAction}
+          >
             건너뛰기
           </button>
         )}
       </div>
-      <div className={styles.bottomMessage}>{showBottomMessage && <p>{BOTTOM_MESSAGE}</p>}</div>
+      <div className={styles.bottomMessage}>
+        {showBottomMessage && <p data-testid={BUFFER_TEST_IDS.bottomMessage}>{BOTTOM_MESSAGE}</p>}
+      </div>
       <div className={clsx(styles.footer, showFooter && styles.footerVisible)}>
         {showFooter && footer({ getDwellMs, skipped })}
       </div>
