@@ -43,6 +43,7 @@ function enterScratchGame() {
 }
 
 function enterPullGame() {
+  vi.useFakeTimers({ toFake: ['performance'] });
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false }));
   useSessionStore.getState().reset();
   useSessionStore.getState().completeInput({ text: '속상해', secretMode: false });
@@ -61,6 +62,9 @@ function finishPull() {
 }
 
 function clickPullNext() {
+  act(() => {
+    vi.advanceTimersByTime(600);
+  });
   fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction));
 }
 
@@ -83,6 +87,7 @@ function clickTestId(testId: string) {
 describe('GamePage', () => {
   afterEach(() => {
     cleanup();
+    vi.useRealTimers();
     vi.unstubAllGlobals();
   });
 

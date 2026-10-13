@@ -18,7 +18,10 @@ function setupFakeClock() {
 }
 
 function renderPullGame({ coarse = false }: { coarse?: boolean } = {}) {
-  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: coarse })));
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn(() => ({ matches: coarse })),
+  );
   const onNext = vi.fn();
   const onQuit = vi.fn();
   const result = render(<PullGame onNext={onNext} onQuit={onQuit} />);
@@ -315,6 +318,7 @@ describe('PullGame', () => {
       setupFakeClock();
       const { onNext } = renderPullGame();
       tap(40);
+      advance(600);
       const next = screen.getByTestId(PULL_GAME_TEST_IDS.nextAction);
 
       fireEvent.pointerDown(next);
@@ -328,10 +332,36 @@ describe('PullGame', () => {
       setupFakeClock();
       const { onNext } = renderPullGame();
       tap(40);
+      advance(600);
 
       fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction), { detail: 0 });
 
       expect(onNext).toHaveBeenCalledTimes(1);
+    });
+
+    it('완료 직후 600ms 안에 들어온 다음 ▸ 클릭은 마우스든 키보드든 무시한다', () => {
+      setupFakeClock();
+      const { onNext } = renderPullGame();
+      tap(40);
+      advance(599);
+      const next = screen.getByTestId(PULL_GAME_TEST_IDS.nextAction);
+
+      fireEvent.pointerDown(next);
+      fireEvent.click(next, { detail: 1 });
+      fireEvent.click(next, { detail: 0 });
+
+      expect(onNext).not.toHaveBeenCalled();
+    });
+
+    it('완료되면 뽑기 버튼 요소가 다음 ▸로 재사용되지 않아 뽑기 버튼 포커스가 넘어오지 않는다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const pullButton = getPrimaryButton();
+      pullButton.focus();
+
+      tap(40);
+
+      expect(document.activeElement).not.toBe(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction));
     });
 
     it('완료하면 완료 상태와 성공 이미지가 보인다', () => {

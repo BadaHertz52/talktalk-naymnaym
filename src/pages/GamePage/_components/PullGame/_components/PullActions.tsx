@@ -32,6 +32,7 @@ export default function PullActions({
     <div className={styles.actionGroup}>
       {completed ? (
         <Button
+          key="next"
           className={styles.mainButton}
           onPointerDown={onArmNext}
           onClick={onNextClick}
@@ -41,6 +42,7 @@ export default function PullActions({
         </Button>
       ) : (
         <Button
+          key="pull"
           variant="outline"
           className={styles.mainButton}
           onPointerDown={onResetPrimaryClickSuppression}

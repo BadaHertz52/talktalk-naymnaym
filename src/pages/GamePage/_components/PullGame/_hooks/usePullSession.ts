@@ -4,6 +4,8 @@ import { createPullPower, getTotalTaps } from '@game/pullPower';
 
 const TAP_KEYS = new Set([' ', 'Enter', 'ArrowUp']);
 const HOLD_KEYS = new Set([' ', 'ArrowUp']);
+// 연타하던 입력이 완료 직후 "다음 ▸"에 떨어져 버퍼로 넘어가지 않도록, 완료 후 이 시간 동안은 클릭을 무시한다
+const NEXT_GUARD_MS = 600;
 
 interface UsePullSessionOptions {
   onNext: () => void;
@@ -23,6 +25,7 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
   const pressedKeysRef = useRef(new Set<string>());
   const suppressKeyClickRef = useRef(false);
   const nextArmedRef = useRef(false);
+  const completedAtRef = useRef(0);
   const completed = progress === 100;
 
   const tap = (pull: () => void) => {
@@ -89,12 +92,17 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
   };
 
   const handleNextClick = (e: MouseEvent<HTMLButtonElement>) => {
+    if (performance.now() - completedAtRef.current < NEXT_GUARD_MS) return;
     if (e.detail !== 0 && !nextArmedRef.current) return;
     onNext();
   };
 
   const handlersRef = useRef({ isPrimaryTarget, isBlockedTarget, tap, startHold, stopHold });
   handlersRef.current = { isPrimaryTarget, isBlockedTarget, tap, startHold, stopHold };
+
+  useEffect(() => {
+    if (completed) completedAtRef.current = performance.now();
+  }, [completed]);
 
   useEffect(() => {
     return () => {
