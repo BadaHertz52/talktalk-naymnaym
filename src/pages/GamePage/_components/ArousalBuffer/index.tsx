@@ -53,7 +53,7 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
           aria-hidden="true"
           className={styles.sceneImage}
         />
-        {!skipped && (
+        {!showFooter && (
           <button
             type="button"
             className={styles.skipButton}

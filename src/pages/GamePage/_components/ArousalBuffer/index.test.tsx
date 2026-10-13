@@ -103,6 +103,20 @@ describe('ArousalBuffer', () => {
     });
   });
 
+  describe('3.0초가 지나 footer가 나타나면', () => {
+    it('건너뛰기 버튼이 사라진다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer();
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(screen.queryByTestId(BUFFER_TEST_IDS.skipAction)).toBeNull();
+    });
+  });
+
   describe('건너뛰기를 누르면', () => {
     it('하단 문구와 footer가 즉시 나타난다', () => {
       setupFakeClock();
