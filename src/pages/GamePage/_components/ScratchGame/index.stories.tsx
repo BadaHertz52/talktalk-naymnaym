@@ -1,19 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactNode } from 'react';
 import { expect, waitFor, within } from 'storybook/test';
 import { useSessionStore } from '@stores/sessionStore';
+import { withAppFrame } from '../../../../../.storybook/withAppFrame';
 import { SCRATCH_GAME_TEST_IDS } from '../../_constants/gameTestIds';
 import ScratchGame from '.';
-import styles from './index.stories.module.css';
-
-// 게임 화면은 앱 카드(.main) 안에 들어가므로 카드 치수·flex 컬럼을 재현해야 실제 비율로 보인다
-function CardFrame({ children }: { children: ReactNode }) {
-  return (
-    <div className={styles.cardFrame}>
-      {children}
-    </div>
-  );
-}
 
 const meta = {
   title: 'GamePage/ScratchGame',
@@ -32,12 +22,9 @@ const meta = {
         secretMode: false,
       });
 
-      return (
-        <CardFrame>
-          <Story />
-        </CardFrame>
-      );
+      return <Story />;
     },
+    withAppFrame,
   ],
 } satisfies Meta<typeof ScratchGame>;
 

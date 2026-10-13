@@ -1,18 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactNode } from 'react';
 import { fireEvent, fn, within } from 'storybook/test';
+import { withAppFrame } from '../../../../../.storybook/withAppFrame';
 import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import PullGame from '.';
-import styles from './index.stories.module.css';
-
-// 게임은 앱 카드(검정 프레임) 안에 들어가는 화면이라, 카드 치수를 재현해야 실제 비율로 보인다
-function CardFrame({ children }: { children: ReactNode }) {
-  return (
-    <div className={styles.cardFrame}>
-      {children}
-    </div>
-  );
-}
 
 function tapTimes(canvasElement: HTMLElement, times: number) {
   const button = within(canvasElement).getByTestId(PULL_GAME_TEST_IDS.pullAction);
@@ -32,13 +22,7 @@ const meta = {
     onNext: fn(),
     onQuit: fn(),
   },
-  decorators: [
-    (Story) => (
-      <CardFrame>
-        <Story />
-      </CardFrame>
-    ),
-  ],
+  decorators: [withAppFrame],
 } satisfies Meta<typeof PullGame>;
 
 export default meta;

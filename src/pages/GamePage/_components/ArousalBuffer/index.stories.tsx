@@ -1,17 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactNode } from 'react';
 import Button from '@components/Button';
+import { withAppFrame } from '../../../../../.storybook/withAppFrame';
 import ArousalBuffer from '.';
-import styles from './index.stories.module.css';
-
-// 버퍼는 앱 카드(검정 프레임) 안에 들어가는 화면이라, 카드 치수를 재현해야 실제 비율로 보인다
-function CardFrame({ children }: { children: ReactNode }) {
-  return (
-    <div className={styles.cardFrame}>
-      {children}
-    </div>
-  );
-}
 
 const meta = {
   title: 'GamePage/ArousalBuffer',
@@ -19,13 +9,7 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
-  decorators: [
-    (Story) => (
-      <CardFrame>
-        <Story />
-      </CardFrame>
-    ),
-  ],
+  decorators: [withAppFrame],
 } satisfies Meta<typeof ArousalBuffer>;
 
 export default meta;
