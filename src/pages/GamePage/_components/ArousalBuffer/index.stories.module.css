@@ -1,0 +1,12 @@
+.cardFrame {
+  width: var(--main-width);
+  max-width: var(--main-max-width);
+  aspect-ratio: var(--main-aspect-ratio);
+  margin: 0 auto;
+  padding: 26px 22px 30px;
+  background: var(--color-black);
+  border: 3px solid var(--color-white);
+  border-radius: 26px;
+  display: flex;
+  flex-direction: column;
+}

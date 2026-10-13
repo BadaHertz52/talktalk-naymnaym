@@ -4,25 +4,12 @@ import { expect, waitFor, within } from 'storybook/test';
 import { useSessionStore } from '@stores/sessionStore';
 import { SCRATCH_GAME_TEST_IDS } from '../../_constants/gameTestIds';
 import ScratchGame from '.';
+import styles from './index.stories.module.css';
 
 // 게임 화면은 앱 카드(.main) 안에 들어가므로 카드 치수·flex 컬럼을 재현해야 실제 비율로 보인다
 function CardFrame({ children }: { children: ReactNode }) {
   return (
-    <div
-      style={{
-        width: 'var(--main-width)',
-        maxWidth: 'var(--main-max-width)',
-        aspectRatio: 'var(--main-aspect-ratio)',
-        margin: '0 auto',
-        padding: '26px 22px 30px',
-        background: 'var(--color-black)',
-        border: '2px solid var(--color-white)',
-        borderRadius: 14,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-      }}
-    >
+    <div className={styles.cardFrame}>
       {children}
     </div>
   );

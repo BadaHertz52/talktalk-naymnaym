@@ -289,8 +289,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bunnyLayer,
-  .fill {
+  .fill,
+  .bunnyArea {
     transition: none;
+  }
+
+  .idle .bunnyArea {
+    transform: none;
   }
 
   .shake,
