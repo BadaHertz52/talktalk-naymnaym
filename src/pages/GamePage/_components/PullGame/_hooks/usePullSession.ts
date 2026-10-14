@@ -165,6 +165,10 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
     holding,
     completed,
     tap: () => tap(power.tap),
+    getStats: () => ({
+      pullTaps: power.getTapCount(),
+      pullInputMethod: power.getInputMethod() ?? ('tap' as const),
+    }),
     handlePrimaryClick,
     handleNextClick,
     armNext: () => {

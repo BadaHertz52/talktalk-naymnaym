@@ -34,6 +34,7 @@ function hardEndGame() {
 describe('ScratchGame', () => {
   afterEach(() => {
     cleanup();
+    vi.useRealTimers();
   });
 
   describe('진행 중', () => {
@@ -62,7 +63,9 @@ describe('ScratchGame', () => {
       fireEvent.click(screen.getByTestId(SCRATCH_GAME_TEST_IDS.quitAction));
 
       expect(onQuit).toHaveBeenCalledTimes(1);
-      expect(onQuit).toHaveBeenCalledWith(0.72);
+      expect(onQuit).toHaveBeenCalledWith(
+        expect.objectContaining({ mode: 'scratch', scratchRatio: 0.72, progress: 0.72 }),
+      );
       expect(onNext).not.toHaveBeenCalled();
     });
   });
@@ -96,6 +99,24 @@ describe('ScratchGame', () => {
       fireEvent.click(screen.getByTestId(SCRATCH_GAME_TEST_IDS.nextAction));
 
       expect(onNext).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('durationMs', () => {
+    it('완료 후 "다음 ▸"을 늦게 눌러도 완료 순간까지의 시간만 보고된다', () => {
+      vi.useFakeTimers({ toFake: ['performance'] });
+      const { onNext } = renderScratchGame();
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
+      hardEndGame();
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+
+      fireEvent.click(screen.getByTestId(SCRATCH_GAME_TEST_IDS.nextAction));
+
+      expect(onNext).toHaveBeenCalledWith(expect.objectContaining({ durationMs: 2000 }));
     });
   });
 });

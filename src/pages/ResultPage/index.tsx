@@ -27,7 +27,9 @@ export default function ResultPage() {
   const fireOnce = useFireOnce();
 
   const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
+  const gameMode = useSessionStore((s) => s.steps.measure.data.gameMode);
   const cleared = useSessionStore((s) => s.steps.game.data.cleared);
+  const bufferSkipped = useSessionStore((s) => s.steps.game.data.bufferSkipped);
   const { intensityAfter, afterEmotionText } = useSessionStore((s) => s.steps.result.data);
   const completeResult = useSessionStore((s) => s.completeResult);
 
@@ -50,11 +52,19 @@ export default function ResultPage() {
     fireOnce(() => {
       completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
 
-      trackEvent(GA_EVENTS.resultComplete, {
-        [GA_PARAMS.intensityBefore]: intensityBefore,
-        [GA_PARAMS.intensityAfter]: intensity,
-        [GA_PARAMS.intensityChange]: intensityChange,
-      });
+      if (gameMode) {
+        const outcomeParams = cleared
+          ? ({ [GA_PARAMS.gameCleared]: true, [GA_PARAMS.bufferSkipped]: bufferSkipped } as const)
+          : ({ [GA_PARAMS.gameCleared]: false, [GA_PARAMS.bufferSkipped]: true } as const);
+
+        trackEvent(GA_EVENTS.resultComplete, {
+          [GA_PARAMS.intensityBefore]: intensityBefore,
+          [GA_PARAMS.intensityAfter]: intensity,
+          [GA_PARAMS.intensityChange]: intensityChange,
+          [GA_PARAMS.gameMode]: gameMode,
+          ...outcomeParams,
+        });
+      }
 
       navigate(PATHS.end);
     });
