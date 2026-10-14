@@ -8,9 +8,17 @@ import { SCRATCH_GAME_TEST_IDS } from '../../_constants/gameTestIds';
 import QuitButton from '../QuitButton';
 import styles from './index.module.css';
 
+export interface ScratchPlayResult {
+  mode: 'scratch';
+  durationMs: number;
+  scratchRatio: number;
+  // game_abandon용 0~1 (scratchRatio와 같은 값)
+  progress: number;
+}
+
 interface Props {
-  onNext: () => void;
-  onQuit: (progress: number) => void;
+  onNext: (result: ScratchPlayResult) => void;
+  onQuit: (result: ScratchPlayResult) => void;
 }
 
 export default function ScratchGame({ onNext, onQuit }: Props) {
@@ -18,8 +26,11 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const carrotRef = useRef<HTMLImageElement>(null);
   const [ended, setEnded] = useState(false);
+  const mountedAtRef = useRef(performance.now());
+  const completedDurationRef = useRef<number | null>(null);
 
   const enableNextStep = useCallback(() => {
+    completedDurationRef.current ??= Math.round(performance.now() - mountedAtRef.current);
     setEnded(true);
   }, []);
 
@@ -29,6 +40,14 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
     emotionText,
     secretMode,
     enableNextStep,
+  });
+  // 완료 순간에 확정해 "다음 ▸"까지의 대기가 섞이지 않게 한다. 반복 플레이는 리마운트되므로 마지막 플레이 기준
+  const buildResult = (): ScratchPlayResult => ({
+    mode: 'scratch',
+    durationMs:
+      completedDurationRef.current ?? Math.round(performance.now() - mountedAtRef.current),
+    scratchRatio: progress,
+    progress,
   });
   // 실제 지운 비율은 70%에서 멈추지만, 하드 종료가 "다 지웠다"로 읽히도록 게이지는 100%로 채운다 (기획 §3-4)
   const percent = ended ? 100 : Math.round(progress * 100);
@@ -65,12 +84,16 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
       >
         사라지는 중 {percent}%
       </p>
-      <Button onClick={onNext} disabled={!ended} data-testid={SCRATCH_GAME_TEST_IDS.nextAction}>
+      <Button
+        onClick={() => onNext(buildResult())}
+        disabled={!ended}
+        data-testid={SCRATCH_GAME_TEST_IDS.nextAction}
+      >
         다음 ▸
       </Button>
       <QuitButton
         className={styles.quitButton}
-        onClick={() => onQuit(progress)}
+        onClick={() => onQuit(buildResult())}
         data-testid={SCRATCH_GAME_TEST_IDS.quitAction}
       />
     </>

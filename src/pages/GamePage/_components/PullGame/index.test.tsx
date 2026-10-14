@@ -509,4 +509,65 @@ describe('PullGame', () => {
       );
     });
   });
+  describe('이탈 결과', () => {
+    it('입력 없이 이탈하면 pull_taps 0, 입력 방식 tap으로 보고된다', () => {
+      setupFakeClock();
+      const { onQuit } = renderPullGame();
+
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.quitAction));
+
+      expect(onQuit).toHaveBeenCalledWith(
+        expect.objectContaining({ pullTaps: 0, pullInputMethod: 'tap', progress: 0 }),
+      );
+    });
+
+    it('탭만 썼으면 탭 수와 입력 방식 tap이 보고된다', () => {
+      setupFakeClock();
+      const { onQuit } = renderPullGame();
+      tap(3);
+
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.quitAction));
+
+      expect(onQuit).toHaveBeenCalledWith(
+        expect.objectContaining({ pullTaps: 3, pullInputMethod: 'tap' }),
+      );
+    });
+
+    it('탭과 홀드를 함께 썼으면 입력 방식 mixed가 보고된다', () => {
+      setupFakeClock();
+      const { onQuit } = renderPullGame();
+      fireEvent.keyDown(document.body, { key: ' ' });
+      fireEvent.keyDown(document.body, { key: 'ArrowUp' });
+      advance(100);
+      fireEvent.keyUp(document.body, { key: 'ArrowUp' });
+
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.quitAction));
+
+      expect(onQuit).toHaveBeenCalledWith(expect.objectContaining({ pullInputMethod: 'mixed' }));
+    });
+
+    it('마운트 후 경과한 시간이 durationMs로 보고된다', () => {
+      setupFakeClock();
+      const { onQuit } = renderPullGame();
+      advance(1500);
+
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.quitAction));
+
+      expect(onQuit).toHaveBeenCalledWith(expect.objectContaining({ durationMs: 1500 }));
+    });
+  });
+
+  describe('완료 결과', () => {
+    it('완료 후 "다음 ▸"을 늦게 눌러도 완료 순간까지의 시간만 보고된다', () => {
+      setupFakeClock();
+      const { onNext } = renderPullGame();
+      advance(1000);
+      tap(40);
+      advance(5000);
+
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction));
+
+      expect(onNext).toHaveBeenCalledWith(expect.objectContaining({ durationMs: 1000 }));
+    });
+  });
 });

@@ -306,4 +306,101 @@ describe('GamePage', () => {
       expect(JSON.stringify(vi.mocked(trackEvent).mock.calls)).not.toContain('속상해');
     });
   });
+  describe('step_game_complete GA 이벤트', () => {
+    function completeParams() {
+      const [[, params]] = trackedCalls(GA_EVENTS.gameComplete);
+
+      return params as Record<string, unknown>;
+    }
+
+    it('스크래치를 버퍼 건너뛰기로 완료하면 buffer_skipped true와 숫자 dwell로 1회 전송된다', () => {
+      enterScratchGame();
+      hardEndGame();
+      clickTestId(SCRATCH_GAME_TEST_IDS.nextAction);
+      clickTestId(BUFFER_TEST_IDS.skipAction);
+
+      clickTestId(BUFFER_TEST_IDS.nextAction);
+
+      expect(trackedCalls(GA_EVENTS.gameComplete)).toHaveLength(1);
+      expect(completeParams()).toMatchObject({
+        [GA_PARAMS.gameCleared]: true,
+        [GA_PARAMS.bufferSkipped]: true,
+        [GA_PARAMS.gameMode]: 'scratch',
+        [GA_PARAMS.scratchRatio]: 0.72,
+        [GA_PARAMS.gameReplayCount]: 0,
+      });
+      expect(typeof completeParams()[GA_PARAMS.bufferDwellMs]).toBe('number');
+      expect(typeof completeParams()[GA_PARAMS.gameDurationMs]).toBe('number');
+      expect(useSessionStore.getState().steps.game.data.cleared).toBe(true);
+    });
+
+    it('버퍼를 건너뛰지 않고 끝까지 보면 buffer_skipped false와 3초 이상의 dwell이 전송된다', () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
+      enterScratchGame();
+      hardEndGame();
+      clickTestId(SCRATCH_GAME_TEST_IDS.nextAction);
+      act(() => {
+        vi.advanceTimersByTime(3500);
+      });
+
+      clickTestId(BUFFER_TEST_IDS.nextAction);
+
+      expect(completeParams()).toMatchObject({
+        [GA_PARAMS.bufferSkipped]: false,
+        [GA_PARAMS.bufferDwellMs]: 3500,
+      });
+    });
+
+    it('뽑기를 완료하면 pull_taps와 pull_input_method tap이 전송된다', () => {
+      enterPullGame();
+      playPullToBufferFooter();
+
+      clickTestId(BUFFER_TEST_IDS.nextAction);
+
+      expect(completeParams()).toMatchObject({
+        [GA_PARAMS.gameCleared]: true,
+        [GA_PARAMS.gameMode]: 'pull',
+        [GA_PARAMS.pullTaps]: 40,
+        [GA_PARAMS.pullInputMethod]: 'tap',
+        [GA_PARAMS.gameReplayCount]: 0,
+      });
+    });
+
+    it('한 번 더 뽑은 뒤 완료하면 game_replay_count가 1로 전송된다', () => {
+      enterPullGame();
+      playPullToBufferFooter();
+      clickTestId(BUFFER_TEST_IDS.replayAction);
+      playPullToBufferFooter();
+
+      clickTestId(BUFFER_TEST_IDS.nextAction);
+
+      expect(trackedCalls(GA_EVENTS.gameComplete)).toHaveLength(1);
+      expect(completeParams()[GA_PARAMS.gameReplayCount]).toBe(1);
+    });
+
+    it('중도 이탈하면 cleared false, buffer_skipped true, dwell 0으로 전송된다', () => {
+      enterScratchGame();
+
+      clickTestId(SCRATCH_GAME_TEST_IDS.quitAction);
+
+      expect(completeParams()).toMatchObject({
+        [GA_PARAMS.gameCleared]: false,
+        [GA_PARAMS.bufferSkipped]: true,
+        [GA_PARAMS.bufferDwellMs]: 0,
+        [GA_PARAMS.gameMode]: 'scratch',
+        [GA_PARAMS.scratchRatio]: 0.72,
+      });
+    });
+
+    it('step_game_complete 인자에도 감정 원문이 포함되지 않는다', () => {
+      enterScratchGame();
+      hardEndGame();
+      clickTestId(SCRATCH_GAME_TEST_IDS.nextAction);
+      clickTestId(BUFFER_TEST_IDS.skipAction);
+
+      clickTestId(BUFFER_TEST_IDS.nextAction);
+
+      expect(JSON.stringify(trackedCalls(GA_EVENTS.gameComplete))).not.toContain('속상해');
+    });
+  });
 });

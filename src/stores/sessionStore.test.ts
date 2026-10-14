@@ -4,7 +4,7 @@ import { useSessionStore } from './sessionStore';
 function completeAllSteps() {
   useSessionStore.getState().completeInput({ text: 'hi', secretMode: false });
   useSessionStore.getState().completeMeasure({ intensity: 5, gameMode: 'scratch' });
-  useSessionStore.getState().completeGame({ cleared: true });
+  useSessionStore.getState().completeGame({ cleared: true, bufferSkipped: false });
   useSessionStore.getState().completeResult({ intensityAfter: 2, afterEmotionText: 'done' });
 }
 
@@ -47,7 +47,7 @@ describe('sessionStore cascade reset', () => {
       expect(steps.measure.completed).toBe(true);
       expect(steps.measure.data.intensityBefore).toBe(7);
       expect(steps.game.completed).toBe(false);
-      expect(steps.game.data).toEqual({ cleared: false, replayCount: 0 });
+      expect(steps.game.data).toEqual({ cleared: false, replayCount: 0, bufferSkipped: false });
       expect(steps.result.completed).toBe(false);
       expect(steps.result.data).toEqual({ intensityAfter: null, afterEmotionText: '' });
       expect(steps.input.completed).toBe(true);
@@ -74,7 +74,10 @@ describe('sessionStore cascade reset', () => {
 
       const { steps } = useSessionStore.getState();
       expect(steps.measure.data).toEqual({ intensityBefore: 5, gameMode: 'pull' });
-      expect(steps.game).toEqual({ completed: false, data: { cleared: false, replayCount: 0 } });
+      expect(steps.game).toEqual({
+        completed: false,
+        data: { cleared: false, replayCount: 0, bufferSkipped: false },
+      });
       expect(steps.result).toEqual({
         completed: false,
         data: { intensityAfter: null, afterEmotionText: '' },
@@ -93,6 +96,22 @@ describe('sessionStore cascade reset', () => {
       expect(game.data.cleared).toBe(false);
     });
 
+    it('중도 이탈(cleared false)로 완료하면 bufferSkipped가 true로 고정된다', () => {
+      useSessionStore.getState().reset();
+
+      useSessionStore.getState().completeGame({ cleared: false });
+
+      expect(useSessionStore.getState().steps.game.data.bufferSkipped).toBe(true);
+    });
+
+    it('버퍼를 거쳐 완료하면 전달한 bufferSkipped가 저장된다', () => {
+      useSessionStore.getState().reset();
+
+      useSessionStore.getState().completeGame({ cleared: true, bufferSkipped: false });
+
+      expect(useSessionStore.getState().steps.game.data.bufferSkipped).toBe(false);
+    });
+
     it('incrementReplayCount를 호출하면 replayCount만 1 늘고 completed와 result 단계는 유지된다', () => {
       completeAllSteps();
 
@@ -109,9 +128,13 @@ describe('sessionStore cascade reset', () => {
       useSessionStore.getState().incrementReplayCount();
       useSessionStore.getState().incrementReplayCount();
 
-      useSessionStore.getState().completeGame({ cleared: true });
+      useSessionStore.getState().completeGame({ cleared: true, bufferSkipped: false });
 
-      expect(useSessionStore.getState().steps.game.data).toEqual({ cleared: true, replayCount: 2 });
+      expect(useSessionStore.getState().steps.game.data).toEqual({
+        cleared: true,
+        replayCount: 2,
+        bufferSkipped: false,
+      });
     });
   });
 

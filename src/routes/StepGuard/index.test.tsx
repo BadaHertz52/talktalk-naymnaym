@@ -31,7 +31,7 @@ function completeUpTo(step: 'input' | 'measure' | 'game' | 'result') {
 
   if (step === 'measure') return;
 
-  useSessionStore.getState().completeGame({ cleared: true });
+  useSessionStore.getState().completeGame({ cleared: true, bufferSkipped: false });
 
   if (step === 'game') return;
 
