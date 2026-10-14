@@ -75,20 +75,9 @@
 }
 
 .quitButton {
-  min-height: 44px;
   padding: 0.5rem;
-  background: none;
-  border: none;
-  font-family: var(--font-pixel);
   font-size: 12px;
-  letter-spacing: 1px;
   color: var(--color-gray-light);
   text-decoration: underline;
   text-underline-offset: 4px;
-  cursor: pointer;
-}
-
-.quitButton:focus-visible {
-  outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;
 }
