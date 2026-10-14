@@ -43,24 +43,6 @@
   flex-shrink: 0;
 }
 
-.textButton {
-  align-self: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 8px 12px;
-  font-family: var(--font-pixel);
-  font-size: 13px;
-  letter-spacing: 1px;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.textButton:focus-visible {
-  outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;
-}
-
 .field {
   position: relative;
   width: 100%;
@@ -228,7 +210,11 @@
 }
 
 .quitButton {
+  align-self: center;
+  min-width: 44px;
   margin-top: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
   color: var(--color-gray-mid);
 }
 

@@ -31,7 +31,9 @@
   --main-width: 90vw;
   --main-max-width: 480px;
   --main-height: 95svh;
-  --main-max-height: 1200px;
   --main-aspect-ratio: 384 / 718;
   --main-min-width: calc(320px * 0.9);
+  --main-frame-width: clamp(var(--main-min-width), var(--main-width), var(--main-max-width));
+  /* 세로로 긴 화면에서도 최대 폭 기준 비율보다 길어지지 않게 한다 */
+  --main-max-height: calc(var(--main-max-width) / (var(--main-aspect-ratio)));
 }

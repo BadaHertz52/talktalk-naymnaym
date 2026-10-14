@@ -1,6 +1,7 @@
 import { clsx } from 'clsx';
 import type { MouseEvent } from 'react';
 import Button from '@components/Button';
+import QuitButton from '../../QuitButton';
 import { PULL_GAME_TEST_IDS } from '../../../_constants/pullGameTestIds';
 import type { IdleLevel } from '../_hooks/usePullIdleLevel';
 import styles from '../index.module.css';
@@ -54,18 +55,11 @@ export default function PullActions({
           {isIdleEmphasis ? '천천히 해도 괜찮아요' : '영차! 뽑기'}
         </Button>
       )}
-      <button
-        type="button"
-        className={clsx(
-          styles.textButton,
-          styles.quitButton,
-          isIdleEmphasis && styles.quitEmphasis,
-        )}
+      <QuitButton
+        className={clsx(styles.quitButton, isIdleEmphasis && styles.quitEmphasis)}
         onClick={onQuit}
         data-testid={PULL_GAME_TEST_IDS.quitAction}
-      >
-        여기까지 할래요 ▸
-      </button>
+      />
     </div>
   );
 }

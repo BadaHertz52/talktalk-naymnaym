@@ -4,7 +4,7 @@ import type { GameMode } from '@/types/session';
 import { useSessionStore } from '@stores/sessionStore';
 import { BUFFER_PRELOAD, RESULT_PAGE_PRELOAD } from '@game/assets';
 import { PATHS } from '@constants/paths';
-import { GA_EVENTS } from '@constants/analytics';
+import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
 import { trackEvent } from '@utils/analytics';
 import { useFireOnce } from '@hooks/useFireOnce';
 import Button from '@/components/Button';
@@ -40,8 +40,14 @@ export default function GamePage() {
   };
 
   // 중도 이탈은 버퍼를 거치지 않는다 (기획 §2)
-  const quit = () => {
+  const quit = (progress: number) => {
     fireOnce(() => {
+      if (gameMode !== null) {
+        trackEvent(GA_EVENTS.gameAbandon, {
+          [GA_PARAMS.gameMode]: gameMode,
+          [GA_PARAMS.progressRatio]: progress,
+        });
+      }
       completeGame({ cleared: false });
       navigate(PATHS.result);
     });

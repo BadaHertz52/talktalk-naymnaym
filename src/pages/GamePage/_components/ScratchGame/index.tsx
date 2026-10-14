@@ -5,11 +5,12 @@ import { useGameCanvas } from '../../_hooks/useGameCanvas';
 import { ASSETS } from '@game/assets';
 import Button from '@components/Button';
 import { SCRATCH_GAME_TEST_IDS } from '../../_constants/gameTestIds';
+import QuitButton from '../QuitButton';
 import styles from './index.module.css';
 
 interface Props {
   onNext: () => void;
-  onQuit: () => void;
+  onQuit: (progress: number) => void;
 }
 
 export default function ScratchGame({ onNext, onQuit }: Props) {
@@ -67,14 +68,11 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
       <Button onClick={onNext} disabled={!ended} data-testid={SCRATCH_GAME_TEST_IDS.nextAction}>
         다음 ▸
       </Button>
-      <button
-        type="button"
+      <QuitButton
         className={styles.quitButton}
-        onClick={onQuit}
+        onClick={() => onQuit(progress)}
         data-testid={SCRATCH_GAME_TEST_IDS.quitAction}
-      >
-        여기까지 할래요 ▸
-      </button>
+      />
     </>
   );
 }

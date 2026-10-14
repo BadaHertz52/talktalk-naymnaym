@@ -7,6 +7,10 @@ import { PATHS } from '@constants/paths';
 import { PULL_GAME_TEST_IDS } from './_constants/pullGameTestIds';
 import { BUFFER_TEST_IDS, SCRATCH_GAME_TEST_IDS } from './_constants/gameTestIds';
 
+vi.mock('@utils/analytics', () => ({ trackEvent: vi.fn() }));
+const { trackEvent } = await import('@utils/analytics');
+const { GA_EVENTS, GA_PARAMS } = await import('@constants/analytics');
+
 // Canvas·ResizeObserver를 쓰는 스크래치 로직은 jsdom에서 돌지 않으므로, 하드 종료 신호(enableNextStep)만 잡아 직접 호출한다
 const gameCanvas = vi.hoisted(() => ({ enableNextStep: () => {} }));
 vi.mock('./_hooks/useGameCanvas', () => ({
@@ -84,8 +88,13 @@ function clickTestId(testId: string) {
   fireEvent.click(screen.getByTestId(testId));
 }
 
+function trackedCalls(eventName: string) {
+  return vi.mocked(trackEvent).mock.calls.filter(([name]) => name === eventName);
+}
+
 describe('GamePage', () => {
   afterEach(() => {
+    vi.mocked(trackEvent).mockClear();
     cleanup();
     vi.useRealTimers();
     vi.unstubAllGlobals();
@@ -238,6 +247,63 @@ describe('GamePage', () => {
 
       expect(screen.queryByTestId(BUFFER_TEST_IDS.replayAction)).toBeNull();
       expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
+    });
+  });
+
+  describe('game_abandon GA 이벤트', () => {
+    it('스크래치에서 중도 이탈하면 game_mode와 0~1 progress_ratio로 1회 전송된다', () => {
+      enterScratchGame();
+
+      clickTestId(SCRATCH_GAME_TEST_IDS.quitAction);
+
+      expect(trackedCalls(GA_EVENTS.gameAbandon)).toEqual([
+        [
+          GA_EVENTS.gameAbandon,
+          { [GA_PARAMS.gameMode]: 'scratch', [GA_PARAMS.progressRatio]: 0.72 },
+        ],
+      ]);
+    });
+
+    it('뽑기에서 중도 이탈하면 game_mode와 0~1 progress_ratio가 전송된다', () => {
+      enterPullGame();
+      const button = screen.getByTestId(PULL_GAME_TEST_IDS.pullAction);
+      for (let index = 0; index < 10; index++) fireEvent.pointerUp(button);
+
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.quitAction));
+
+      const [[, params]] = trackedCalls(GA_EVENTS.gameAbandon);
+      expect(params).toMatchObject({ [GA_PARAMS.gameMode]: 'pull' });
+      const ratio = (params as Record<string, number>)[GA_PARAMS.progressRatio];
+      expect(ratio).toBeGreaterThan(0);
+      expect(ratio).toBeLessThanOrEqual(1);
+    });
+
+    it('스크래치를 버퍼까지 거쳐 정상 완료하면 game_abandon은 전송되지 않는다', () => {
+      enterScratchGame();
+      hardEndGame();
+      clickTestId(SCRATCH_GAME_TEST_IDS.nextAction);
+      clickTestId(BUFFER_TEST_IDS.skipAction);
+
+      clickTestId(BUFFER_TEST_IDS.nextAction);
+
+      expect(trackedCalls(GA_EVENTS.gameAbandon)).toHaveLength(0);
+    });
+
+    it('뽑기를 버퍼까지 거쳐 정상 완료하면 game_abandon은 전송되지 않는다', () => {
+      enterPullGame();
+      playPullToBufferFooter();
+
+      clickTestId(BUFFER_TEST_IDS.nextAction);
+
+      expect(trackedCalls(GA_EVENTS.gameAbandon)).toHaveLength(0);
+    });
+
+    it('어떤 이벤트 인자에도 감정 원문이 포함되지 않는다', () => {
+      enterScratchGame();
+
+      clickTestId(SCRATCH_GAME_TEST_IDS.quitAction);
+
+      expect(JSON.stringify(vi.mocked(trackEvent).mock.calls)).not.toContain('속상해');
     });
   });
 });
