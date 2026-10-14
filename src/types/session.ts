@@ -26,6 +26,8 @@ export interface MeasureData {
 export interface GameData {
   cleared: boolean;
   replayCount: number;
+  // 중도 이탈은 버퍼를 거치지 않으므로 true로 고정된다 (기획 §9-2)
+  bufferSkipped: boolean;
 }
 
 export interface ResultData {

@@ -7,7 +7,7 @@ const STEP_ORDER: readonly Step[] = ['input', 'measure', 'game', 'result'];
 const initialSteps: SessionSteps = {
   input: { completed: false, data: { emotionText: '', secretMode: false } },
   measure: { completed: false, data: { intensityBefore: null, gameMode: null } },
-  game: { completed: false, data: { cleared: false, replayCount: 0 } },
+  game: { completed: false, data: { cleared: false, replayCount: 0, bufferSkipped: false } },
   result: { completed: false, data: { intensityAfter: null, afterEmotionText: '' } },
 };
 
@@ -56,7 +56,7 @@ interface SessionStore {
   steps: SessionSteps;
   completeInput: (args: { text: string; secretMode: boolean }) => void;
   completeMeasure: (args: { intensity: EmotionIntensity; gameMode: GameMode }) => void;
-  completeGame: (args: { cleared: boolean }) => void;
+  completeGame: (args: { cleared: true; bufferSkipped: boolean } | { cleared: false }) => void;
   incrementReplayCount: () => void;
   completeResult: (args: { intensityAfter: EmotionIntensity; afterEmotionText: string }) => void;
   reset: () => void;
@@ -81,12 +81,16 @@ export const useSessionStore = create<SessionStore>()((set) => ({
         data: { intensityBefore: intensity, gameMode },
       }),
     })),
-  completeGame: ({ cleared }) =>
+  completeGame: (args) =>
     set((s) => ({
       steps: applyStep({
         steps: s.steps,
         step: 'game',
-        data: { cleared, replayCount: s.steps.game.data.replayCount },
+        data: {
+          cleared: args.cleared,
+          replayCount: s.steps.game.data.replayCount,
+          bufferSkipped: args.cleared ? args.bufferSkipped : true,
+        },
       }),
     })),
   // 재플레이는 게임 단계 안에서 일어나는 일이라 완료 여부·이후 단계를 건드리지 않는다
