@@ -8,11 +8,12 @@ import { usePullSession } from './_hooks/usePullSession';
 import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import styles from './index.module.css';
 
+const PERCENT_MAX = 100;
 const COMPLETE_ANNOUNCEMENT = '당근 다 뽑았어요!';
 
 interface Props {
   onNext: () => void;
-  onQuit: () => void;
+  onQuit: (progress: number) => void;
 }
 
 export default function PullGame({ onNext, onQuit }: Props) {
@@ -34,7 +35,7 @@ export default function PullGame({ onNext, onQuit }: Props) {
       <PullActions
         completed={completed}
         idleLevel={idleLevel}
-        onQuit={onQuit}
+        onQuit={() => onQuit(progress / PERCENT_MAX)}
         onArmNext={session.armNext}
         onNextClick={session.handleNextClick}
         onResetPrimaryClickSuppression={session.resetPrimaryClickSuppression}

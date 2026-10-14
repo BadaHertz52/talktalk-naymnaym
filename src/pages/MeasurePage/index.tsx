@@ -8,7 +8,7 @@ import { EXPRESSION_WEATHER } from '@constants/intensity';
 import { toExpressionStep } from '@utils/intensity';
 import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
-import { GA_EVENTS } from '@constants/analytics';
+import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
 import { ENABLED_GAME_MODES } from '@constants/gameMode';
 import { useFireOnce } from '@hooks/useFireOnce';
 import IntensitySlider from '@components/IntensitySlider';
@@ -39,15 +39,32 @@ export default function MeasurePage() {
     });
   }, []);
 
-  const selectGameMode = () =>
-    overlay.openAsync<GameMode | null>(({ isOpen, close, unmount }) => {
+  const selectGameMode = (intensityBefore: EmotionIntensity) => {
+    const openedAt = performance.now();
+    trackEvent(GA_EVENTS.gameModePromptView, { [GA_PARAMS.intensityBefore]: intensityBefore });
+
+    return overlay.openAsync<GameMode | null>(({ isOpen, close, unmount }) => {
       const done = (mode: GameMode | null) => {
+        const decisionMs = Math.round(performance.now() - openedAt);
+        if (mode) {
+          trackEvent(GA_EVENTS.gameModeSelect, {
+            [GA_PARAMS.gameMode]: mode,
+            [GA_PARAMS.intensityBefore]: intensityBefore,
+            [GA_PARAMS.decisionMs]: decisionMs,
+          });
+        } else {
+          trackEvent(GA_EVENTS.gameModeDismiss, {
+            [GA_PARAMS.intensityBefore]: intensityBefore,
+            [GA_PARAMS.decisionMs]: decisionMs,
+          });
+        }
         close(mode);
         unmount();
       };
 
       return isOpen && <GameModeModal onSelect={(mode) => done(mode)} onClose={() => done(null)} />;
     });
+  };
 
   // 모달을 await하는 동안에도 버튼이 살아 있어, 가드가 없으면 연타 시 dialog가 겹쳐 쌓인다
   const selectingRef = useRef(false);
@@ -58,7 +75,7 @@ export default function MeasurePage() {
     selectingRef.current = true;
     try {
       const gameMode =
-        ENABLED_GAME_MODES.length === 1 ? ENABLED_GAME_MODES[0] : await selectGameMode();
+        ENABLED_GAME_MODES.length === 1 ? ENABLED_GAME_MODES[0] : await selectGameMode(intensity);
       if (!gameMode) return;
 
       fireOnce(() => {

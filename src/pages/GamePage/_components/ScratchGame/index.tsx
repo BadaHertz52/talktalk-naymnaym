@@ -9,7 +9,7 @@ import styles from './index.module.css';
 
 interface Props {
   onNext: () => void;
-  onQuit: () => void;
+  onQuit: (progress: number) => void;
 }
 
 export default function ScratchGame({ onNext, onQuit }: Props) {
@@ -70,7 +70,7 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
       <button
         type="button"
         className={styles.quitButton}
-        onClick={onQuit}
+        onClick={() => onQuit(progress)}
         data-testid={SCRATCH_GAME_TEST_IDS.quitAction}
       >
         여기까지 할래요 ▸

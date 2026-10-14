@@ -62,6 +62,7 @@ describe('ScratchGame', () => {
       fireEvent.click(screen.getByTestId(SCRATCH_GAME_TEST_IDS.quitAction));
 
       expect(onQuit).toHaveBeenCalledTimes(1);
+      expect(onQuit).toHaveBeenCalledWith(0.72);
       expect(onNext).not.toHaveBeenCalled();
     });
   });
