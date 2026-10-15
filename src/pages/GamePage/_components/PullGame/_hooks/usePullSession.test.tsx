@@ -2,11 +2,13 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PULL_GAME_TEST_IDS } from '../../../_constants/pullGameTestIds';
+import { getTotalTaps } from '@game/pullPower';
 import PullGame from '..';
 
+// 충전 속도 10%/s 기준 완주(10초)에 여유 2초
 const HOLD_COMPLETE_MS = 12000;
 const NEXT_GUARD_PASSED_MS = 700;
-const FINE_POINTER_TAPS = 40;
+const FINE_POINTER_TAPS = getTotalTaps(false);
 
 function renderPullGame() {
   vi.useFakeTimers({

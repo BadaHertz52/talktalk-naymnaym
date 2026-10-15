@@ -49,11 +49,11 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
   };
 
   const stopHold = () => {
-    pendingHoldPrefixTapsRef.current = 0;
     if (holdFrameRef.current === null) {
       setHolding(false);
       return;
     }
+    pendingHoldPrefixTapsRef.current = 0;
     cancelAnimationFrame(holdFrameRef.current);
     holdFrameRef.current = null;
     holdLastTimeRef.current = null;
@@ -138,10 +138,12 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
         HOLD_KEYS.has(e.key) && [...pressedKeys].some((key) => HOLD_KEYS.has(key));
       pressedKeys.add(e.key);
       if (isCompletingHold) {
-        // 진행률은 기존대로 두고, hold의 첫 키로 센 탭만 통계에서 뺀다 (첫 키는 hold인지 알 수 없는 시점에 이미 탭으로 반영됨).
-        // 충전이 실제로 일어나기 전에는 후보로만 두고, frame()에서 확정한다
-        for (const key of HOLD_KEYS) {
-          if (countedTapKeys.delete(key)) pendingHoldPrefixTapsRef.current++;
+        if (!power.isComplete()) {
+          // 진행률은 기존대로 두고, hold의 첫 키로 센 탭만 통계에서 뺀다 (첫 키는 hold인지 알 수 없는 시점에 이미 탭으로 반영됨).
+          // 충전이 실제로 일어나기 전에는 후보로만 두고, frame()에서 확정한다
+          for (const key of HOLD_KEYS) {
+            if (countedTapKeys.delete(key)) pendingHoldPrefixTapsRef.current++;
+          }
         }
       } else {
         countedTapKeys.add(e.key);
@@ -149,7 +151,6 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
       }
       if (HOLD_KEYS.has(e.key) && pressedKeys.has(' ') && pressedKeys.has('ArrowUp')) {
         handlers.startHold();
-        if (holdFrameRef.current === null) pendingHoldPrefixTapsRef.current = 0;
       }
     };
 
