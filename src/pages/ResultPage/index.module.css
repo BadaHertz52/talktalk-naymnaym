@@ -9,6 +9,7 @@
   justify-content: center;
   margin-top: 0.625rem;
   height: 300px;
+  flex-shrink: 0;
 }
 
 .resultCardWarm {
