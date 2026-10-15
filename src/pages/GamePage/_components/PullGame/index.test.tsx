@@ -46,6 +46,11 @@ function tap(times: number) {
   }
 }
 
+function getBunnyTransform() {
+  return (screen.getByTestId(PULL_GAME_TEST_IDS.pullingVisual).parentElement as HTMLElement).style
+    .transform;
+}
+
 function advance(ms: number) {
   act(() => {
     vi.advanceTimersByTime(ms);
@@ -287,6 +292,25 @@ describe('PullGame', () => {
       expect(removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
       expect(removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
       expect(vi.getTimerCount()).toBe(0);
+    });
+  });
+
+  describe('토끼 위치', () => {
+    it('탭을 이어가면 5% 단계가 바뀔 때만 위치가 바뀐다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const initial = getBunnyTransform();
+
+      tap(1);
+      const afterOne = getBunnyTransform();
+      tap(1);
+      const afterTwo = getBunnyTransform();
+      tap(1);
+      const afterThree = getBunnyTransform();
+
+      expect(afterOne).toBe(initial);
+      expect(afterTwo).not.toBe(afterOne);
+      expect(afterThree).toBe(afterTwo);
     });
   });
 

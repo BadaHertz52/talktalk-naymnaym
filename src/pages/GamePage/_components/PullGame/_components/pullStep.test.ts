@@ -13,7 +13,7 @@ describe('getPullStep', () => {
       [94.9, 18],
       [95, 19],
       [100, 19],
-    ])('진행률 %d%면 %i단계다', (progress, step) => {
+    ])('진행률 %s%면 %i단계다', (progress, step) => {
       expect(getPullStep(progress)).toBe(step);
     });
   });
