@@ -23,6 +23,8 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
   const holdFrameRef = useRef<number | null>(null);
   const holdLastTimeRef = useRef<number | null>(null);
   const pressedKeysRef = useRef(new Set<string>());
+  const countedTapKeysRef = useRef(new Set<string>());
+  const holdPrefixTapsRef = useRef(0);
   const suppressKeyClickRef = useRef(false);
   const nextArmedRef = useRef(false);
   const completedAtRef = useRef(0);
@@ -115,6 +117,7 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
   useEffect(() => {
     const cleanupStopHold = handlersRef.current.stopHold;
     const pressedKeys = pressedKeysRef.current;
+    const countedTapKeys = countedTapKeysRef.current;
 
     const handleKeyDown = (e: globalThis.KeyboardEvent) => {
       const handlers = handlersRef.current;
@@ -128,7 +131,15 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
       const isCompletingHold =
         HOLD_KEYS.has(e.key) && [...pressedKeys].some((key) => HOLD_KEYS.has(key));
       pressedKeys.add(e.key);
-      if (!isCompletingHold) handlers.tap(() => power.keyDown({ repeat: e.repeat }));
+      if (isCompletingHold) {
+        // 진행률은 기존대로 두고, hold의 첫 키로 센 탭만 통계에서 뺀다 (첫 키는 hold인지 알 수 없는 시점에 이미 탭으로 반영됨)
+        for (const key of HOLD_KEYS) {
+          if (countedTapKeys.delete(key)) holdPrefixTapsRef.current++;
+        }
+      } else {
+        countedTapKeys.add(e.key);
+        handlers.tap(() => power.keyDown({ repeat: e.repeat }));
+      }
       if (HOLD_KEYS.has(e.key) && pressedKeys.has(' ') && pressedKeys.has('ArrowUp')) {
         handlers.startHold();
       }
@@ -139,11 +150,13 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
       if (!TAP_KEYS.has(e.key) || handlers.isBlockedTarget(e.target)) return;
       e.preventDefault();
       pressedKeys.delete(e.key);
+      countedTapKeys.delete(e.key);
       if (!pressedKeys.has(' ') || !pressedKeys.has('ArrowUp')) handlers.stopHold();
     };
 
     const handleBlur = () => {
       pressedKeys.clear();
+      countedTapKeys.clear();
       handlersRef.current.stopHold();
     };
 
@@ -165,10 +178,16 @@ export function usePullSession({ onNext }: UsePullSessionOptions) {
     holding,
     completed,
     tap: () => tap(power.tap),
-    getStats: () => ({
-      pullTaps: power.getTapCount(),
-      pullInputMethod: power.getInputMethod() ?? ('tap' as const),
-    }),
+    getStats: () => {
+      const pullTaps = power.getTapCount() - holdPrefixTapsRef.current;
+      const method = power.getInputMethod();
+
+      return {
+        pullTaps,
+        pullInputMethod:
+          method === 'mixed' && pullTaps === 0 ? ('hold' as const) : (method ?? ('tap' as const)),
+      };
+    },
     handlePrimaryClick,
     handleNextClick,
     armNext: () => {

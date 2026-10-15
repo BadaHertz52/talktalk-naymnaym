@@ -536,6 +536,7 @@ describe('PullGame', () => {
     it('탭과 홀드를 함께 썼으면 입력 방식 mixed가 보고된다', () => {
       setupFakeClock();
       const { onQuit } = renderPullGame();
+      tap(1);
       fireEvent.keyDown(document.body, { key: ' ' });
       fireEvent.keyDown(document.body, { key: 'ArrowUp' });
       advance(100);
