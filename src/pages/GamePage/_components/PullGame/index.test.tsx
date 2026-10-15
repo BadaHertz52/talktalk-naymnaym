@@ -46,6 +46,11 @@ function tap(times: number) {
   }
 }
 
+function getBunnyTransform() {
+  return (screen.getByTestId(PULL_GAME_TEST_IDS.pullingVisual).parentElement as HTMLElement).style
+    .transform;
+}
+
 function advance(ms: number) {
   act(() => {
     vi.advanceTimersByTime(ms);
@@ -290,6 +295,25 @@ describe('PullGame', () => {
     });
   });
 
+  describe('토끼 위치', () => {
+    it('탭을 이어가면 5% 단계가 바뀔 때만 위치가 바뀐다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const initial = getBunnyTransform();
+
+      tap(1);
+      const afterOne = getBunnyTransform();
+      tap(1);
+      const afterTwo = getBunnyTransform();
+      tap(1);
+      const afterThree = getBunnyTransform();
+
+      expect(afterOne).toBe(initial);
+      expect(afterTwo).not.toBe(afterOne);
+      expect(afterThree).toBe(afterTwo);
+    });
+  });
+
   describe('완료(100%) 이후', () => {
     it('탭과 키 입력을 모두 무시한다', () => {
       setupFakeClock();
@@ -429,17 +453,17 @@ describe('PullGame', () => {
       expect(instructions.querySelector('kbd')).toBeNull();
     });
 
-    it('진행률 0~60% / 60~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {
+    it('진행률 0~70% / 70~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {
       setupFakeClock();
       renderPullGame();
 
-      tap(23);
+      tap(27);
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe(
         'progress',
       );
       tap(1);
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('near');
-      tap(12);
+      tap(8);
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('close');
     });
 
