@@ -98,7 +98,7 @@ describe('usePullSession 키보드 입력 집계', () => {
       const onNext = renderPullGame();
 
       tapKey(' ');
-      tapEnter(FINE_POINTER_TAPS);
+      tapEnter(FINE_POINTER_TAPS - 1);
 
       expect(getResult(onNext)).toMatchObject({
         pullInputMethod: 'tap',
@@ -141,6 +141,39 @@ describe('usePullSession 키보드 입력 집계', () => {
       finishWithHold();
 
       expect(getResult(onNext)).toMatchObject({ pullInputMethod: 'mixed', pullTaps: 2 });
+    });
+  });
+
+  describe('충전이 일어나기 전에 hold 키를 모두 떼면', () => {
+    it('첫 프레임 전에 두 키를 떼도 탭이 차감되지 않고 입력 방식은 tap이다', () => {
+      const onNext = renderPullGame();
+
+      press(' ');
+      press('ArrowUp');
+      release('ArrowUp');
+      release(' ');
+      tapEnter(FINE_POINTER_TAPS - 1);
+
+      expect(getResult(onNext)).toMatchObject({
+        pullInputMethod: 'tap',
+        pullTaps: FINE_POINTER_TAPS,
+      });
+    });
+
+    it('완주 직후 두 키를 눌러도 탭이 차감되지 않는다', () => {
+      const onNext = renderPullGame();
+
+      tapEnter(FINE_POINTER_TAPS);
+      press(' ');
+      press('ArrowUp');
+      advance(HOLD_COMPLETE_MS);
+      release('ArrowUp');
+      release(' ');
+
+      expect(getResult(onNext)).toMatchObject({
+        pullInputMethod: 'tap',
+        pullTaps: FINE_POINTER_TAPS,
+      });
     });
   });
 });
