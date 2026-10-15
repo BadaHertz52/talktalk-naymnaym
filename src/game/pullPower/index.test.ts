@@ -35,7 +35,9 @@ describe('pullPower', () => {
 
       expect(zeroTaps.power.getProgress()).toBe(0);
       expect(oneTap.power.getProgress()).toBeCloseTo(100 / FINE_POINTER_TOTAL_TAPS);
-      expect(beforeComplete.power.getProgress()).toBeCloseTo((100 * (FINE_POINTER_TOTAL_TAPS - 1)) / FINE_POINTER_TOTAL_TAPS);
+      expect(beforeComplete.power.getProgress()).toBeCloseTo(
+        (100 * (FINE_POINTER_TOTAL_TAPS - 1)) / FINE_POINTER_TOTAL_TAPS,
+      );
       expect(complete.power.getProgress()).toBe(100);
       expect(overComplete.power.getProgress()).toBe(100);
       expect(complete.power.getTapCount()).toBe(FINE_POINTER_TOTAL_TAPS);
