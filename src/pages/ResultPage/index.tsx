@@ -14,6 +14,7 @@ import MoodEmpty from './_components/MoodEmpty';
 import MoodDecreased from './_components/MoodDecreased';
 import MoodNotDecreased from './_components/MoodNotDecreased';
 import styles from './index.module.css';
+import { RESULT_TEST_IDS } from './testIds';
 
 const PROMPTS = [
   '내일의 나는 이 일을 어떻게 기억할까요?',
@@ -108,7 +109,12 @@ export default function ResultPage() {
         />
       </div>
 
-      <Button className={styles.button} disabled={!intensity} onClick={handleDone}>
+      <Button
+        className={styles.button}
+        disabled={!intensity}
+        onClick={handleDone}
+        data-testid={RESULT_TEST_IDS.doneAction}
+      >
         마무리하기 ▸
       </Button>
     </>

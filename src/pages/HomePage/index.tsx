@@ -6,6 +6,7 @@ import { PATHS } from '@constants/paths';
 import Button from '@components/Button';
 import Mascot from '@components/Mascot';
 import styles from './index.module.css';
+import { HOME_TEST_IDS } from './testIds';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -25,7 +26,11 @@ export default function HomePage() {
         <br />
         토끼에게 털어놓고 냠냠 없애버리세요
       </p>
-      <Button className={styles.button} onClick={() => navigate(PATHS.input)}>
+      <Button
+        className={styles.button}
+        onClick={() => navigate(PATHS.input)}
+        data-testid={HOME_TEST_IDS.startAction}
+      >
         시작하기 ▸
       </Button>
     </div>

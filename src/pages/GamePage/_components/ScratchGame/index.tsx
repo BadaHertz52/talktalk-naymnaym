@@ -67,6 +67,7 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
           tabIndex={0}
           className={styles.canvas}
           aria-label="글자 지우기 스크래치 영역"
+          data-testid={SCRATCH_GAME_TEST_IDS.canvas}
         />
         <img
           ref={carrotRef}

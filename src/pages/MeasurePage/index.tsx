@@ -15,6 +15,7 @@ import IntensitySlider from '@components/IntensitySlider';
 import Button from '@components/Button';
 import GameModeModal from './_components/GameModeModal';
 import styles from './index.module.css';
+import { MEASURE_TEST_IDS } from './testIds';
 
 const WEATHER_LABEL: Record<EmotionExpressionStep, string> = {
   1: '맑음 — 가볍고 환해요',
@@ -118,7 +119,12 @@ export default function MeasurePage() {
         <IntensitySlider value={intensity} onChange={setIntensity} />
       </div>
 
-      <Button className={styles.button} disabled={!intensity} onClick={handleNext}>
+      <Button
+        className={styles.button}
+        disabled={!intensity}
+        onClick={handleNext}
+        data-testid={MEASURE_TEST_IDS.nextAction}
+      >
         없애러 가기 ▸
       </Button>
     </>
