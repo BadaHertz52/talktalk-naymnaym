@@ -429,17 +429,17 @@ describe('PullGame', () => {
       expect(instructions.querySelector('kbd')).toBeNull();
     });
 
-    it('진행률 0~60% / 60~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {
+    it('진행률 0~70% / 70~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {
       setupFakeClock();
       renderPullGame();
 
-      tap(23);
+      tap(27);
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe(
         'progress',
       );
       tap(1);
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('near');
-      tap(12);
+      tap(8);
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('close');
     });
 

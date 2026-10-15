@@ -54,7 +54,12 @@ export default function PullGame({ onNext, onQuit }: Props) {
     >
       <div className={styles.contentGroup}>
         <PullInstructions />
-        <PullField progress={progress} completed={completed} resting={idleLevel === 'rest'} />
+        <PullField
+          progress={progress}
+          inputCount={inputCount}
+          completed={completed}
+          resting={idleLevel === 'rest'}
+        />
         <PullGauge progress={progress} />
       </div>
 
