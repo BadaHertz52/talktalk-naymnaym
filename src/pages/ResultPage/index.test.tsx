@@ -31,9 +31,7 @@ function renderResultPage() {
 }
 
 function resultCompleteParams() {
-  return vi
-    .mocked(trackEvent)
-    .mock.calls.find(([name]) => name === GA_EVENTS.resultComplete)?.[1];
+  return vi.mocked(trackEvent).mock.calls.find(([name]) => name === GA_EVENTS.resultComplete)?.[1];
 }
 
 function finishResultPage({ game, memo = '' }: { game: GameResult; memo?: string }) {

@@ -3,6 +3,7 @@ import Modal from '@components/Modal';
 import { ASSETS } from '@game/assets';
 import { ENABLED_GAME_MODES } from '@constants/gameMode';
 import styles from './index.module.css';
+import { GAME_MODE_TEST_IDS } from './testIds';
 
 // 와이어프레임 02M 문구 기준. 3곳만 교정했다 — "없앴까요"(오타), "털어버리는"(§5-1 회피 어휘
 // 금지), "스페이스바를 연타해"(모바일엔 스페이스바가 없어 기기 중립 표현으로 대체)
@@ -31,7 +32,13 @@ export default function GameModeModal({ onSelect, onClose }: Props) {
       <p className={styles.sub}>어떤 방법으로 고민을 없앨까요?</p>
       <div className={styles.cards}>
         {ENABLED_GAME_MODES.map((mode) => (
-          <button key={mode} type="button" className={styles.card} onClick={() => onSelect(mode)}>
+          <button
+            key={mode}
+            type="button"
+            className={styles.card}
+            onClick={() => onSelect(mode)}
+            data-testid={GAME_MODE_TEST_IDS[mode]}
+          >
             <img
               src={ASSETS.modeThumb[mode]}
               alt=""

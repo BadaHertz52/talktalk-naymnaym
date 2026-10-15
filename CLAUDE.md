@@ -98,3 +98,9 @@ import { ASSETS } from '../game/assets';
 ```
 
 감정 강도 → 날씨 아이콘 매핑: `src/constants/intensity.ts`의 `EXPRESSION_WEATHER`.
+
+---
+
+## PR 생성 전
+
+PR을 올리기 전에 "CodeRabbit 로컬 리뷰를 받을까요?"를 사용자에게 먼저 묻는다. 동의하면 `/coderabbit:code-review`를 실행하고 결과를 보고한 뒤 PR을 올린다.
