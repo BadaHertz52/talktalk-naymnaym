@@ -93,6 +93,8 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
       <div
         ref={footerRef}
         tabIndex={-1}
+        role="group"
+        aria-label="다음 행동"
         className={clsx(styles.footer, showFooter && styles.footerVisible)}
         data-testid={BUFFER_TEST_IDS.footer}
       >
