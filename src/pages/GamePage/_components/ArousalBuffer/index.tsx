@@ -26,15 +26,8 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
   const { showCta, getDwellMs } = useArousalBuffer();
   const showFooter = showCta || skipped;
   const topMessageRef = useRef<HTMLHeadingElement>(null);
-  const skipRef = useRef<HTMLButtonElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const moveFocusToFooterRef = useRef(false);
-
-  // footer가 나타나는 렌더 시점에는 건너뛰기 버튼이 아직 DOM에 있어 포커스 여부를 정확히 읽을 수 있다.
-  // (제거 시 blur 발생 여부는 브라우저마다 달라 이벤트에 의존하지 않는다)
-  if (!showFooter) {
-    moveFocusToFooterRef.current = skipRef.current === document.activeElement;
-  }
 
   const handleSkip = () => {
     // Safari/iOS는 클릭해도 버튼에 포커스가 가지 않으므로 클릭은 포커스 여부와 무관하게 이동한다
@@ -48,7 +41,10 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
   }, []);
 
   useLayoutEffect(() => {
-    if (showFooter && moveFocusToFooterRef.current) {
+    // 포커스를 가진 건너뛰기 버튼이 제거되면 activeElement가 body가 된다
+    const focusLost = !document.activeElement || document.activeElement === document.body;
+
+    if (showFooter && (moveFocusToFooterRef.current || focusLost)) {
       footerRef.current?.focus();
     }
   }, [showFooter]);
@@ -83,7 +79,6 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
         {!showFooter && (
           <button
             type="button"
-            ref={skipRef}
             className={styles.skipButton}
             onClick={handleSkip}
             data-testid={BUFFER_TEST_IDS.skipAction}
