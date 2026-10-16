@@ -70,6 +70,17 @@
   animation: fade-in 0.4s ease-out;
 }
 
+.skipButton:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+/* 포커스 이동 전용(비조작) 요소라 링을 그리지 않는다 */
+.topMessage:focus,
+.footer:focus {
+  outline: none;
+}
+
 .footer {
   display: flex;
   align-items: center;

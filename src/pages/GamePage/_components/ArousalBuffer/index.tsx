@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
 import { ASSETS } from '@game/assets';
@@ -25,11 +25,29 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
   const [skipped, setSkipped] = useState(false);
   const { showCta, getDwellMs } = useArousalBuffer();
   const showFooter = showCta || skipped;
+  const topMessageRef = useRef<HTMLHeadingElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const moveFocusToFooterRef = useRef(false);
 
   const handleSkip = () => {
+    // Safari/iOS는 클릭해도 버튼에 포커스가 가지 않으므로 클릭은 포커스 여부와 무관하게 이동한다
+    moveFocusToFooterRef.current = true;
     setShowBottomMessage(true);
     setSkipped(true);
   };
+
+  useLayoutEffect(() => {
+    topMessageRef.current?.focus();
+  }, []);
+
+  useLayoutEffect(() => {
+    // 포커스를 가진 건너뛰기 버튼이 제거되면 activeElement가 body가 된다
+    const focusLost = !document.activeElement || document.activeElement === document.body;
+
+    if (showFooter && (moveFocusToFooterRef.current || focusLost)) {
+      footerRef.current?.focus();
+    }
+  }, [showFooter]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -43,7 +61,12 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
 
   return (
     <section className={styles.buffer}>
-      <h2 className={styles.topMessage} data-testid={BUFFER_TEST_IDS.topMessage}>
+      <h2
+        ref={topMessageRef}
+        tabIndex={-1}
+        className={styles.topMessage}
+        data-testid={BUFFER_TEST_IDS.topMessage}
+      >
         {topMessage}
       </h2>
       <div className={styles.scene}>
@@ -64,10 +87,17 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
           </button>
         )}
       </div>
-      <div className={styles.bottomMessage}>
+      <div className={styles.bottomMessage} aria-live="polite">
         {showBottomMessage && <p data-testid={BUFFER_TEST_IDS.bottomMessage}>{BOTTOM_MESSAGE}</p>}
       </div>
-      <div className={clsx(styles.footer, showFooter && styles.footerVisible)}>
+      <div
+        ref={footerRef}
+        tabIndex={-1}
+        role="group"
+        aria-label="다음 행동"
+        className={clsx(styles.footer, showFooter && styles.footerVisible)}
+        data-testid={BUFFER_TEST_IDS.footer}
+      >
         {showFooter && footer({ getDwellMs, skipped })}
       </div>
     </section>
