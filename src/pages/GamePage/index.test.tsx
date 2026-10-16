@@ -259,7 +259,7 @@ describe('GamePage', () => {
       expect(router.state.location.pathname).toBe(PATHS.result);
     });
 
-    it('키 입력으로 완주하고 버퍼 버튼을 키보드 활성화(click detail 0)하면 /result까지 간다(Tab 포커스 도달은 E2E·수동 QA)', () => {
+    it('키 입력으로 완주하고 버퍼 버튼을 키보드 활성화(click detail 0)하면 /result까지 간다(Tab 포커스 도달은 수동 QA)', () => {
       const router = enterPullGame();
       finishPullByKeyboard();
       advanceBuffer(600);
