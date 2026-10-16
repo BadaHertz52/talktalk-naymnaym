@@ -47,7 +47,7 @@ function enterScratchGame() {
 }
 
 function enterPullGame() {
-  vi.useFakeTimers({ toFake: ['performance'] });
+  vi.useFakeTimers({ toFake: ['performance', 'setTimeout', 'clearTimeout'] });
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false }));
   useSessionStore.getState().reset();
   useSessionStore.getState().completeInput({ text: '속상해', secretMode: false });
@@ -76,6 +76,19 @@ function playPullToBufferFooter() {
   finishPull();
   clickPullNext();
   clickTestId(BUFFER_TEST_IDS.skipAction);
+}
+
+function finishPullByKeyboard() {
+  for (let index = 0; index < 40; index++) {
+    fireEvent.keyDown(document.body, { key: ' ' });
+    fireEvent.keyUp(document.body, { key: ' ' });
+  }
+}
+
+function advanceBuffer(ms: number) {
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
 }
 
 function hardEndGame() {
@@ -224,6 +237,31 @@ describe('GamePage', () => {
       expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
     });
 
+    it('버퍼 footer의 "다음 ▸"을 누르면 cleared:true로 /result에 간다', () => {
+      const router = enterPullGame();
+      playPullToBufferFooter();
+
+      clickTestId(BUFFER_TEST_IDS.nextAction);
+
+      const { game } = useSessionStore.getState().steps;
+      expect(game.completed).toBe(true);
+      expect(game.data.cleared).toBe(true);
+      expect(router.state.location.pathname).toBe(PATHS.result);
+    });
+
+    it('키보드 입력만으로 완주하고 버퍼를 거쳐 /result까지 간다', () => {
+      const router = enterPullGame();
+      finishPullByKeyboard();
+      advanceBuffer(600);
+
+      fireEvent.click(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction), { detail: 0 });
+      fireEvent.click(screen.getByTestId(BUFFER_TEST_IDS.skipAction), { detail: 0 });
+      fireEvent.click(screen.getByTestId(BUFFER_TEST_IDS.nextAction), { detail: 0 });
+
+      expect(useSessionStore.getState().steps.game.data.cleared).toBe(true);
+      expect(router.state.location.pathname).toBe(PATHS.result);
+    });
+
     it('"여기까지 할래요 ▸"를 누르면 버퍼 없이 cleared:false로 /result에 간다', () => {
       const router = enterPullGame();
 
@@ -234,6 +272,39 @@ describe('GamePage', () => {
       expect(game.data.cleared).toBe(false);
       expect(router.state.location.pathname).toBe(PATHS.result);
       expect(screen.queryByTestId(BUFFER_TEST_IDS.topMessage)).toBeNull();
+    });
+  });
+
+  describe('버퍼에서 건너뛰지 않고 오래 기다려도', () => {
+    it('스크래치는 3.0초 전에는 "다음 ▸"이 없고, 이후에도 /result로 저절로 넘어가지 않는다', () => {
+      vi.useFakeTimers();
+      const router = enterScratchGame();
+      hardEndGame();
+      clickTestId(SCRATCH_GAME_TEST_IDS.nextAction);
+
+      advanceBuffer(2999);
+      const nextBefore = screen.queryByTestId(BUFFER_TEST_IDS.nextAction);
+      advanceBuffer(10 * 60 * 1000);
+
+      expect(nextBefore).toBeNull();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
+      expect(router.state.location.pathname).toBe(PATHS.game);
+      expect(useSessionStore.getState().steps.game.completed).toBe(false);
+    });
+
+    it('뽑기는 3.0초 전에는 "다음 ▸"이 없고, 이후에도 /result로 저절로 넘어가지 않는다', () => {
+      const router = enterPullGame();
+      finishPull();
+      clickPullNext();
+
+      advanceBuffer(2999);
+      const nextBefore = screen.queryByTestId(BUFFER_TEST_IDS.nextAction);
+      advanceBuffer(10 * 60 * 1000);
+
+      expect(nextBefore).toBeNull();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
+      expect(router.state.location.pathname).toBe(PATHS.game);
+      expect(useSessionStore.getState().steps.game.completed).toBe(false);
     });
   });
 

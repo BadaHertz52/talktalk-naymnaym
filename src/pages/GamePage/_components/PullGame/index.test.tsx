@@ -189,6 +189,16 @@ describe('PullGame', () => {
       expect(getProgressValue()).toBe(2);
     });
 
+    it.each([' ', 'Enter', 'ArrowUp'])('%j를 누르고 있어 repeat 이벤트만 오면 게이지가 오르지 않는다', (key) => {
+      setupFakeClock();
+      renderPullGame();
+
+      fireEvent.keyDown(document.body, { key, repeat: true });
+      fireEvent.keyDown(document.body, { key, repeat: true });
+
+      expect(getProgressValue()).toBe(0);
+    });
+
     it('여기까지 할래요 ▸에 포커스된 채 Space를 누르면 1타가 아니라 이탈이 동작한다', () => {
       setupFakeClock();
       const { onQuit } = renderPullGame();

@@ -75,6 +75,21 @@ describe('ArousalBuffer', () => {
     });
   });
 
+  describe('3.0초 직전까지는', () => {
+    it('footer가 DOM에 없고 건너뛰기만 남아 있다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer();
+
+      act(() => {
+        vi.advanceTimersByTime(2999);
+      });
+
+      expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.skipAction)).toBeTruthy();
+    });
+  });
+
   describe('3.0초가 지나면', () => {
     it('호출부가 넘긴 footer가 나타난다', () => {
       setupFakeClock();
@@ -100,6 +115,46 @@ describe('ArousalBuffer', () => {
       expect(scene?.getAttribute('src')).toBe(ASSETS.buffer.sceneStill);
       expect(screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeNull();
       expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
+    });
+  });
+
+  describe('reducedMotion에서 시간이 흐르면', () => {
+    it('1.2초에 하단 문구(1.2초 직전엔 없음), 3.0초 직전까지 footer 없음, 3.0초에 footer가 나타난다', () => {
+      setupFakeClock();
+      stubReducedMotion(true);
+      renderArousalBuffer();
+
+      act(() => {
+        vi.advanceTimersByTime(1199);
+      });
+      const bottomAt1199 = screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage);
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      const bottomAt1200 = screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage);
+      act(() => {
+        vi.advanceTimersByTime(1799);
+      });
+      const footerAt2999 = screen.queryByTestId(BUFFER_TEST_IDS.nextAction);
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+
+      expect(bottomAt1199).toBeNull();
+      expect(bottomAt1200).toBeTruthy();
+      expect(footerAt2999).toBeNull();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
+    });
+
+    it('건너뛰기는 일반 사용자와 동일하게 하단 문구와 footer를 즉시 보여준다', () => {
+      setupFakeClock();
+      stubReducedMotion(true);
+      renderArousalBuffer();
+
+      clickSkip();
+
+      expect(screen.getByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeTruthy();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
     });
   });
 
