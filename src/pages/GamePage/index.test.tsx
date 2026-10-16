@@ -47,7 +47,17 @@ function enterScratchGame() {
 }
 
 function enterPullGame() {
-  vi.useFakeTimers({ toFake: ['performance', 'setTimeout', 'clearTimeout'] });
+  vi.useFakeTimers({
+    toFake: [
+      'performance',
+      'setTimeout',
+      'clearTimeout',
+      'setInterval',
+      'clearInterval',
+      'requestAnimationFrame',
+      'cancelAnimationFrame',
+    ],
+  });
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false }));
   useSessionStore.getState().reset();
   useSessionStore.getState().completeInput({ text: '속상해', secretMode: false });
@@ -249,7 +259,7 @@ describe('GamePage', () => {
       expect(router.state.location.pathname).toBe(PATHS.result);
     });
 
-    it('키보드 입력만으로 완주하고 버퍼를 거쳐 /result까지 간다', () => {
+    it('키보드 타수로 완주하고 버튼을 키보드 활성화(click detail 0)로 눌러 버퍼를 거쳐 /result까지 간다', () => {
       const router = enterPullGame();
       finishPullByKeyboard();
       advanceBuffer(600);

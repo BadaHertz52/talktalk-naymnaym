@@ -75,6 +75,7 @@ describe('MeasurePage 모드 선택', () => {
   afterEach(() => {
     vi.mocked(trackEvent).mockClear();
     cleanup();
+    vi.restoreAllMocks();
     setEnabledModes(['scratch', 'pull']);
   });
 
@@ -92,7 +93,7 @@ describe('MeasurePage 모드 선택', () => {
       expect(cards[1]?.textContent).toContain('당근 뽑기');
     });
 
-    it('모달은 showModal로 열려 포커스가 모달 안으로 가고 바깥으로 빠지지 않는다', async () => {
+    it('모달은 showModal로 열린다', async () => {
       const showModal = vi.spyOn(HTMLDialogElement.prototype, 'showModal');
       prepareMeasuredIntensity();
       renderMeasurePage();
@@ -101,7 +102,6 @@ describe('MeasurePage 모드 선택', () => {
 
       await screen.findByRole('dialog');
       expect(showModal).toHaveBeenCalledTimes(1);
-      showModal.mockRestore();
     });
 
     it('뽑기 카드를 고르면 gameMode가 measure 데이터에 저장되고 /game으로 이동한다', async () => {

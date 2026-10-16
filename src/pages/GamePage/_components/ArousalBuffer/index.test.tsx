@@ -60,52 +60,58 @@ describe('ArousalBuffer', () => {
     });
   });
 
-  describe('1.2초가 지나면', () => {
-    it('하단 문구가 나타나고 footer는 여전히 DOM에 없다', () => {
+  describe.each([false, true])('reducedMotion이 %s일 때', (reduce) => {
+    it('1.2초 직전에는 하단 문구가 없고 1.2초에 나타나며 footer는 아직 DOM에 없다', () => {
       setupFakeClock();
-      stubReducedMotion(false);
+      stubReducedMotion(reduce);
       renderArousalBuffer();
 
       act(() => {
-        vi.advanceTimersByTime(1200);
+        vi.advanceTimersByTime(1199);
+      });
+      const bottomBefore = screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage);
+      act(() => {
+        vi.advanceTimersByTime(1);
       });
 
+      expect(bottomBefore).toBeNull();
       expect(screen.getByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeTruthy();
       expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
     });
-  });
 
-  describe('3.0초 직전까지는', () => {
-    it('footer가 DOM에 없고 건너뛰기만 남아 있다', () => {
+    it('3.0초 직전에는 footer 없이 건너뛰기만 있고 3.0초에 footer가 나타난다', () => {
       setupFakeClock();
-      stubReducedMotion(false);
+      stubReducedMotion(reduce);
       renderArousalBuffer();
 
       act(() => {
         vi.advanceTimersByTime(2999);
       });
-
-      expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
-      expect(screen.getByTestId(BUFFER_TEST_IDS.skipAction)).toBeTruthy();
-    });
-  });
-
-  describe('3.0초가 지나면', () => {
-    it('호출부가 넘긴 footer가 나타난다', () => {
-      setupFakeClock();
-      stubReducedMotion(false);
-      renderArousalBuffer();
-
+      const footerBefore = screen.queryByTestId(BUFFER_TEST_IDS.nextAction);
+      const skipBefore = screen.queryByTestId(BUFFER_TEST_IDS.skipAction);
       act(() => {
-        vi.advanceTimersByTime(3000);
+        vi.advanceTimersByTime(1);
       });
 
+      expect(footerBefore).toBeNull();
+      expect(skipBefore).toBeTruthy();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
+    });
+
+    it('건너뛰기를 누르면 하단 문구와 footer가 즉시 나타난다', () => {
+      setupFakeClock();
+      stubReducedMotion(reduce);
+      renderArousalBuffer();
+
+      clickSkip();
+
+      expect(screen.getByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeTruthy();
       expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
     });
   });
 
   describe('reducedMotion이면', () => {
-    it('GIF 대신 정지 프레임을 쓰고 노출 타이밍은 동일하다', () => {
+    it('GIF 대신 정지 프레임을 쓴다', () => {
       setupFakeClock();
       stubReducedMotion(true);
       renderArousalBuffer();
@@ -115,46 +121,6 @@ describe('ArousalBuffer', () => {
       expect(scene?.getAttribute('src')).toBe(ASSETS.buffer.sceneStill);
       expect(screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeNull();
       expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
-    });
-  });
-
-  describe('reducedMotion에서 시간이 흐르면', () => {
-    it('1.2초에 하단 문구(1.2초 직전엔 없음), 3.0초 직전까지 footer 없음, 3.0초에 footer가 나타난다', () => {
-      setupFakeClock();
-      stubReducedMotion(true);
-      renderArousalBuffer();
-
-      act(() => {
-        vi.advanceTimersByTime(1199);
-      });
-      const bottomAt1199 = screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage);
-      act(() => {
-        vi.advanceTimersByTime(1);
-      });
-      const bottomAt1200 = screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage);
-      act(() => {
-        vi.advanceTimersByTime(1799);
-      });
-      const footerAt2999 = screen.queryByTestId(BUFFER_TEST_IDS.nextAction);
-      act(() => {
-        vi.advanceTimersByTime(1);
-      });
-
-      expect(bottomAt1199).toBeNull();
-      expect(bottomAt1200).toBeTruthy();
-      expect(footerAt2999).toBeNull();
-      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
-    });
-
-    it('건너뛰기는 일반 사용자와 동일하게 하단 문구와 footer를 즉시 보여준다', () => {
-      setupFakeClock();
-      stubReducedMotion(true);
-      renderArousalBuffer();
-
-      clickSkip();
-
-      expect(screen.getByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeTruthy();
-      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
     });
   });
 
