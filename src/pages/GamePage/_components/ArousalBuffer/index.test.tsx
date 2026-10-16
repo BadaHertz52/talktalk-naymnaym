@@ -13,7 +13,10 @@ function stubReducedMotion(reduce: boolean) {
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: reduce }));
 }
 
-function renderArousalBuffer({ topMessage = '당근 다 뽑았어요!' }: { topMessage?: string } = {}) {
+function renderArousalBuffer({
+  topMessage = '당근 다 뽑았어요!',
+  twoButtons = false,
+}: { topMessage?: string; twoButtons?: boolean } = {}) {
   const footerCalls: { skipped: boolean; getDwellMs: () => number }[] = [];
   const result = render(
     <ArousalBuffer
@@ -21,7 +24,12 @@ function renderArousalBuffer({ topMessage = '당근 다 뽑았어요!' }: { topM
       footer={(ctx) => {
         footerCalls.push(ctx);
 
-        return <button data-testid={BUFFER_TEST_IDS.nextAction}>다음 ▸</button>;
+        return (
+          <>
+            {twoButtons && <button data-testid={BUFFER_TEST_IDS.replayAction}>한 번 더</button>}
+            <button data-testid={BUFFER_TEST_IDS.nextAction}>다음 ▸</button>
+          </>
+        );
       }}
     />,
   );
@@ -164,43 +172,73 @@ describe('ArousalBuffer', () => {
     });
   });
 
-  describe('건너뛰기 버튼에 포커스가 있다가 버튼이 사라지면', () => {
-    it('건너뛰기를 눌렀을 때 footer 첫 버튼으로 포커스가 이동한다', () => {
+  describe('마운트 직후', () => {
+    it('완료 문구 h2에 포커스가 있다', () => {
       setupFakeClock();
       stubReducedMotion(false);
       renderArousalBuffer();
-      screen.getByTestId(BUFFER_TEST_IDS.skipAction).focus();
 
-      clickSkip();
-
-      expect(document.activeElement).toBe(screen.getByTestId(BUFFER_TEST_IDS.nextAction));
-    });
-
-    it('3.0초가 지났을 때 footer 첫 버튼으로 포커스가 이동한다', () => {
-      setupFakeClock();
-      stubReducedMotion(false);
-      renderArousalBuffer();
-      screen.getByTestId(BUFFER_TEST_IDS.skipAction).focus();
-
-      act(() => {
-        vi.advanceTimersByTime(3000);
-      });
-
-      expect(document.activeElement).toBe(screen.getByTestId(BUFFER_TEST_IDS.nextAction));
+      expect(document.activeElement).toBe(screen.getByTestId(BUFFER_TEST_IDS.topMessage));
     });
   });
 
-  describe('건너뛰기 버튼에 포커스가 없는 채로 3.0초가 지나면', () => {
-    it('footer가 나타나도 포커스를 가져가지 않는다', () => {
+  describe('footer에 버튼이 둘이면', () => {
+    it('건너뛰기 클릭 후 포커스는 어떤 버튼도 아닌 footer 컨테이너에 있다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer({ twoButtons: true });
+
+      clickSkip();
+
+      expect(document.activeElement).toBe(screen.getByTestId(BUFFER_TEST_IDS.footer));
+    });
+  });
+
+  describe('건너뛰기를 누르면', () => {
+    it('버튼에 포커스가 없었어도 footer 컨테이너로 포커스가 이동한다', () => {
       setupFakeClock();
       stubReducedMotion(false);
       renderArousalBuffer();
+
+      clickSkip();
+
+      expect(document.activeElement).toBe(screen.getByTestId(BUFFER_TEST_IDS.footer));
+    });
+  });
+
+  describe('건너뛰기 버튼에 포커스가 있는 채로 3.0초가 지나면', () => {
+    it('중간 재렌더(1.2초)를 거쳐도 footer 컨테이너로 포커스가 이동한다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer();
+      screen.getByTestId(BUFFER_TEST_IDS.skipAction).focus();
+
+      act(() => {
+        vi.advanceTimersByTime(1200);
+      });
+      act(() => {
+        vi.advanceTimersByTime(1800);
+      });
+
+      expect(document.activeElement).toBe(screen.getByTestId(BUFFER_TEST_IDS.footer));
+    });
+  });
+
+  describe('다른 버튼에 포커스가 있는 채로 3.0초가 지나면', () => {
+    it('포커스가 그 버튼에 머물고 footer는 나타난다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      render(<button data-testid="outside">밖</button>);
+      renderArousalBuffer();
+      const outside = screen.getByTestId('outside');
+      outside.focus();
 
       act(() => {
         vi.advanceTimersByTime(3000);
       });
 
-      expect(document.activeElement).toBe(document.body);
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
+      expect(document.activeElement).toBe(outside);
     });
   });
 

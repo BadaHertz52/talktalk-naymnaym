@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
 import { ASSETS } from '@game/assets';
@@ -25,17 +25,31 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
   const [skipped, setSkipped] = useState(false);
   const { showCta, getDwellMs } = useArousalBuffer();
   const showFooter = showCta || skipped;
+  const topMessageRef = useRef<HTMLHeadingElement>(null);
+  const skipRef = useRef<HTMLButtonElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
-  const skipHadFocusRef = useRef(false);
+  const moveFocusToFooterRef = useRef(false);
+
+  // footer가 나타나는 렌더 시점에는 건너뛰기 버튼이 아직 DOM에 있어 포커스 여부를 정확히 읽을 수 있다.
+  // (제거 시 blur 발생 여부는 브라우저마다 달라 이벤트에 의존하지 않는다)
+  if (!showFooter) {
+    moveFocusToFooterRef.current = skipRef.current === document.activeElement;
+  }
 
   const handleSkip = () => {
+    // Safari/iOS는 클릭해도 버튼에 포커스가 가지 않으므로 클릭은 포커스 여부와 무관하게 이동한다
+    moveFocusToFooterRef.current = true;
     setShowBottomMessage(true);
     setSkipped(true);
   };
 
-  useEffect(() => {
-    if (showFooter && skipHadFocusRef.current) {
-      footerRef.current?.querySelector('button')?.focus();
+  useLayoutEffect(() => {
+    topMessageRef.current?.focus();
+  }, []);
+
+  useLayoutEffect(() => {
+    if (showFooter && moveFocusToFooterRef.current) {
+      footerRef.current?.focus();
     }
   }, [showFooter]);
 
@@ -51,7 +65,12 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
 
   return (
     <section className={styles.buffer}>
-      <h2 className={styles.topMessage} data-testid={BUFFER_TEST_IDS.topMessage}>
+      <h2
+        ref={topMessageRef}
+        tabIndex={-1}
+        className={styles.topMessage}
+        data-testid={BUFFER_TEST_IDS.topMessage}
+      >
         {topMessage}
       </h2>
       <div className={styles.scene}>
@@ -64,10 +83,7 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
         {!showFooter && (
           <button
             type="button"
-            ref={(node) => () => {
-              // 언마운트 직전(DOM 제거 전)에만 포커스 여부를 알 수 있다
-              skipHadFocusRef.current = document.activeElement === node;
-            }}
+            ref={skipRef}
             className={styles.skipButton}
             onClick={handleSkip}
             data-testid={BUFFER_TEST_IDS.skipAction}
@@ -76,10 +92,15 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
           </button>
         )}
       </div>
-      <div className={styles.bottomMessage}>
+      <div className={styles.bottomMessage} aria-live="polite">
         {showBottomMessage && <p data-testid={BUFFER_TEST_IDS.bottomMessage}>{BOTTOM_MESSAGE}</p>}
       </div>
-      <div ref={footerRef} className={clsx(styles.footer, showFooter && styles.footerVisible)}>
+      <div
+        ref={footerRef}
+        tabIndex={-1}
+        className={clsx(styles.footer, showFooter && styles.footerVisible)}
+        data-testid={BUFFER_TEST_IDS.footer}
+      >
         {showFooter && footer({ getDwellMs, skipped })}
       </div>
     </section>

@@ -10,6 +10,7 @@ export const BUFFER_TEST_IDS = {
   topMessage: 'buffer-top-message',
   bottomMessage: 'buffer-bottom-message',
   skipAction: 'buffer-skip-action',
+  footer: 'buffer-footer',
   nextAction: 'buffer-next-action',
   replayAction: 'buffer-replay-action',
   enoughMessage: 'buffer-enough-message',
