@@ -164,6 +164,46 @@ describe('ArousalBuffer', () => {
     });
   });
 
+  describe('건너뛰기 버튼에 포커스가 있다가 버튼이 사라지면', () => {
+    it('건너뛰기를 눌렀을 때 footer 첫 버튼으로 포커스가 이동한다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer();
+      screen.getByTestId(BUFFER_TEST_IDS.skipAction).focus();
+
+      clickSkip();
+
+      expect(document.activeElement).toBe(screen.getByTestId(BUFFER_TEST_IDS.nextAction));
+    });
+
+    it('3.0초가 지났을 때 footer 첫 버튼으로 포커스가 이동한다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer();
+      screen.getByTestId(BUFFER_TEST_IDS.skipAction).focus();
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(document.activeElement).toBe(screen.getByTestId(BUFFER_TEST_IDS.nextAction));
+    });
+  });
+
+  describe('건너뛰기 버튼에 포커스가 없는 채로 3.0초가 지나면', () => {
+    it('footer가 나타나도 포커스를 가져가지 않는다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer();
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(document.activeElement).toBe(document.body);
+    });
+  });
+
   describe('두 모드 비교', () => {
     it('상단 완료 문구만 다르고 나머지 DOM 구조는 동일하다', () => {
       setupFakeClock();

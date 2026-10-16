@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
 import { ASSETS } from '@game/assets';
@@ -25,11 +25,19 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
   const [skipped, setSkipped] = useState(false);
   const { showCta, getDwellMs } = useArousalBuffer();
   const showFooter = showCta || skipped;
+  const footerRef = useRef<HTMLDivElement>(null);
+  const skipHadFocusRef = useRef(false);
 
   const handleSkip = () => {
     setShowBottomMessage(true);
     setSkipped(true);
   };
+
+  useEffect(() => {
+    if (showFooter && skipHadFocusRef.current) {
+      footerRef.current?.querySelector('button')?.focus();
+    }
+  }, [showFooter]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -56,6 +64,10 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
         {!showFooter && (
           <button
             type="button"
+            ref={(node) => () => {
+              // 언마운트 직전(DOM 제거 전)에만 포커스 여부를 알 수 있다
+              skipHadFocusRef.current = document.activeElement === node;
+            }}
             className={styles.skipButton}
             onClick={handleSkip}
             data-testid={BUFFER_TEST_IDS.skipAction}
@@ -67,7 +79,7 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
       <div className={styles.bottomMessage}>
         {showBottomMessage && <p data-testid={BUFFER_TEST_IDS.bottomMessage}>{BOTTOM_MESSAGE}</p>}
       </div>
-      <div className={clsx(styles.footer, showFooter && styles.footerVisible)}>
+      <div ref={footerRef} className={clsx(styles.footer, showFooter && styles.footerVisible)}>
         {showFooter && footer({ getDwellMs, skipped })}
       </div>
     </section>
