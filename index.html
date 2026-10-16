@@ -34,7 +34,9 @@
         dataLayer.push(arguments);
       }
       gtag('js', new Date());
-      gtag('config', 'G-FDBH85T5WF');
+      // 프로덕션 외 트래픽은 GA4 개발자 트래픽 필터로 보고서에서 제외
+      var isProd = location.hostname === 'talktalk-naymnaym.vercel.app';
+      gtag('config', 'G-FDBH85T5WF', isProd ? {} : { debug_mode: true });
     </script>
   </head>
   <body>
