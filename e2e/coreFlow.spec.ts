@@ -104,3 +104,24 @@ test('뽑기 모드로 코어 플로우를 완주한다', async ({ page }) => {
 
   await finishFromBufferToEnd(page);
 });
+
+const QUIT_ACTIONS = {
+  scratch: SCRATCH_GAME_TEST_IDS.quitAction,
+  pull: PULL_GAME_TEST_IDS.quitAction,
+} as const;
+
+for (const mode of ['scratch', 'pull'] as const) {
+  test(`${mode} 모드에서 중도 이탈하면 버퍼 없이 결과 재측정을 거쳐 종료한다`, async ({ page }) => {
+    await startToGameModal(page);
+    await selectMode(page, mode);
+
+    await page.getByTestId(QUIT_ACTIONS[mode]).click();
+
+    await expect(page).toHaveURL(/\/result$/);
+    await expect(page.getByTestId(BUFFER_TEST_IDS.topMessage)).toHaveCount(0);
+    await page.getByRole('slider').focus();
+    await page.keyboard.press('Home');
+    await page.getByTestId(RESULT_TEST_IDS.doneAction).click();
+    await expect(page).toHaveURL(/\/end$/);
+  });
+}

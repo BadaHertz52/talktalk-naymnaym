@@ -60,37 +60,58 @@ describe('ArousalBuffer', () => {
     });
   });
 
-  describe('1.2초가 지나면', () => {
-    it('하단 문구가 나타나고 footer는 여전히 DOM에 없다', () => {
+  describe.each([false, true])('reducedMotion이 %s일 때', (reduce) => {
+    it('1.2초 직전에는 하단 문구가 없고 1.2초에 나타나며 footer는 아직 DOM에 없다', () => {
       setupFakeClock();
-      stubReducedMotion(false);
+      stubReducedMotion(reduce);
       renderArousalBuffer();
 
       act(() => {
-        vi.advanceTimersByTime(1200);
+        vi.advanceTimersByTime(1199);
+      });
+      const bottomBefore = screen.queryByTestId(BUFFER_TEST_IDS.bottomMessage);
+      act(() => {
+        vi.advanceTimersByTime(1);
       });
 
+      expect(bottomBefore).toBeNull();
       expect(screen.getByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeTruthy();
       expect(screen.queryByTestId(BUFFER_TEST_IDS.nextAction)).toBeNull();
     });
-  });
 
-  describe('3.0초가 지나면', () => {
-    it('호출부가 넘긴 footer가 나타난다', () => {
+    it('3.0초 직전에는 footer 없이 건너뛰기만 있고 3.0초에 footer가 나타난다', () => {
       setupFakeClock();
-      stubReducedMotion(false);
+      stubReducedMotion(reduce);
       renderArousalBuffer();
 
       act(() => {
-        vi.advanceTimersByTime(3000);
+        vi.advanceTimersByTime(2999);
+      });
+      const footerBefore = screen.queryByTestId(BUFFER_TEST_IDS.nextAction);
+      const skipBefore = screen.queryByTestId(BUFFER_TEST_IDS.skipAction);
+      act(() => {
+        vi.advanceTimersByTime(1);
       });
 
+      expect(footerBefore).toBeNull();
+      expect(skipBefore).toBeTruthy();
+      expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
+    });
+
+    it('건너뛰기를 누르면 하단 문구와 footer가 즉시 나타난다', () => {
+      setupFakeClock();
+      stubReducedMotion(reduce);
+      renderArousalBuffer();
+
+      clickSkip();
+
+      expect(screen.getByTestId(BUFFER_TEST_IDS.bottomMessage)).toBeTruthy();
       expect(screen.getByTestId(BUFFER_TEST_IDS.nextAction)).toBeTruthy();
     });
   });
 
   describe('reducedMotion이면', () => {
-    it('GIF 대신 정지 프레임을 쓰고 노출 타이밍은 동일하다', () => {
+    it('GIF 대신 정지 프레임을 쓴다', () => {
       setupFakeClock();
       stubReducedMotion(true);
       renderArousalBuffer();
