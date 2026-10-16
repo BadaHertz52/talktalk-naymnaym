@@ -19,6 +19,11 @@ const SCRATCH_ROW_GAP_PX = 10;
 const EDGE_OVERSHOOT_PX = 20;
 const SCRATCH_TIMEOUT_MS = 15_000;
 
+// index.html의 gtag가 프로덕션 GA 속성이라, 테스트 트래픽이 모드 비교 데이터를 오염시키지 않게 막는다
+test.beforeEach(async ({ page }) => {
+  await page.route(/(googletagmanager|google-analytics)\.com/, (route) => route.abort());
+});
+
 async function startToGameModal(page: Page) {
   await page.goto('/');
   await page.getByTestId(HOME_TEST_IDS.startAction).click();
