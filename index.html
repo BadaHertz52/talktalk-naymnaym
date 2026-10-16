@@ -34,9 +34,13 @@
         dataLayer.push(arguments);
       }
       gtag('js', new Date());
-      // 프로덕션 외 트래픽은 GA4 개발자 트래픽 필터로 보고서에서 제외
-      var isProd = location.hostname === 'talktalk-naymnaym.vercel.app';
-      gtag('config', 'G-FDBH85T5WF', isProd ? {} : { debug_mode: true });
+      // 프로덕션 외 트래픽(localhost·프리뷰)은 debug_mode로 표시해, GA4 개발자 트래픽 필터('활성')가 보고서에서 빼고 DebugView에는 남긴다.
+      // debug_mode는 false를 넘겨도 켜지므로 프로덕션에선 생략한다. 프로덕션 도메인을 추가하면 이 조건도 함께 바꿀 것
+      gtag(
+        'config',
+        'G-FDBH85T5WF',
+        location.hostname === 'talktalk-naymnaym.vercel.app' ? {} : { debug_mode: true },
+      );
     </script>
   </head>
   <body>
