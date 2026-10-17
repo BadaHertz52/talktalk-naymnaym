@@ -4,8 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useSessionStore } from '@stores/sessionStore';
 import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import PullGame from '.';
-import { HINT_TEXT } from './_components/pullHint';
-import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL } from './_components/pullActionLabels';
+import { HINT_TEXT } from './_utils/pullHint';
+import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL } from './pullActionLabels';
 
 function setupFakeClock() {
   vi.useFakeTimers({

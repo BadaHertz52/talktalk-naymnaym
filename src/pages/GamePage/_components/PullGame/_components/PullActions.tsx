@@ -4,7 +4,7 @@ import Button from '@components/Button';
 import QuitButton from '../../QuitButton';
 import { PULL_GAME_TEST_IDS } from '../../../_constants/pullGameTestIds';
 import type { IdleLevel } from '../_hooks/usePullIdleLevel';
-import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL, PULL_LABEL } from './pullActionLabels';
+import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL, PULL_LABEL } from '../pullActionLabels';
 import styles from '../index.module.css';
 
 interface PullActionsProps {

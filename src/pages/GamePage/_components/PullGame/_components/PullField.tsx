@@ -2,8 +2,8 @@ import { clsx } from 'clsx';
 import { ASSETS } from '@game/assets';
 import { PULL_GAME_TEST_IDS } from '../../../_constants/pullGameTestIds';
 import styles from '../index.module.css';
-import type { getPullHint } from './pullHint';
-import { getPullStep, PULL_STEP_MAX } from './pullStep';
+import type { getPullHint } from '../_utils/pullHint';
+import { getPullStep, PULL_STEP_MAX } from '../_utils/pullStep';
 
 const DIRT_HEIGHT_RATIO = 96 / 398;
 

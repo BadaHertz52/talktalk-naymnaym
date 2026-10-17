@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import PullActions from './_components/PullActions';
 import PullField from './_components/PullField';
 import PullGauge from './_components/PullGauge';
-import { getPullHint, HINT_TEXT } from './_components/pullHint';
+import { getPullHint, HINT_TEXT } from './_utils/pullHint';
 import PullInstructions from './_components/PullInstructions';
 import { usePullIdleLevel } from './_hooks/usePullIdleLevel';
 import { usePullSession } from './_hooks/usePullSession';
