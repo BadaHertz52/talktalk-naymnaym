@@ -1,5 +1,6 @@
 import type { EmotionExpressionStep, EmotionIntensity } from '@/types/session';
 import { ASSETS } from '@game/assets';
+import { MOOD_NOT_DECREASED_TITLE } from '../../constants';
 import ArrowIcon from '../ArrowIcon';
 import styles from './index.module.css';
 
@@ -18,11 +19,7 @@ export default function MoodNotDecreased({ expressionStep, intensity, intensityB
         aria-hidden="true"
         className={styles.moodSingle}
       />
-      <p className={styles.resultTitle}>
-        오늘은
-        <br />
-        여기까지도 충분해요
-      </p>
+      <p className={styles.resultTitle}>{MOOD_NOT_DECREASED_TITLE}</p>
       <div className={styles.scoreRow}>
         <span className={styles.scoreBefore}>{intensityBefore}</span>
         <ArrowIcon color="var(--color-gray-mid)" />

@@ -7,6 +7,7 @@ import { trackEvent } from '@utils/analytics';
 import { GA_EVENTS } from '@constants/analytics';
 import { PATHS } from '@constants/paths';
 import ResultPage from '.';
+import { MOOD_DECREASED_TITLE, MOOD_NOT_DECREASED_TITLE } from './constants';
 
 vi.mock('@utils/analytics', () => ({ trackEvent: vi.fn() }));
 
@@ -115,5 +116,41 @@ describe('ResultPage GA 결과 이벤트', () => {
       expect(JSON.stringify(vi.mocked(trackEvent).mock.calls)).not.toContain(EMOTION_TEXT);
       expect(JSON.stringify(vi.mocked(trackEvent).mock.calls)).not.toContain(MEMO_TEXT);
     });
+  });
+});
+
+describe('ResultPage 슬라이더 음성 안내', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('강도가 줄면 이전→현재 점수와 감소 제목이 aria-valuetext에 담긴다', () => {
+    completeUntilGame({ cleared: true, bufferSkipped: false });
+    useSessionStore.getState().completeResult({ intensityAfter: 2, afterEmotionText: '' });
+
+    renderResultPage();
+
+    expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe(
+      `4에서 2 — ${MOOD_DECREASED_TITLE}`,
+    );
+  });
+
+  it('강도가 줄지 않으면 줄바꿈 없는 유지 제목이 aria-valuetext에 담긴다', () => {
+    completeUntilGame({ cleared: true, bufferSkipped: false });
+    useSessionStore.getState().completeResult({ intensityAfter: 4, afterEmotionText: '' });
+
+    renderResultPage();
+
+    expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe(
+      `4에서 4 — ${MOOD_NOT_DECREASED_TITLE.replaceAll('\n', ' ')}`,
+    );
+  });
+
+  it('값을 고르기 전에는 aria-valuetext가 선택 안 됨이다', () => {
+    completeUntilGame({ cleared: true, bufferSkipped: false });
+
+    renderResultPage();
+
+    expect(screen.getByRole('slider').getAttribute('aria-valuetext')).toBe('선택 안 됨');
   });
 });

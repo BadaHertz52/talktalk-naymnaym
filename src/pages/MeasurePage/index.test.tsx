@@ -6,6 +6,7 @@ import { OverlayProvider } from 'overlay-kit';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
 import type { GameMode } from '@/types/session';
+import { WEATHER_LABEL } from '@constants/intensity';
 
 vi.mock('@utils/analytics', () => ({ trackEvent: vi.fn() }));
 const { trackEvent } = await import('@utils/analytics');
@@ -249,5 +250,20 @@ describe('MeasurePage 모드 선택', () => {
       await screen.findByTestId('game-page');
       expect(JSON.stringify(vi.mocked(trackEvent).mock.calls)).not.toContain(EMOTION_TEXT);
     });
+  });
+});
+
+describe('MeasurePage 슬라이더 음성 안내', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('선택한 강도와 화면에 보이는 날씨 문구가 aria-valuetext에 담긴다', () => {
+    prepareMeasuredIntensity();
+
+    renderMeasurePage();
+
+    const text = screen.getByRole('slider').getAttribute('aria-valuetext');
+    expect(text).toBe(`5, ${WEATHER_LABEL[3]}`);
   });
 });

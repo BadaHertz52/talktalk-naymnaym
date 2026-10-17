@@ -14,6 +14,7 @@ import MoodEmpty from './_components/MoodEmpty';
 import MoodDecreased from './_components/MoodDecreased';
 import MoodNotDecreased from './_components/MoodNotDecreased';
 import styles from './index.module.css';
+import { MOOD_DECREASED_TITLE, MOOD_NOT_DECREASED_TITLE } from './constants';
 import { RESULT_TEST_IDS } from './testIds';
 
 const PROMPTS = [
@@ -46,6 +47,12 @@ export default function ResultPage() {
         ? 'decreased'
         : 'increased';
   const decreased = intensityChange === 'decreased';
+
+  const resultTitle = decreased ? MOOD_DECREASED_TITLE : MOOD_NOT_DECREASED_TITLE;
+  const valueText =
+    intensity && intensityBefore
+      ? `${intensityBefore}에서 ${intensity} — ${resultTitle.replaceAll('\n', ' ')}`
+      : undefined;
 
   const handleDone = () => {
     if (!intensity) return;
@@ -94,7 +101,7 @@ export default function ResultPage() {
 
       <p className={styles.sliderLabel}>남아있는 감정의 무게는 얼마인가요?</p>
       <div className={styles.sliderWrap}>
-        <IntensitySlider value={intensity} onChange={setIntensity} />
+        <IntensitySlider value={intensity} onChange={setIntensity} valueText={valueText} />
       </div>
 
       <div className={styles.memoBox}>
