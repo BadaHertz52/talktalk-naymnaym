@@ -284,4 +284,17 @@ describe('ArousalBuffer', () => {
       );
     });
   });
+
+  describe('제목', () => {
+    it('완료 문구가 유일한 h1이고 마운트 시 포커스를 가진다', () => {
+      setupFakeClock();
+      stubReducedMotion(false);
+      renderArousalBuffer();
+
+      const topMessage = screen.getByTestId(BUFFER_TEST_IDS.topMessage);
+
+      expect(screen.getAllByRole('heading', { level: 1 })).toEqual([topMessage]);
+      expect(document.activeElement).toBe(topMessage);
+    });
+  });
 });

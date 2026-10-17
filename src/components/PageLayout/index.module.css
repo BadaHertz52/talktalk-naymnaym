@@ -15,3 +15,7 @@
   border: 2px solid var(--color-white);
   border-radius: 14px;
 }
+
+.main h1[tabindex='-1']:focus {
+  outline: none;
+}

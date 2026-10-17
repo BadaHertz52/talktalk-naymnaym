@@ -221,6 +221,25 @@ describe('GamePage', () => {
       expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0');
     });
 
+    it('"한 번 더 뽑기"로 게임이 다시 시작되면 게임 h1에 포커스가 간다', () => {
+      enterPullGame();
+      playPullToBufferFooter();
+
+      clickTestId(BUFFER_TEST_IDS.replayAction);
+
+      expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1 }));
+    });
+
+    it('replayCount가 남아 있는 상태로 /game에 진입하면 재시작 포커스를 하지 않는다', () => {
+      enterPullGame();
+      cleanup();
+      useSessionStore.getState().incrementReplayCount();
+
+      renderGamePage();
+
+      expect(document.activeElement).not.toBe(screen.getByRole('heading', { level: 1 }));
+    });
+
     it('다시 완료하면 버퍼가 처음부터 다시 재생된다', () => {
       enterPullGame();
       playPullToBufferFooter();

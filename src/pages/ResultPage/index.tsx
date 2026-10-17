@@ -6,6 +6,7 @@ import { useSessionStore } from '@stores/sessionStore';
 import { toExpressionStep } from '@utils/intensity';
 import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
+import { PAGE_NAMES } from '@constants/pageNames';
 import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
 import { useFireOnce } from '@hooks/useFireOnce';
 import IntensitySlider from '@components/IntensitySlider';
@@ -14,8 +15,10 @@ import MoodEmpty from './_components/MoodEmpty';
 import MoodDecreased from './_components/MoodDecreased';
 import MoodNotDecreased from './_components/MoodNotDecreased';
 import styles from './index.module.css';
-import { MOOD_DECREASED_TITLE, MOOD_NOT_DECREASED_TITLE } from './constants';
+import { MOOD_DECREASED_TITLE, MOOD_NOT_DECREASED_TITLE, SLIDER_QUESTION } from './constants';
 import { RESULT_TEST_IDS } from './testIds';
+
+const SLIDER_LABEL_ID = 'result-slider-label';
 
 const PROMPTS = [
   '내일의 나는 이 일을 어떻게 기억할까요?',
@@ -80,6 +83,7 @@ export default function ResultPage() {
 
   return (
     <>
+      <h1 className={styles.srOnly}>{PAGE_NAMES[PATHS.result]}</h1>
       {!cleared && <p className={styles.quitMessage}>시작한 것만으로도 오늘 몫은 했어요.</p>}
       <div className={`${styles.resultCard} ${decreased ? styles.resultCardWarm : ''}`}>
         {expressionStep === null ? (
@@ -99,9 +103,16 @@ export default function ResultPage() {
         )}
       </div>
 
-      <p className={styles.sliderLabel}>남아있는 감정의 무게는 얼마인가요?</p>
+      <p id={SLIDER_LABEL_ID} className={styles.sliderLabel}>
+        {SLIDER_QUESTION}
+      </p>
       <div className={styles.sliderWrap}>
-        <IntensitySlider value={intensity} onChange={setIntensity} valueText={valueText} />
+        <IntensitySlider
+          value={intensity}
+          onChange={setIntensity}
+          valueText={valueText}
+          labelledBy={SLIDER_LABEL_ID}
+        />
       </div>
 
       <div className={styles.memoBox}>
