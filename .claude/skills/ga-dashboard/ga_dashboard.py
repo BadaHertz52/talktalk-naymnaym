@@ -28,6 +28,10 @@ NOT_SET = '(not set)'
 # 도메인이 바뀌면 index.html의 debug_mode 호스트 조건도 같이 바꿀 것
 PROD_HOST = 'talktalk-naymnaym.vercel.app'
 MIN_SAMPLE = 200  # 기획안 §6-3: 모드별 game_mode_select 최소 표본
+MIN_DAYS = 28  # 기획안 §6-3: 배포 후 4주 이상 데이터로 판단
+MODES = ('pull', 'scratch')
+CHANGES = ('increased', 'decreased', 'same')
+INPUT_METHODS = ('tap', 'hold', 'mixed')
 
 FUNNEL = [
     ('입력', 'step_input_complete'),
@@ -66,16 +70,22 @@ def build_filter(events, host):
     return parts[0] if len(parts) == 1 else FilterExpression(and_group=FilterExpressionList(expressions=parts))
 
 
+ROW_LIMIT = 10000
+
+
 def run(client, prop, days, dims, mets, events=None, host=None):
     req = RunReportRequest(
         property=prop,
-        date_ranges=[DateRange(start_date=f'{days}daysAgo', end_date='today')],
+        # 오늘을 포함해 정확히 days일치
+        date_ranges=[DateRange(start_date=f'{max(days - 1, 0)}daysAgo', end_date='today')],
         dimensions=[Dimension(name=d) for d in dims],
         metrics=[Metric(name=m) for m in mets],
         dimension_filter=build_filter(events, host),
-        limit=10000,
+        limit=ROW_LIMIT,
     )
     res = client.run_report(req)
+    if res.row_count > len(res.rows):
+        raise RuntimeError(f'응답이 잘렸습니다({res.row_count}행 > {ROW_LIMIT}행). --days를 줄이세요.')
     out = []
     for row in res.rows:
         item = {d: v.value for d, v in zip(dims, row.dimension_values)}
@@ -97,13 +107,21 @@ def fmt(v, digits=0):
     return '–' if v is None else f'{v:,.{digits}f}'
 
 
-def band(v):
-    try:
-        n = int(float(v))
-    except ValueError:
-        return '미수집'
+def clean(v, allowed):
+    # GA 이벤트는 누구나 임의 값으로 보낼 수 있어, 허용 값 밖은 미수집으로 묶어 집계 키 오염을 막는다
+    return v if v in allowed else NOT_SET
 
-    return '1–2' if n <= 2 else '3' if n == 3 else '4–5'
+
+def mode_of(r):
+    return clean(r['customEvent:game_mode'], MODES)
+
+
+def band(v):
+    return {'1': '1–2', '2': '1–2', '3': '3', '4': '4–5', '5': '4–5'}.get(v, '미수집')
+
+
+def avg_sec(total_ms, n):
+    return total_ms / n / 1000 if n else None
 
 
 def collect(client, prop, days, host):
@@ -121,7 +139,7 @@ def collect(client, prop, days, host):
     data['game'] = q(
         [cd('game_mode'), cd('game_cleared'), cd('buffer_skipped'), cd('pull_input_method')],
         ['eventCount', cd('game_duration_ms'), cd('buffer_dwell_ms'), cd('game_replay_count'),
-         cd('pull_taps'), cd('scratch_ratio')], ['step_game_complete'])
+         cd('pull_taps')], ['step_game_complete'])
     data['prompt'] = q(
         ['eventName', cd('game_mode')], ['eventCount', cd('decision_ms')],
         ['game_mode_select', 'game_mode_dismiss', 'game_mode_prompt_view'])
@@ -135,11 +153,12 @@ def analyze(d):
     users = lambda n: ev.get(n, {}).get('totalUsers', 0)
     count = lambda n: ev.get(n, {}).get('eventCount', 0)
 
+    home = next((r['totalUsers'] for r in d['pages'] if r['pagePath'] == '/'), 0)
+    steps = [('홈 방문', 'page_view /', home)] + [(label, name, users(name)) for label, name in FUNNEL]
     funnel, prev = [], None
-    for label, name in FUNNEL:
-        u = users(name)
+    for label, name, u in steps:
         funnel.append({'label': label, 'event': name, 'users': u, 'prev_rate': ratio(u, prev)})
-        prev = u or prev
+        prev = u or prev  # 0명 단계(운영에 미배포된 이벤트 등)는 건너뛰고 직전 단계 대비로 계산
 
     a = {
         'users': d['totals'][0]['totalUsers'] if d['totals'] else 0,
@@ -167,48 +186,51 @@ def analyze(d):
             c = r['customEvent:intensity_change']
             n = r['eventCount']
             agg[k]['total'] += n
-            if c in agg[k]:
+            if c in CHANGES:
                 agg[k][c] += n
 
         return agg
 
     rr = d['result']
-    a['worsen_by_mode'] = worsen(rr, lambda r: r['customEvent:game_mode'])
-    a['worsen_by_mode_clean'] = worsen(
-        [r for r in rr if r['customEvent:buffer_skipped'] != 'true'], lambda r: r['customEvent:game_mode'])
+    a['worsen_by_mode'] = worsen(rr, mode_of)
+    a['worsen_by_mode_clean'] = worsen([r for r in rr if r['customEvent:buffer_skipped'] != 'true'], mode_of)
     a['worsen_by_band'] = worsen(
         [r for r in rr if r['customEvent:buffer_skipped'] != 'true'],
-        lambda r: (r['customEvent:game_mode'], band(r['customEvent:intensity_before'])))
+        lambda r: (mode_of(r), band(r['customEvent:intensity_before'])))
 
     # 게임: 모드별 완주율, 평균 지표
     g = defaultdict(lambda: defaultdict(float))
     for r in d['game']:
-        m = r['customEvent:game_mode']
+        m = mode_of(r)
         n = r['eventCount']
         g[m]['total'] += n
         if r['customEvent:game_cleared'] == 'true':
             g[m]['cleared'] += n
+            g[m]['game_duration_ms'] += r['customEvent:game_duration_ms']  # 완주 시간만 (중도 이탈 제외)
             if r['customEvent:buffer_skipped'] == 'true':
                 g[m]['skipped'] += n
-        for k in ('game_duration_ms', 'buffer_dwell_ms', 'game_replay_count', 'pull_taps', 'scratch_ratio'):
+        for k in ('buffer_dwell_ms', 'game_replay_count', 'pull_taps'):
             g[m][k] += r[f'customEvent:{k}']
-        g[m]['m_' + r['customEvent:pull_input_method']] += n
+        g[m]['m_' + clean(r['customEvent:pull_input_method'], INPUT_METHODS)] += n
     a['game'] = {m: dict(v) for m, v in g.items()}
 
     # 방식 선택
     p = defaultdict(lambda: defaultdict(float))
     for r in d['prompt']:
         k = r['eventName']
-        m = r['customEvent:game_mode']
-        p[k][m] += r['eventCount']
-        p[k]['decision_sum'] += r['customEvent:decision_ms']
-        p[k]['decision_n'] += r['eventCount']
+        p[k][mode_of(r)] += r['eventCount']
+        if r['customEvent:decision_ms'] > 0:  # 등록 이전 행은 0이라 분모에 섞으면 평균이 낮아진다
+            p[k]['decision_sum'] += r['customEvent:decision_ms']
+            p[k]['decision_n'] += r['eventCount']
     a['prompt'] = {k: dict(v) for k, v in p.items()}
-    a['select_by_mode'] = {m: v for m, v in p.get('game_mode_select', {}).items() if m in ('pull', 'scratch')}
+    a['select_by_mode'] = {m: v for m, v in p.get('game_mode_select', {}).items() if m in MODES}
 
-    ab = {r['customEvent:game_mode']: r for r in d['abandon']}
-    a['abandon'] = {m: {'count': r['eventCount'], 'avg_progress': ratio(r['customEvent:progress_ratio'], r['eventCount'])}
-                    for m, r in ab.items()}
+    ab = defaultdict(lambda: {'count': 0.0, 'progress': 0.0})
+    for r in d['abandon']:
+        m = mode_of(r)
+        ab[m]['count'] += r['eventCount']
+        ab[m]['progress'] += r['customEvent:progress_ratio']
+    a['abandon'] = {m: {'count': v['count'], 'avg_progress': ratio(v['progress'], v['count'])} for m, v in ab.items()}
 
     return a
 
@@ -244,6 +266,8 @@ def render(a, days, generated, host):
     out = [f'<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
            f'<title>톡톡냠냠 GA 대시보드</title><style>{CSS}</style></head><body><main>',
            f'<h1>톡톡냠냠 GA 대시보드</h1><div class="sub">최근 {days}일 · 호스트 {esc(host or "전체(localhost·프리뷰 포함)")} · 생성 {esc(generated)} · 읽기 전용 스냅샷 (갱신: ga_dashboard.py 재실행)</div>']
+    if days < MIN_DAYS:
+        out.append(f'<div class="warn">⚠ 분석 기간 {days}일 — 기획안은 배포 후 {MIN_DAYS}일(4주) 이상 데이터로 판단하도록 정했습니다 (§6-3). 지금 값은 방향성 참고용입니다.</div>')
 
     # 1. 요약
     worsen_all = a['worsen_by_mode_clean']
@@ -254,11 +278,11 @@ def render(a, days, generated, host):
     out.append(card('세션', fmt(a['sessions'])))
     out.append(card('세션 완주율', pct(a['completion_rate']), '종료 도달 ÷ 입력 완료 (사용자 기준)'))
     out.append(card('악화 비율', f'<span class="{"bad" if tot and inc / tot > 0.1 else ""}">{pct(ratio(inc, tot))}</span>',
-                    f'버퍼 건너뛰기 제외 결과 완료 {fmt(tot)}건 중 강도 상승 {fmt(inc)}건'))
+                    f'버퍼 건너뛰기 제외 · 등록 이전 데이터는 건너뛰기 여부를 몰라 포함 · 결과 완료 {fmt(tot)}건 중 강도 상승 {fmt(inc)}건'))
     out.append('</div>')
     if a['daily']:
         mx = max(max(d['step_input_complete'], d['step_end_reached']) for d in a['daily']) or 1
-        bars = ''.join(f'<b title="{d["date"]}: 입력 {int(d["step_input_complete"])} / 종료 {int(d["step_end_reached"])}" '
+        bars = ''.join(f'<b title="{esc(d["date"][:4] + "-" + d["date"][4:6] + "-" + d["date"][6:])}: 입력 {int(d["step_input_complete"])} / 종료 {int(d["step_end_reached"])}" '
                        f'style="height:{d["step_end_reached"] / mx * 100:.0f}%"></b>' for d in a['daily'])
         out.append(f'<div class="card" style="margin-top:12px"><div class="k">일별 종료 도달 사용자 (막대 위에 마우스를 올리면 입력 대비 수치)</div><div class="spark">{bars}</div></div>')
 
@@ -266,8 +290,9 @@ def render(a, days, generated, host):
     out.append('<h2>2. 퍼널 — 어디서 나가는가</h2><div class="card">')
     mx = max((f['users'] for f in a['funnel']), default=0) or 1
     for f in a['funnel']:
+        text = '0명 (미배포이거나 기간 내 없음)' if f['users'] == 0 else f'{fmt(f["users"])}명 · {pct(f["prev_rate"])}'
         out.append(f'<div class="row"><span>{esc(f["label"])}</span><div class="bar"><i style="width:{f["users"] / mx * 100:.1f}%"></i></div>'
-                   f'<span>{fmt(f["users"])}명 · {pct(f["prev_rate"])}</span></div>')
+                   f'<span>{text}</span></div>')
     out.append(f'<div class="hint">오른쪽 %는 이전 단계 대비. 게임 종료→결과 완료 {pct(a["game_to_result"])}, '
                f'방식 선택 화면 닫기 비율 {pct(a["prompt_dismiss_rate"])}, 중도 이탈 {fmt(a["abandon_count"])}건.</div></div>')
 
@@ -279,14 +304,14 @@ def render(a, days, generated, host):
         out.append(f'<div class="warn">⚠ 모드별 선택 {MIN_SAMPLE}건 미만 ({", ".join(label_mode(m) + " " + fmt(sel.get(m, 0)) for m in ("pull", "scratch"))}). '
                    '방향성만 참고하고 제거·변경 판단은 하지 않습니다 (기획안 §6-3). 맞춤 정의는 2026-10-16 이후 데이터부터 쪼개집니다.</div>')
     out.append('<div class="card"><table><tr><th>방식</th><th>선택</th><th>게임 종료</th><th>완주율</th><th>건너뛰기율</th>'
-               '<th>평균 시간(초)</th><th>평균 반복</th><th>악화 비율*</th></tr>')
+               '<th>완주 평균 시간(초)</th><th>평균 반복</th><th>악화 비율*</th></tr>')
     modes = sorted(set(a['game']) | set(a['worsen_by_mode_clean']), key=lambda m: (m == NOT_SET, m))
     for m in modes:
         g = a['game'].get(m, {})
         w = a['worsen_by_mode_clean'].get(m, {})
         t = g.get('total', 0)
         collected = m != NOT_SET  # 등록 이전 행은 측정항목이 0으로 집계되므로 '–'로 표시
-        dur = g['game_duration_ms'] / t / 1000 if collected and t else None
+        dur = avg_sec(g.get('game_duration_ms', 0), g.get('cleared', 0)) if collected else None
         rep = ratio(g.get('game_replay_count', 0), t) if collected else None
         out.append(f'<tr><td>{esc(label_mode(m))}</td><td>{fmt(sel.get(m, 0))}</td><td>{fmt(t)}</td>'
                    f'<td>{pct(ratio(g.get("cleared", 0), t) if collected else None)}</td>'
@@ -314,9 +339,9 @@ def render(a, days, generated, host):
     dwell = sum(g.get('buffer_dwell_ms', 0) for g in a['game'].values())
     out.append('<h2>5. 모달 · 버퍼 · 입력 행태</h2><div class="grid">')
     out.append(card('모달 닫기 비율', pct(ratio(dis, view)), f'화면 {fmt(view)}회 중 {fmt(dis)}회'))
-    out.append(card('모달 평균 체류(초)', fmt(ratio(dsum, dn) and dsum / dn / 1000, 1), '선택 또는 닫기까지'))
+    out.append(card('모달 평균 체류(초)', fmt(avg_sec(dsum, dn), 1), '선택 또는 닫기까지 · 평균값(분포 판단 불가) · 등록 이전 행 제외'))
     out.append(card('버퍼 건너뛰기율', pct(ratio(skipped, cleared)), f'완주 {fmt(cleared)}건 중'))
-    out.append(card('버퍼 평균 체류(초)', fmt(ratio(dwell, cleared) and dwell / cleared / 1000, 1), '3.0초 직후에 몰리면 적정'))
+    out.append(card('버퍼 평균 체류(초)', fmt(avg_sec(dwell, cleared), 1), '평균값이라 3.0초 근처인지만 참고 (몰림 여부는 분포라 판단 불가)'))
     out.append('</div>')
     pm = a['game'].get('pull', {})
     pt = pm.get('total', 0)
