@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { PULL_GAME_TEST_IDS } from '../../../_constants/pullGameTestIds';
-import { PULL_START_INSTRUCTION } from './pullHint';
 import styles from '../index.module.css';
 
 const PullInstructions = memo(function PullInstructions() {
@@ -8,9 +7,6 @@ const PullInstructions = memo(function PullInstructions() {
     <>
       <h1 className={styles.heading}>냠냠… 뽑는 중</h1>
       <div className={styles.instructions} data-testid={PULL_GAME_TEST_IDS.instructions}>
-        <span className={styles.srOnly} data-testid={PULL_GAME_TEST_IDS.startInstruction}>
-          {PULL_START_INSTRUCTION}
-        </span>
         <div
           className={styles.instructionRow}
           data-testid={PULL_GAME_TEST_IDS.singlePullInstruction}

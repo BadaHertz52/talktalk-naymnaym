@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useSessionStore } from '@stores/sessionStore';
 import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import PullGame from '.';
-import { HINT_TEXT, PULL_START_INSTRUCTION } from './_components/pullHint';
+import { HINT_TEXT } from './_components/pullHint';
 import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL } from './_components/pullActionLabels';
 
 function setupFakeClock() {
@@ -191,15 +191,18 @@ describe('PullGame', () => {
       expect(getProgressValue()).toBe(2);
     });
 
-    it.each([' ', 'Enter', 'ArrowUp'])('%j를 누르고 있어 repeat 이벤트만 오면 게이지가 오르지 않는다', (key) => {
-      setupFakeClock();
-      renderPullGame();
+    it.each([' ', 'Enter', 'ArrowUp'])(
+      '%j를 누르고 있어 repeat 이벤트만 오면 게이지가 오르지 않는다',
+      (key) => {
+        setupFakeClock();
+        renderPullGame();
 
-      fireEvent.keyDown(document.body, { key, repeat: true });
-      fireEvent.keyDown(document.body, { key, repeat: true });
+        fireEvent.keyDown(document.body, { key, repeat: true });
+        fireEvent.keyDown(document.body, { key, repeat: true });
 
-      expect(getProgressValue()).toBe(0);
-    });
+        expect(getProgressValue()).toBe(0);
+      },
+    );
 
     it('여기까지 할래요 ▸에 포커스된 채 Space를 누르면 1타가 아니라 이탈이 동작한다', () => {
       setupFakeClock();
@@ -517,16 +520,16 @@ describe('PullGame', () => {
       expect(instructions.querySelector('kbd')).toBeNull();
     });
 
-    it('안내 첫 줄에 화면에는 보이지 않는 시작 문구가 있다', () => {
+    it('진행률이 0이면 힌트가 시작 전 문구이고 첫 탭부터 뽑는 중 문구가 된다', () => {
       setupFakeClock();
       renderPullGame();
+      const hint = screen.getByTestId(PULL_GAME_TEST_IDS.hint);
+      const beforeTap = { level: hint.getAttribute('data-level'), text: hint.textContent };
 
-      const instruction = screen.getByTestId(PULL_GAME_TEST_IDS.startInstruction);
+      tap(1);
 
-      expect(instruction.textContent).toBe(PULL_START_INSTRUCTION);
-      expect(screen.getByTestId(PULL_GAME_TEST_IDS.instructions).firstElementChild).toBe(
-        instruction,
-      );
+      expect(beforeTap).toEqual({ level: 'start', text: HINT_TEXT.start });
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.progress);
     });
 
     it('진행률 0~70% / 70~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {

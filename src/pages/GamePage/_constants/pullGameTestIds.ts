@@ -11,5 +11,4 @@ export const PULL_GAME_TEST_IDS = {
   singlePullInstruction: 'pull-game-single-pull-instruction',
   continuousPullInstruction: 'pull-game-continuous-pull-instruction',
   hint: 'pull-game-hint',
-  startInstruction: 'pull-game-start-instruction',
 } as const;

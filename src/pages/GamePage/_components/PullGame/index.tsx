@@ -64,7 +64,7 @@ export default function PullGame({ onNext, onQuit }: Props) {
 
   const announcement = getAnnouncement({
     completed,
-    started: inputCount > 0,
+    started: progress > 0,
     resting: hint.level === 'rest',
   });
 
