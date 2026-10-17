@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { clsx } from 'clsx';
 import PullActions from './_components/PullActions';
 import PullField from './_components/PullField';
 import PullGauge from './_components/PullGauge';
+import { getPullHint } from './_components/pullHint';
 import PullInstructions from './_components/PullInstructions';
 import { usePullIdleLevel } from './_hooks/usePullIdleLevel';
 import { usePullSession } from './_hooks/usePullSession';
@@ -26,6 +27,21 @@ interface Props {
   onQuit: (result: PullPlayResult) => void;
 }
 
+function getAnnouncement({
+  completed,
+  showHint,
+  hintText,
+}: {
+  completed: boolean;
+  showHint: boolean;
+  hintText: string;
+}) {
+  if (completed) return COMPLETE_ANNOUNCEMENT;
+  if (showHint) return hintText;
+
+  return '';
+}
+
 export default function PullGame({ onNext, onQuit }: Props) {
   const mountedAtRef = useRef(performance.now());
   const completedDurationRef = useRef<number | null>(null);
@@ -41,6 +57,20 @@ export default function PullGame({ onNext, onQuit }: Props) {
   const { progress, inputCount, holding, completed } = session;
   const idleLevel = usePullIdleLevel({ inputCount, holding, completed });
 
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const hint = getPullHint({ progress, resting: idleLevel === 'rest' });
+
+  const showHint = inputCount > 0 || hint.level === 'rest';
+  const announcement = getAnnouncement({ completed, showHint, hintText: hint.text });
+
+  // 뽑기 버튼이 언마운트되며 포커스가 body로 빠지므로 "다음 ▸"로 옮긴다. 다른 요소에 둔 포커스는 건드리지 않는다
+  useLayoutEffect(() => {
+    if (!completed) return;
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    nextRef.current?.focus();
+  }, [completed]);
+
   useEffect(() => {
     if (completed)
       completedDurationRef.current ??= Math.round(performance.now() - mountedAtRef.current);
@@ -54,12 +84,13 @@ export default function PullGame({ onNext, onQuit }: Props) {
     >
       <div className={styles.contentGroup}>
         <PullInstructions />
-        <PullField progress={progress} completed={completed} resting={idleLevel === 'rest'} />
+        <PullField progress={progress} completed={completed} hint={hint} />
         <PullGauge progress={progress} />
       </div>
 
       <PullActions
         completed={completed}
+        nextRef={nextRef}
         idleLevel={idleLevel}
         onQuit={() => onQuit(buildResult())}
         onArmNext={session.armNext}
@@ -74,7 +105,7 @@ export default function PullGame({ onNext, onQuit }: Props) {
         aria-live="polite"
         data-testid={PULL_GAME_TEST_IDS.completionAnnouncement}
       >
-        {completed ? COMPLETE_ANNOUNCEMENT : ''}
+        {announcement}
       </p>
     </section>
   );

@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useSessionStore } from '@stores/sessionStore';
 import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import PullGame from '.';
+import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL } from './_components/pullActionLabels';
 
 function setupFakeClock() {
   vi.useFakeTimers({
@@ -387,15 +388,25 @@ describe('PullGame', () => {
       expect(onNext).not.toHaveBeenCalled();
     });
 
-    it('완료되면 뽑기 버튼 요소가 다음 ▸로 재사용되지 않아 뽑기 버튼 포커스가 넘어오지 않는다', () => {
+    it('뽑기 버튼에 포커스가 있다가 완료되면 포커스가 다음 ▸으로 옮겨진다', () => {
       setupFakeClock();
       renderPullGame();
-      const pullButton = getPrimaryButton();
-      pullButton.focus();
+      getPrimaryButton().focus();
 
       tap(40);
 
-      expect(document.activeElement).not.toBe(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction));
+      expect(document.activeElement).toBe(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction));
+    });
+
+    it('그만두기에 포커스를 둔 채 완료돼도 포커스는 그대로다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const quit = screen.getByTestId(PULL_GAME_TEST_IDS.quitAction);
+      quit.focus();
+
+      tap(40);
+
+      expect(document.activeElement).toBe(quit);
     });
 
     it('완료하면 완료 상태와 성공 이미지가 보인다', () => {
@@ -517,6 +528,18 @@ describe('PullGame', () => {
         'none',
       );
       expect(getProgressValue()).toBe(2);
+    });
+
+    it('무입력 강조 중에는 뽑기 버튼의 접근 가능한 이름이 보이는 글자로 시작하고 뽑기를 포함한다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      advance(8000);
+
+      const label = screen.getByTestId(PULL_GAME_TEST_IDS.pullAction).getAttribute('aria-label');
+      expect(label).toBe(IDLE_PULL_ARIA_LABEL);
+      expect(label?.startsWith(IDLE_PULL_LABEL)).toBe(true);
+      expect(label).toContain('뽑기');
     });
 
     it('20초 동안 입력이 없으면 쉬어도 된다는 문구가 나타나고 저절로 사라지지 않는다', () => {
