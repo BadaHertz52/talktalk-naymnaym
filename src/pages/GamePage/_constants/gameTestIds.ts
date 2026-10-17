@@ -2,6 +2,7 @@ export const SCRATCH_GAME_TEST_IDS = {
   heading: 'scratch-game-heading',
   canvas: 'scratch-game-canvas',
   progress: 'scratch-game-progress',
+  announcement: 'scratch-game-announcement',
   nextAction: 'scratch-game-next-action',
   quitAction: 'scratch-game-quit-action',
 } as const;
