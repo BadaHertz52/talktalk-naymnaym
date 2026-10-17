@@ -1,10 +1,12 @@
 const HINT_NEAR = 70;
 const HINT_CLOSE = 90;
 
+export const PULL_START_INSTRUCTION = '당근을 뽑아보세요';
+
 export type PullHintLevel = 'progress' | 'near' | 'close' | 'rest';
 
-const HINT_TEXT: Record<PullHintLevel, string> = {
-  progress: '당근이 뽑히는 중이에요',
+export const HINT_TEXT: Record<PullHintLevel, string> = {
+  progress: '당근을 뽑는 중이에요',
   near: '거의 올라왔어요',
   close: '조금만 더!',
   rest: '쉬어도 괜찮아요. 준비되면 이어서 해요.',

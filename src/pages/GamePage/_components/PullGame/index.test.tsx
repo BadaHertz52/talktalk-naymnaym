@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useSessionStore } from '@stores/sessionStore';
 import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import PullGame from '.';
+import { HINT_TEXT, PULL_START_INSTRUCTION } from './_components/pullHint';
 import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL } from './_components/pullActionLabels';
 
 function setupFakeClock() {
@@ -451,6 +452,48 @@ describe('PullGame', () => {
       expect(liveRegion.textContent).toBe(afterComplete);
     });
 
+    it('첫 탭 전에는 live 영역이 비어 있고 첫 탭 이후 뽑는 중 문구가 된다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const liveRegion = screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement);
+      const beforeTap = liveRegion.textContent;
+
+      tap(1);
+
+      expect(beforeTap).toBe('');
+      expect(liveRegion.textContent).toBe(HINT_TEXT.progress);
+    });
+
+    it('진행률이 70%와 90%를 넘어도 live 문구는 뽑는 중 그대로이고 화면 힌트는 단계별로 바뀐다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const liveRegion = screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement);
+
+      tap(28);
+      const atNear = liveRegion.textContent;
+      const nearLevel = screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level');
+      tap(8);
+
+      expect(atNear).toBe(HINT_TEXT.progress);
+      expect(liveRegion.textContent).toBe(HINT_TEXT.progress);
+      expect(nearLevel).toBe('near');
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('close');
+    });
+
+    it('쉬는 상태에서는 쉬어도 된다는 문구가 되고 다시 탭하면 뽑는 중으로 돌아온다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const liveRegion = screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement);
+
+      tap(1);
+      advance(20_000);
+      const resting = liveRegion.textContent;
+      tap(1);
+
+      expect(resting).toBe(HINT_TEXT.rest);
+      expect(liveRegion.textContent).toBe(HINT_TEXT.progress);
+    });
+
     it('세션에 감정 텍스트가 있어도 화면에 렌더하지 않는다', () => {
       setupFakeClock();
       useSessionStore.getState().completeInput({ text: '발표를 망친 것 같아', secretMode: false });
@@ -472,6 +515,18 @@ describe('PullGame', () => {
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.singlePullInstruction)).toBeTruthy();
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.continuousPullInstruction)).toBeTruthy();
       expect(instructions.querySelector('kbd')).toBeNull();
+    });
+
+    it('안내 첫 줄에 화면에는 보이지 않는 시작 문구가 있다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      const instruction = screen.getByTestId(PULL_GAME_TEST_IDS.startInstruction);
+
+      expect(instruction.textContent).toBe(PULL_START_INSTRUCTION);
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.instructions).firstElementChild).toBe(
+        instruction,
+      );
     });
 
     it('진행률 0~70% / 70~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {

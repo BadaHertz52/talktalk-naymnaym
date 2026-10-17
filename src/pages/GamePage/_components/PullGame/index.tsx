@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import PullActions from './_components/PullActions';
 import PullField from './_components/PullField';
 import PullGauge from './_components/PullGauge';
-import { getPullHint } from './_components/pullHint';
+import { getPullHint, HINT_TEXT } from './_components/pullHint';
 import PullInstructions from './_components/PullInstructions';
 import { usePullIdleLevel } from './_hooks/usePullIdleLevel';
 import { usePullSession } from './_hooks/usePullSession';
@@ -27,17 +27,19 @@ interface Props {
   onQuit: (result: PullPlayResult) => void;
 }
 
+// 진행 단계(70·90%)가 바뀌어도 스크린리더에는 같은 문구를 유지해 반복 낭독을 막는다
 function getAnnouncement({
   completed,
-  showHint,
-  hintText,
+  started,
+  resting,
 }: {
   completed: boolean;
-  showHint: boolean;
-  hintText: string;
+  started: boolean;
+  resting: boolean;
 }) {
   if (completed) return COMPLETE_ANNOUNCEMENT;
-  if (showHint) return hintText;
+  if (resting) return HINT_TEXT.rest;
+  if (started) return HINT_TEXT.progress;
 
   return '';
 }
@@ -60,8 +62,11 @@ export default function PullGame({ onNext, onQuit }: Props) {
   const nextRef = useRef<HTMLButtonElement>(null);
   const hint = getPullHint({ progress, resting: idleLevel === 'rest' });
 
-  const showHint = inputCount > 0 || hint.level === 'rest';
-  const announcement = getAnnouncement({ completed, showHint, hintText: hint.text });
+  const announcement = getAnnouncement({
+    completed,
+    started: inputCount > 0,
+    resting: hint.level === 'rest',
+  });
 
   // 뽑기 버튼이 언마운트되며 포커스가 body로 빠지므로 "다음 ▸"로 옮긴다. 다른 요소에 둔 포커스는 건드리지 않는다
   useLayoutEffect(() => {
