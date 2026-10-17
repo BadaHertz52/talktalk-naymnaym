@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { GameMode } from '@/types/session';
 import { useSessionStore } from '@stores/sessionStore';
+import { focusHeading } from '@components/PageLayout/focusHeading';
 import { BUFFER_PRELOAD, RESULT_PAGE_PRELOAD } from '@game/assets';
 import { PATHS } from '@constants/paths';
 import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
@@ -103,6 +104,14 @@ export default function GamePage() {
   useEffect(() => {
     if (gameMode === null) navigate(PATHS.measure, { replace: true });
   }, [gameMode, navigate]);
+
+  // 진입은 PageLayout이 안내한다. 이 마운트 중 "한 번 더"로 replayCount가 늘어 다시 playing이 될 때만 여기서 안내한다
+  const initialReplayCountRef = useRef(replayCount);
+  useEffect(() => {
+    if (replayCount > initialReplayCountRef.current && phase.name === 'playing') {
+      focusHeading(document.querySelector('main') ?? document);
+    }
+  }, [replayCount, phase.name]);
 
   useEffect(() => {
     [...RESULT_PAGE_PRELOAD, ...BUFFER_PRELOAD].forEach((src) => {

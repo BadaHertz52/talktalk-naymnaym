@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export type IdleLevel = 'none' | 'relax' | 'slow' | 'rest';
+export type IdleLevel = 'none' | 'relax' | 'rest';
 
 const IDLE_RELAX_MS = 3000;
-const IDLE_SLOW_MS = 8000;
-const IDLE_REST_MS = 20_000;
+// 버튼 라벨과 힌트·스크린리더 안내가 같은 시점에 바뀌도록 멈춤 단계는 하나로 둔다 (#81)
+const IDLE_REST_MS = 8000;
 
 interface UsePullIdleLevelOptions {
   inputCount: number;
@@ -18,7 +18,6 @@ export function usePullIdleLevel({
   completed,
 }: UsePullIdleLevelOptions): IdleLevel {
   const [idleLevel, setIdleLevel] = useState<IdleLevel>('none');
-  const restShownRef = useRef(false);
 
   useEffect(() => {
     setIdleLevel('none');
@@ -29,13 +28,7 @@ export function usePullIdleLevel({
 
     const timeoutIds = [
       setTimeout(() => setIdleLevel('relax'), IDLE_RELAX_MS),
-      setTimeout(() => setIdleLevel('slow'), IDLE_SLOW_MS),
-      setTimeout(() => {
-        if (!restShownRef.current) {
-          restShownRef.current = true;
-          setIdleLevel('rest');
-        }
-      }, IDLE_REST_MS),
+      setTimeout(() => setIdleLevel('rest'), IDLE_REST_MS),
     ];
 
     return () => timeoutIds.forEach(clearTimeout);

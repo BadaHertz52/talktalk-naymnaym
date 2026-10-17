@@ -61,14 +61,14 @@ export default function ArousalBuffer({ topMessage, footer }: Props) {
 
   return (
     <section className={styles.buffer}>
-      <h2
+      <h1
         ref={topMessageRef}
         tabIndex={-1}
         className={styles.topMessage}
         data-testid={BUFFER_TEST_IDS.topMessage}
       >
         {topMessage}
-      </h2>
+      </h1>
       <div className={styles.scene}>
         <img
           src={reducedMotion ? ASSETS.buffer.sceneStill : ASSETS.buffer.scene}

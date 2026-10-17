@@ -19,6 +19,37 @@
   color: var(--color-white);
 }
 
+.trackWrap {
+  position: relative;
+  container-type: inline-size;
+}
+
+/* 네이티브 range는 thumb 반폭만큼 안쪽에서 값을 매긴다. thumb을 한 칸 폭(10cqw)으로 두면
+   input을 트랙 전체(inset 0)로 넓혀도 10개 값이 세그먼트 중심과 맞고 양 끝 반 칸까지 클릭된다 */
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  appearance: none;
+  z-index: 1;
+}
+
+.input::-webkit-slider-thumb {
+  appearance: none;
+  width: 10cqw;
+  height: 0;
+}
+
+.input::-moz-range-thumb {
+  width: 10cqw;
+  height: 0;
+  border: 0;
+}
+
 .track {
   display: flex;
   gap: 3px;
@@ -28,7 +59,7 @@
   cursor: pointer;
 }
 
-.track:focus-visible {
+.input:focus-visible + .track {
   outline: 2px solid var(--color-primary-light);
   outline-offset: 2px;
 }

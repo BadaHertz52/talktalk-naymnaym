@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useSessionStore } from '@stores/sessionStore';
 import { PULL_GAME_TEST_IDS } from '../../_constants/pullGameTestIds';
 import PullGame from '.';
+import { HINT_TEXT } from './_utils/pullHint';
+import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL } from './pullActionLabels';
 
 function setupFakeClock() {
   vi.useFakeTimers({
@@ -189,15 +191,18 @@ describe('PullGame', () => {
       expect(getProgressValue()).toBe(2);
     });
 
-    it.each([' ', 'Enter', 'ArrowUp'])('%j를 누르고 있어 repeat 이벤트만 오면 게이지가 오르지 않는다', (key) => {
-      setupFakeClock();
-      renderPullGame();
+    it.each([' ', 'Enter', 'ArrowUp'])(
+      '%j를 누르고 있어 repeat 이벤트만 오면 게이지가 오르지 않는다',
+      (key) => {
+        setupFakeClock();
+        renderPullGame();
 
-      fireEvent.keyDown(document.body, { key, repeat: true });
-      fireEvent.keyDown(document.body, { key, repeat: true });
+        fireEvent.keyDown(document.body, { key, repeat: true });
+        fireEvent.keyDown(document.body, { key, repeat: true });
 
-      expect(getProgressValue()).toBe(0);
-    });
+        expect(getProgressValue()).toBe(0);
+      },
+    );
 
     it('여기까지 할래요 ▸에 포커스된 채 Space를 누르면 1타가 아니라 이탈이 동작한다', () => {
       setupFakeClock();
@@ -387,15 +392,25 @@ describe('PullGame', () => {
       expect(onNext).not.toHaveBeenCalled();
     });
 
-    it('완료되면 뽑기 버튼 요소가 다음 ▸로 재사용되지 않아 뽑기 버튼 포커스가 넘어오지 않는다', () => {
+    it('뽑기 버튼에 포커스가 있다가 완료되면 포커스가 다음 ▸으로 옮겨진다', () => {
       setupFakeClock();
       renderPullGame();
-      const pullButton = getPrimaryButton();
-      pullButton.focus();
+      getPrimaryButton().focus();
 
       tap(40);
 
-      expect(document.activeElement).not.toBe(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction));
+      expect(document.activeElement).toBe(screen.getByTestId(PULL_GAME_TEST_IDS.nextAction));
+    });
+
+    it('그만두기에 포커스를 둔 채 완료돼도 포커스는 그대로다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const quit = screen.getByTestId(PULL_GAME_TEST_IDS.quitAction);
+      quit.focus();
+
+      tap(40);
+
+      expect(document.activeElement).toBe(quit);
     });
 
     it('완료하면 완료 상태와 성공 이미지가 보인다', () => {
@@ -440,6 +455,48 @@ describe('PullGame', () => {
       expect(liveRegion.textContent).toBe(afterComplete);
     });
 
+    it('첫 탭 전에는 live 영역이 비어 있고 첫 탭 이후 뽑는 중 문구가 된다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const liveRegion = screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement);
+      const beforeTap = liveRegion.textContent;
+
+      tap(1);
+
+      expect(beforeTap).toBe('');
+      expect(liveRegion.textContent).toBe(HINT_TEXT.progress);
+    });
+
+    it('진행률이 70%와 90%를 넘어도 live 문구는 뽑는 중 그대로이고 화면 힌트는 단계별로 바뀐다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const liveRegion = screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement);
+
+      tap(28);
+      const atNear = liveRegion.textContent;
+      const nearLevel = screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level');
+      tap(8);
+
+      expect(atNear).toBe(HINT_TEXT.progress);
+      expect(liveRegion.textContent).toBe(HINT_TEXT.progress);
+      expect(nearLevel).toBe('near');
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('close');
+    });
+
+    it('쉬는 상태에서는 쉬어도 된다는 문구가 되고 다시 탭하면 뽑는 중으로 돌아온다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const liveRegion = screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement);
+
+      tap(1);
+      advance(8000);
+      const resting = liveRegion.textContent;
+      tap(1);
+
+      expect(resting).toBe(HINT_TEXT.rest);
+      expect(liveRegion.textContent).toBe(HINT_TEXT.progress);
+    });
+
     it('세션에 감정 텍스트가 있어도 화면에 렌더하지 않는다', () => {
       setupFakeClock();
       useSessionStore.getState().completeInput({ text: '발표를 망친 것 같아', secretMode: false });
@@ -461,6 +518,18 @@ describe('PullGame', () => {
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.singlePullInstruction)).toBeTruthy();
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.continuousPullInstruction)).toBeTruthy();
       expect(instructions.querySelector('kbd')).toBeNull();
+    });
+
+    it('진행률이 0이면 힌트가 시작 전 문구이고 첫 탭부터 뽑는 중 문구가 된다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const hint = screen.getByTestId(PULL_GAME_TEST_IDS.hint);
+      const beforeTap = { level: hint.getAttribute('data-level'), text: hint.textContent };
+
+      tap(1);
+
+      expect(beforeTap).toEqual({ level: 'start', text: HINT_TEXT.start });
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.progress);
     });
 
     it('진행률 0~70% / 70~90% / 90% 이상에서 힌트가 3단계로 바뀐다', () => {
@@ -507,7 +576,7 @@ describe('PullGame', () => {
       advance(8000);
       const idleButton = screen.getByTestId(PULL_GAME_TEST_IDS.pullAction);
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
-        'slow',
+        'rest',
       );
       fireEvent.pointerDown(idleButton);
       fireEvent.pointerUp(idleButton);
@@ -519,16 +588,62 @@ describe('PullGame', () => {
       expect(getProgressValue()).toBe(2);
     });
 
-    it('20초 동안 입력이 없으면 쉬어도 된다는 문구가 나타나고 저절로 사라지지 않는다', () => {
+    it('무입력 강조 중에는 뽑기 버튼의 접근 가능한 이름이 보이는 글자로 시작하고 뽑기를 포함한다', () => {
       setupFakeClock();
       renderPullGame();
 
-      advance(20_000);
-      const hint = screen.getByTestId(PULL_GAME_TEST_IDS.hint);
+      advance(8000);
+
+      const label = screen.getByTestId(PULL_GAME_TEST_IDS.pullAction).getAttribute('aria-label');
+      expect(label).toBe(IDLE_PULL_ARIA_LABEL);
+      expect(label?.startsWith(IDLE_PULL_LABEL)).toBe(true);
+      expect(label).toContain('뽑기');
+    });
+
+    it('8초 동안 입력이 없으면 버튼 라벨과 힌트·live 안내가 함께 바뀌고 저절로 사라지지 않는다', () => {
+      setupFakeClock();
+      renderPullGame();
+      tap(1);
+
+      advance(8000);
+      const atRest = {
+        button: screen.getByTestId(PULL_GAME_TEST_IDS.pullAction).textContent,
+        hint: screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent,
+        live: screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement).textContent,
+      };
       advance(60_000);
 
-      expect(hint.getAttribute('data-level')).toBe('rest');
-      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('rest');
+      expect(atRest).toEqual({
+        button: IDLE_PULL_LABEL,
+        hint: HINT_TEXT.rest,
+        live: HINT_TEXT.rest,
+      });
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.rest);
+    });
+
+    it('8초 직전에는 버튼과 힌트 모두 아직 바뀌지 않는다', () => {
+      setupFakeClock();
+      renderPullGame();
+      tap(1);
+
+      advance(7999);
+
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.pullAction).textContent).not.toBe(
+        IDLE_PULL_LABEL,
+      );
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.progress);
+    });
+
+    it('다시 뽑다가 또 8초 멈추면 쉬어도 된다는 문구가 다시 나타난다', () => {
+      setupFakeClock();
+      renderPullGame();
+      tap(1);
+      advance(8000);
+      tap(1);
+
+      advance(8000);
+
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.rest);
     });
 
     it('누르고 떼지 않은 채 8초가 지나도 무입력으로 본다', () => {
@@ -539,7 +654,7 @@ describe('PullGame', () => {
       advance(8000);
 
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
-        'slow',
+        'rest',
       );
     });
   });
