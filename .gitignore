@@ -31,3 +31,6 @@ storybook-static
 # Playwright
 test-results
 playwright-report
+
+# GA4 스킬(ga-auth) 로컬 인증·대시보드 결과물 — 토큰 포함, 커밋 금지
+.ga4/
