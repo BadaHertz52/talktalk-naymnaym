@@ -1,6 +1,7 @@
 """톡톡냠냠 GA4 대시보드 생성기 — 읽기 전용 Data API → 정적 HTML 1장.
 
-실행(레포 루트에서): .ga4/venv/bin/python .claude/skills/ga-dashboard/ga_dashboard.py [--days 28]
+실행(레포 루트에서): .ga4/venv/bin/python .claude/skills/ga-dashboard/ga_dashboard.py [--days 28] [--host all]
+기본은 운영 호스트(PROD_HOST)만 집계한다.
 인증: GA4_DIR(기본 <repo>/.ga4)의 token.json, config.json (ga-auth 스킬이 만든 것)
 출력: <GA4_DIR>/dashboard/ga_dashboard.html (+ ga_dashboard.json). .ga4/는 gitignore 대상
 """
@@ -23,6 +24,9 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 GA4_DIR = os.environ.get('GA4_DIR', str(REPO_ROOT / '.ga4'))
 OUT_DIR = os.path.join(GA4_DIR, 'dashboard')
 NOT_SET = '(not set)'
+# 운영 호스트만 집계한다. localhost·프리뷰가 이벤트의 대부분이라 거르지 않으면 지표가 오염된다.
+# 도메인이 바뀌면 index.html의 debug_mode 호스트 조건도 같이 바꿀 것
+PROD_HOST = 'talktalk-naymnaym.vercel.app'
 MIN_SAMPLE = 200  # 기획안 §6-3: 모드별 game_mode_select 최소 표본
 
 FUNNEL = [
@@ -50,13 +54,25 @@ def event_filter(names):
     ]))
 
 
-def run(client, prop, days, dims, mets, events=None):
+def build_filter(events, host):
+    parts = []
+    if events:
+        parts.append(event_filter(events))
+    if host:
+        parts.append(FilterExpression(filter=Filter(field_name='hostName', string_filter=Filter.StringFilter(value=host))))
+    if not parts:
+        return None
+
+    return parts[0] if len(parts) == 1 else FilterExpression(and_group=FilterExpressionList(expressions=parts))
+
+
+def run(client, prop, days, dims, mets, events=None, host=None):
     req = RunReportRequest(
         property=prop,
         date_ranges=[DateRange(start_date=f'{days}daysAgo', end_date='today')],
         dimensions=[Dimension(name=d) for d in dims],
         metrics=[Metric(name=m) for m in mets],
-        dimension_filter=event_filter(events) if events else None,
+        dimension_filter=build_filter(events, host),
         limit=10000,
     )
     res = client.run_report(req)
@@ -90,8 +106,8 @@ def band(v):
     return '1–2' if n <= 2 else '3' if n == 3 else '4–5'
 
 
-def collect(client, prop, days):
-    q = lambda dims, mets, events=None: run(client, prop, days, dims, mets, events)
+def collect(client, prop, days, host):
+    q = lambda dims, mets, events=None: run(client, prop, days, dims, mets, events, host)
     cd = lambda n: f'customEvent:{n}'
     data = {}
     data['totals'] = q([], ['totalUsers', 'sessions'])
@@ -224,10 +240,10 @@ def label_mode(m):
     return {'pull': '뽑기', 'scratch': '스크래치'}.get(m, '미수집 (등록 이전 데이터)' if m == NOT_SET else m)
 
 
-def render(a, days, generated):
+def render(a, days, generated, host):
     out = [f'<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
            f'<title>톡톡냠냠 GA 대시보드</title><style>{CSS}</style></head><body><main>',
-           f'<h1>톡톡냠냠 GA 대시보드</h1><div class="sub">최근 {days}일 · 생성 {esc(generated)} · 읽기 전용 스냅샷 (갱신: ga_dashboard.py 재실행)</div>']
+           f'<h1>톡톡냠냠 GA 대시보드</h1><div class="sub">최근 {days}일 · 호스트 {esc(host or "전체(localhost·프리뷰 포함)")} · 생성 {esc(generated)} · 읽기 전용 스냅샷 (갱신: ga_dashboard.py 재실행)</div>']
 
     # 1. 요약
     worsen_all = a['worsen_by_mode']
@@ -332,15 +348,17 @@ def render(a, days, generated):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--days', type=int, default=28)
+    ap.add_argument('--host', default=PROD_HOST, help="집계할 호스트. 'all'이면 호스트 필터 없음(개발·프리뷰 포함)")
     args = ap.parse_args()
+    host = None if args.host == 'all' else args.host
 
     client, prop = load()
-    data = collect(client, prop, args.days)
+    data = collect(client, prop, args.days, host)
     analysis = analyze(data)
     os.makedirs(OUT_DIR, exist_ok=True)
     generated = datetime.now().strftime('%Y-%m-%d %H:%M')
     with open(os.path.join(OUT_DIR, 'ga_dashboard.html'), 'w', encoding='utf-8') as f:
-        f.write(render(analysis, args.days, generated))
+        f.write(render(analysis, args.days, generated, host))
     with open(os.path.join(OUT_DIR, 'ga_dashboard.json'), 'w', encoding='utf-8') as f:
         serializable = dict(analysis, worsen_by_band={'|'.join(k): v for k, v in analysis['worsen_by_band'].items()})
         json.dump(serializable, f, ensure_ascii=False, indent=2, default=lambda o: dict(o))
