@@ -246,7 +246,7 @@ def render(a, days, generated, host):
            f'<h1>톡톡냠냠 GA 대시보드</h1><div class="sub">최근 {days}일 · 호스트 {esc(host or "전체(localhost·프리뷰 포함)")} · 생성 {esc(generated)} · 읽기 전용 스냅샷 (갱신: ga_dashboard.py 재실행)</div>']
 
     # 1. 요약
-    worsen_all = a['worsen_by_mode']
+    worsen_all = a['worsen_by_mode_clean']
     inc = sum(v['increased'] for v in worsen_all.values())
     tot = sum(v['total'] for v in worsen_all.values())
     out.append('<h2>1. 요약</h2><div class="grid">')
@@ -254,7 +254,7 @@ def render(a, days, generated, host):
     out.append(card('세션', fmt(a['sessions'])))
     out.append(card('세션 완주율', pct(a['completion_rate']), '종료 도달 ÷ 입력 완료 (사용자 기준)'))
     out.append(card('악화 비율', f'<span class="{"bad" if tot and inc / tot > 0.1 else ""}">{pct(ratio(inc, tot))}</span>',
-                    f'결과 완료 {fmt(tot)}건 중 강도 상승 {fmt(inc)}건'))
+                    f'버퍼 건너뛰기 제외 결과 완료 {fmt(tot)}건 중 강도 상승 {fmt(inc)}건'))
     out.append('</div>')
     if a['daily']:
         mx = max(max(d['step_input_complete'], d['step_end_reached']) for d in a['daily']) or 1
