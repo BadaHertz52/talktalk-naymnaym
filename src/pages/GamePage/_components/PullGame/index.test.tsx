@@ -489,7 +489,7 @@ describe('PullGame', () => {
       const liveRegion = screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement);
 
       tap(1);
-      advance(20_000);
+      advance(8000);
       const resting = liveRegion.textContent;
       tap(1);
 
@@ -576,7 +576,7 @@ describe('PullGame', () => {
       advance(8000);
       const idleButton = screen.getByTestId(PULL_GAME_TEST_IDS.pullAction);
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
-        'slow',
+        'rest',
       );
       fireEvent.pointerDown(idleButton);
       fireEvent.pointerUp(idleButton);
@@ -600,16 +600,50 @@ describe('PullGame', () => {
       expect(label).toContain('뽑기');
     });
 
-    it('20초 동안 입력이 없으면 쉬어도 된다는 문구가 나타나고 저절로 사라지지 않는다', () => {
+    it('8초 동안 입력이 없으면 버튼 라벨과 힌트·live 안내가 함께 바뀌고 저절로 사라지지 않는다', () => {
       setupFakeClock();
       renderPullGame();
+      tap(1);
 
-      advance(20_000);
-      const hint = screen.getByTestId(PULL_GAME_TEST_IDS.hint);
+      advance(8000);
+      const atRest = {
+        button: screen.getByTestId(PULL_GAME_TEST_IDS.pullAction).textContent,
+        hint: screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent,
+        live: screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement).textContent,
+      };
       advance(60_000);
 
-      expect(hint.getAttribute('data-level')).toBe('rest');
-      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('data-level')).toBe('rest');
+      expect(atRest).toEqual({
+        button: IDLE_PULL_LABEL,
+        hint: HINT_TEXT.rest,
+        live: HINT_TEXT.rest,
+      });
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.rest);
+    });
+
+    it('8초 직전에는 버튼과 힌트 모두 아직 바뀌지 않는다', () => {
+      setupFakeClock();
+      renderPullGame();
+      tap(1);
+
+      advance(7999);
+
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.pullAction).textContent).not.toBe(
+        IDLE_PULL_LABEL,
+      );
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.progress);
+    });
+
+    it('다시 뽑다가 또 8초 멈추면 쉬어도 된다는 문구가 다시 나타난다', () => {
+      setupFakeClock();
+      renderPullGame();
+      tap(1);
+      advance(8000);
+      tap(1);
+
+      advance(8000);
+
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.rest);
     });
 
     it('누르고 떼지 않은 채 8초가 지나도 무입력으로 본다', () => {
@@ -620,7 +654,7 @@ describe('PullGame', () => {
       advance(8000);
 
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
-        'slow',
+        'rest',
       );
     });
   });

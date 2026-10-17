@@ -30,7 +30,7 @@ export default function PullActions({
   onTap,
   onPrimaryClick,
 }: PullActionsProps) {
-  const isIdleEmphasis = idleLevel === 'slow' || idleLevel === 'rest';
+  const isIdleEmphasis = idleLevel === 'rest';
 
   return (
     <div className={styles.actionGroup}>
