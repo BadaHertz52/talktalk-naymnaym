@@ -32,15 +32,6 @@ export default function PageLayout({ showHeader, className, children, pageName }
     const main = mainRef.current;
     if (isInitialLocation(location) || !main) return;
 
-    // showModal된 dialog가 남아 있으면 배경이 inert라 focus()가 무시된다 — 닫힌 뒤에 옮긴다
-    const dialog = document.querySelector('dialog[open]');
-    if (dialog) {
-      const handleClose = () => focusHeading(main);
-      dialog.addEventListener('close', handleClose, { once: true });
-
-      return () => dialog.removeEventListener('close', handleClose);
-    }
-
     if (focusHeading(main)) return;
 
     // lazy 페이지(GamePage)는 청크 로드 후에야 h1이 생긴다

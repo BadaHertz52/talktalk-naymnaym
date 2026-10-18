@@ -7,6 +7,9 @@ import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
 import type { GameMode } from '@/types/session';
 import { WEATHER_LABEL } from '@constants/intensity';
+import { useEffect, useState } from 'react';
+import PageLayout from '@components/PageLayout';
+import { resetInitialLocationForTest } from '@components/PageLayout/initialLocation';
 
 vi.mock('@utils/analytics', () => ({ trackEvent: vi.fn() }));
 const { trackEvent } = await import('@utils/analytics');
@@ -250,6 +253,57 @@ describe('MeasurePage 모드 선택', () => {
       await screen.findByTestId('game-page');
       expect(JSON.stringify(vi.mocked(trackEvent).mock.calls)).not.toContain(EMOTION_TEXT);
     });
+  });
+});
+
+// lazy GamePage처럼 제목이 한 박자 늦게 생기는 게임 화면
+function DelayedGamePage() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+
+  return ready ? <h1 data-testid="game-heading">게임</h1> : null;
+}
+
+describe('MeasurePage 모드 선택 후 페이지 이동', () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it('모드를 고르면 모달이 닫힌 뒤 이동해 새 페이지 h1에 포커스가 간다', async () => {
+    prepareMeasuredIntensity();
+    resetInitialLocationForTest();
+    const router = createMemoryRouter(
+      [
+        {
+          element: <PageLayout showHeader />,
+          children: [
+            { path: PATHS.measure, element: <MeasurePage /> },
+            { path: PATHS.game, element: <DelayedGamePage /> },
+          ],
+        },
+      ],
+      { initialEntries: [PATHS.measure] },
+    );
+    render(
+      <OverlayProvider>
+        <RouterProvider router={router} />
+      </OverlayProvider>,
+    );
+    // jsdom에는 inert가 없어 열린 dialog 뒤에서도 focus가 성공하므로, 포커스 순간의 dialog 상태를 따로 기록한다
+    let dialogOpenAtFocus: boolean | null = null;
+    document.addEventListener('focusin', (e) => {
+      if ((e.target as HTMLElement).dataset.testid === 'game-heading') {
+        dialogOpenAtFocus = document.querySelector('dialog[open]') !== null;
+      }
+    });
+    clickNext();
+
+    fireEvent.click(await screen.findByRole('button', { name: /당근 뽑기/ }));
+
+    const heading = await screen.findByTestId('game-heading');
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+    expect(dialogOpenAtFocus).toBe(false);
   });
 });
 

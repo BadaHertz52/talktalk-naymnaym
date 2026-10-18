@@ -99,25 +99,6 @@ describe('PageLayout 라우트 변경 안내', () => {
     });
   });
 
-  describe('모달이 열린 채 경로가 바뀌면', () => {
-    it('dialog가 닫힌 뒤 새 페이지 h1에 포커스가 간다', async () => {
-      const router = renderApp();
-      const dialog = document.createElement('dialog');
-      dialog.setAttribute('open', '');
-      document.body.appendChild(dialog);
-      await act(() => router.navigate(PATHS.input));
-      expect(document.activeElement).toBe(document.body);
-
-      dialog.removeAttribute('open');
-      act(() => {
-        dialog.dispatchEvent(new Event('close'));
-      });
-
-      expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1 }));
-      dialog.remove();
-    });
-  });
-
   describe('pageName prop이 있으면', () => {
     it('document.title에 쓰인다', async () => {
       const router = renderApp({ pageName: '지정한 이름' });
