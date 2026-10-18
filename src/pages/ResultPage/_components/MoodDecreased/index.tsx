@@ -1,6 +1,7 @@
 import type { EmotionExpressionStep, EmotionIntensity } from '@/types/session';
 import clsx from 'clsx';
 import { ASSETS } from '@game/assets';
+import { MOOD_DECREASED_TITLE } from '../../constants';
 import ArrowIcon from '../ArrowIcon';
 import styles from './index.module.css';
 
@@ -15,7 +16,7 @@ interface Props {
 export default function MoodDecreased({ expressionStep, intensity, intensityBefore }: Props) {
   return (
     <div className={styles.decreasedMood}>
-      <p className={clsx(styles.resultTitle, styles.resultTitleWarm)}>한결 가벼워졌어요</p>
+      <p className={clsx(styles.resultTitle, styles.resultTitleWarm)}>{MOOD_DECREASED_TITLE}</p>
       <div className={styles.moodStrip}>
         {EMOTION_STEPS.map((lvl) => (
           <img

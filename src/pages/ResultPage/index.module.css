@@ -9,6 +9,7 @@
   justify-content: center;
   margin-top: 0.625rem;
   height: 300px;
+  flex-shrink: 0;
 }
 
 .resultCardWarm {
@@ -63,4 +64,16 @@
 .button {
   width: 100%;
   margin-top: auto;
+}
+
+.quitMessage {
+  font-size: 13px;
+  color: var(--color-gray-light);
+  line-height: 1.7;
+  text-align: center;
+  margin: 0.625rem 0 0;
+}
+
+.srOnly {
+  composes: srOnly from '../../styles/shared.module.css';
 }

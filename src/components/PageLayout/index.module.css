@@ -1,15 +1,21 @@
 .main {
   display: flex;
   flex-direction: column;
-  height: var(--main-height);
-  max-height: var(--main-max-height);
+  margin-block: 10px;
+  height: clamp(
+    calc(var(--main-frame-width) / (var(--main-aspect-ratio))),
+    var(--main-height),
+    var(--main-max-height)
+  );
   overflow-y: auto;
   padding: 1.625rem 1.375rem 1.875rem;
   gap: 1rem;
-  max-width: var(--main-max-width);
-  min-width: var(--main-min-width);
-  width: var(--main-width);
+  width: var(--main-frame-width);
   background: var(--color-black);
   border: 2px solid var(--color-white);
   border-radius: 14px;
+}
+
+.main h1[tabindex='-1']:focus {
+  outline: none;
 }

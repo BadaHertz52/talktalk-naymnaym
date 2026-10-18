@@ -45,7 +45,9 @@
 
 **적고 → 강도를 재고 → 당근으로 지우고 → 가벼워진다**
 
-<img src=".github/readme/flow.webp" alt="사용 흐름 — 감정을 적고, 강도를 조절하고, 당근으로 지우는 4단계 화면" width="600" />
+지우는 방식은 두 가지 중에서 골라요. 기분에 따라 바꿔 가며 써보세요.
+
+<img src=".github/readme/flow.webp" alt="사용 흐름 — 감정을 적고, 강도를 재고, 스크래치나 당근 뽑기 중 하나로 지운 뒤, 낮잠 토끼와 쉬어 가고, 가벼워진 마음을 다시 재는 화면" width="800" />
 
 #### "🤫 비밀 이야기는 시크릿 모드를 사용해보세요."
 
@@ -53,7 +55,25 @@
 
 #### "🐰 감정 기록을 지우면 귀여운 토끼가 나타나요."
 
-<img src=".github/readme/scratch.gif" alt="당근으로 감정 기록을 긁어 지우면 토끼가 나타나는 스크래치 게임 데모" width="120" />
+<img src=".github/readme/scratch-game-mode.gif" alt="당근으로 감정 기록을 긁어 지우면 토끼가 나타나는 스크래치 게임 데모" width="120" />
+
+#### "🥕 당근 뽑기로도 지울 수 있어요."
+
+<img src=".github/readme/pull-game-mode.gif" alt="땅속 당근을 뽑으면서 스트레스도 같이 뽑는 게임 데모" width="120" />
+
+#### "💤 다 지운 뒤에는 쉬어가요."
+
+게임이 끝나면 낮잠 자는 토끼와 함께 잠깐 숨을 고르는 시간이 있어요. 마음이 가벼워졌다면 바로 넘어가고, 더 하고 싶다면 한 번 더 할 수 있어요.
+
+<img src=".github/readme/buffer.webp" alt="게임 버퍼 화면" width="120" />
+
+#### "🚪 그만두고 싶으면 언제든지."
+
+"여기까지 할래요"로 언제든 멈추고 지금 마음을 다시 재볼 수 있어요. 끝까지 하지 않아도 괜찮아요.
+
+#### "♿ 누구나 쓸 수 있게."
+
+마우스·터치·키보드로 모두 즐길 수 있고, 스크린리더가 화면 이동과 감정 강도, 진행 상황을 읽어줘요. 움직임을 줄이는 설정(reduced motion)도 지원해요.
 
 ---
 
@@ -61,14 +81,14 @@
 
 ### 기술 스택
 
-| 분류     | 기술              |
-| -------- | ----------------- |
-| Frontend | React, TypeScript |
-| Build    | Vite              |
-| Styling  | CSS Modules       |
-| State    | Zustand           |
-| Test     | Vitest            |
-| Deploy   | Vercel            |
+| 분류     | 기술               |
+| -------- | ------------------ |
+| Frontend | React, TypeScript  |
+| Build    | Vite               |
+| Styling  | CSS Modules        |
+| State    | Zustand            |
+| Test     | Vitest, Playwright |
+| Deploy   | Vercel             |
 
 ### 시작하기
 
@@ -76,3 +96,12 @@
 pnpm install
 pnpm dev
 ```
+
+### 테스트
+
+```bash
+pnpm test        # 단위 테스트 (Vitest)
+pnpm test:e2e    # E2E 테스트 (Playwright)
+```
+
+E2E를 처음 실행한다면 `pnpm exec playwright install`로 브라우저를 먼저 설치하세요.

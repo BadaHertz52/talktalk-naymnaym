@@ -1,0 +1,67 @@
+.sub {
+  margin: 0 0 18px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--color-gray-mid);
+  text-align: center;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--color-black);
+  color: var(--color-white);
+  border: 2px solid var(--color-white);
+  border-radius: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.card:hover {
+  background: var(--color-surface);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.thumbnail {
+  flex: none;
+  width: 76px;
+  height: 76px;
+  border: 1.5px solid var(--color-gray-dark);
+  border-radius: 8px;
+  background: var(--color-surface);
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.name {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.description {
+  font-size: 10px;
+  line-height: 1.65;
+  color: var(--color-gray-mid);
+}

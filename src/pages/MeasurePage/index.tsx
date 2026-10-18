@@ -1,25 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { EmotionExpressionStep, EmotionIntensity } from '@/types/session';
+import { overlay } from 'overlay-kit';
+import type { EmotionIntensity, GameMode } from '@/types/session';
 import { useSessionStore } from '@stores/sessionStore';
 import { ASSETS, GAME_PAGE_PRELOAD } from '@game/assets';
-import { EXPRESSION_WEATHER } from '@constants/intensity';
+import { EXPRESSION_WEATHER, WEATHER_LABEL } from '@constants/intensity';
 import { toExpressionStep } from '@utils/intensity';
 import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
-import { GA_EVENTS } from '@constants/analytics';
+import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
+import { ENABLED_GAME_MODES } from '@constants/gameMode';
 import { useFireOnce } from '@hooks/useFireOnce';
 import IntensitySlider from '@components/IntensitySlider';
 import Button from '@components/Button';
+import GameModeModal from './_components/GameModeModal';
 import styles from './index.module.css';
-
-const WEATHER_LABEL: Record<EmotionExpressionStep, string> = {
-  1: '맑음 — 가볍고 환해요',
-  2: '구름 조금 — 살짝 신경 쓰여요',
-  3: '흐림 — 꽤 무겁네요',
-  4: '잔뜩 흐림 — 많이 무거워요',
-  5: '천둥번개 — 굉장히 신경 쓰여요',
-};
+import { MEASURE_TEST_IDS } from './testIds';
 
 export default function MeasurePage() {
   const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
@@ -36,14 +32,53 @@ export default function MeasurePage() {
     });
   }, []);
 
-  const handleNext = () => {
-    if (!intensity) return;
+  const selectGameMode = (intensityBefore: EmotionIntensity) => {
+    const openedAt = performance.now();
+    trackEvent(GA_EVENTS.gameModePromptView, { [GA_PARAMS.intensityBefore]: intensityBefore });
 
-    fireOnce(() => {
-      completeMeasure(intensity);
-      trackEvent(GA_EVENTS.measureComplete);
-      navigate(PATHS.game);
+    return overlay.openAsync<GameMode | null>(({ isOpen, close, unmount }) => {
+      const done = (mode: GameMode | null) => {
+        const decisionMs = Math.round(performance.now() - openedAt);
+        if (mode) {
+          trackEvent(GA_EVENTS.gameModeSelect, {
+            [GA_PARAMS.gameMode]: mode,
+            [GA_PARAMS.intensityBefore]: intensityBefore,
+            [GA_PARAMS.decisionMs]: decisionMs,
+          });
+        } else {
+          trackEvent(GA_EVENTS.gameModeDismiss, {
+            [GA_PARAMS.intensityBefore]: intensityBefore,
+            [GA_PARAMS.decisionMs]: decisionMs,
+          });
+        }
+        close(mode);
+        unmount();
+      };
+
+      return isOpen && <GameModeModal onSelect={(mode) => done(mode)} onClose={() => done(null)} />;
     });
+  };
+
+  // 모달을 await하는 동안에도 버튼이 살아 있어, 가드가 없으면 연타 시 dialog가 겹쳐 쌓인다
+  const selectingRef = useRef(false);
+
+  const handleNext = async () => {
+    if (!intensity || selectingRef.current) return;
+
+    selectingRef.current = true;
+    try {
+      const gameMode =
+        ENABLED_GAME_MODES.length === 1 ? ENABLED_GAME_MODES[0] : await selectGameMode(intensity);
+      if (!gameMode) return;
+
+      fireOnce(() => {
+        completeMeasure({ intensity, gameMode });
+        trackEvent(GA_EVENTS.measureComplete);
+        navigate(PATHS.game);
+      });
+    } finally {
+      selectingRef.current = false;
+    }
   };
 
   return (
@@ -73,10 +108,19 @@ export default function MeasurePage() {
       </div>
 
       <div className={styles.sliderWrap}>
-        <IntensitySlider value={intensity} onChange={setIntensity} />
+        <IntensitySlider
+          value={intensity}
+          onChange={setIntensity}
+          valueText={expressionStep ? `${intensity}, ${WEATHER_LABEL[expressionStep]}` : undefined}
+        />
       </div>
 
-      <Button className={styles.button} disabled={!intensity} onClick={handleNext}>
+      <Button
+        className={styles.button}
+        disabled={!intensity}
+        onClick={handleNext}
+        data-testid={MEASURE_TEST_IDS.nextAction}
+      >
         없애러 가기 ▸
       </Button>
     </>

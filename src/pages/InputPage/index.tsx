@@ -10,6 +10,7 @@ import { useFireOnce } from '@hooks/useFireOnce';
 import Button from '@components/Button';
 import { useConfirm } from '@components/Modal/_hooks/useConfirm';
 import styles from './index.module.css';
+import { INPUT_TEST_IDS } from './testIds';
 
 const MAX = 1000;
 
@@ -77,10 +78,15 @@ export default function InputPage() {
             onScroll={handleScroll}
             placeholder="머릿속에 맴도는 걸 그대로 적어요"
             aria-label="스트레스 내용 입력"
+            data-testid={INPUT_TEST_IDS.textarea}
             aria-describedby="secret-mode-status"
           />
           {secretMode && text.length > 0 && (
-            <div className={styles.maskOverlay} aria-hidden="true" style={{ marginTop: -scrollTop }}>
+            <div
+              className={styles.maskOverlay}
+              aria-hidden="true"
+              style={{ marginTop: -scrollTop }}
+            >
               {getMaskSegments(text, secretMode).map((segment, i) =>
                 segment.masked ? (
                   <span key={i} className={styles.maskedSegment}>
@@ -124,7 +130,12 @@ export default function InputPage() {
         </div>
       </div>
 
-      <Button className={styles.button} onClick={handleNext} disabled={text.trim().length === 0}>
+      <Button
+        className={styles.button}
+        onClick={handleNext}
+        disabled={text.trim().length === 0}
+        data-testid={INPUT_TEST_IDS.nextAction}
+      >
         다음 ▸
       </Button>
     </>

@@ -1,8 +1,8 @@
-import type { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 import clsx from 'clsx';
 import styles from './index.module.css';
 
-interface Props extends ComponentPropsWithoutRef<'button'> {
+interface Props extends ComponentPropsWithRef<'button'> {
   variant?: 'solid' | 'outline';
 }
 

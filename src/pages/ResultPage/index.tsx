@@ -6,6 +6,7 @@ import { useSessionStore } from '@stores/sessionStore';
 import { toExpressionStep } from '@utils/intensity';
 import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
+import { PAGE_NAMES } from '@constants/pageNames';
 import { GA_EVENTS, GA_PARAMS } from '@constants/analytics';
 import { useFireOnce } from '@hooks/useFireOnce';
 import IntensitySlider from '@components/IntensitySlider';
@@ -14,6 +15,10 @@ import MoodEmpty from './_components/MoodEmpty';
 import MoodDecreased from './_components/MoodDecreased';
 import MoodNotDecreased from './_components/MoodNotDecreased';
 import styles from './index.module.css';
+import { MOOD_DECREASED_TITLE, MOOD_NOT_DECREASED_TITLE, SLIDER_QUESTION } from './constants';
+import { RESULT_TEST_IDS } from './testIds';
+
+const SLIDER_LABEL_ID = 'result-slider-label';
 
 const PROMPTS = [
   '내일의 나는 이 일을 어떻게 기억할까요?',
@@ -27,6 +32,9 @@ export default function ResultPage() {
   const fireOnce = useFireOnce();
 
   const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
+  const gameMode = useSessionStore((s) => s.steps.measure.data.gameMode);
+  const cleared = useSessionStore((s) => s.steps.game.data.cleared);
+  const bufferSkipped = useSessionStore((s) => s.steps.game.data.bufferSkipped);
   const { intensityAfter, afterEmotionText } = useSessionStore((s) => s.steps.result.data);
   const completeResult = useSessionStore((s) => s.completeResult);
 
@@ -43,17 +51,31 @@ export default function ResultPage() {
         : 'increased';
   const decreased = intensityChange === 'decreased';
 
+  const resultTitle = decreased ? MOOD_DECREASED_TITLE : MOOD_NOT_DECREASED_TITLE;
+  const valueText =
+    intensity && intensityBefore
+      ? `${intensityBefore}에서 ${intensity} — ${resultTitle.replaceAll('\n', ' ')}`
+      : undefined;
+
   const handleDone = () => {
     if (!intensity) return;
 
     fireOnce(() => {
       completeResult({ intensityAfter: intensity, afterEmotionText: memo.trim() });
 
-      trackEvent(GA_EVENTS.resultComplete, {
-        [GA_PARAMS.intensityBefore]: intensityBefore,
-        [GA_PARAMS.intensityAfter]: intensity,
-        [GA_PARAMS.intensityChange]: intensityChange,
-      });
+      if (gameMode) {
+        const outcomeParams = cleared
+          ? ({ [GA_PARAMS.gameCleared]: true, [GA_PARAMS.bufferSkipped]: bufferSkipped } as const)
+          : ({ [GA_PARAMS.gameCleared]: false, [GA_PARAMS.bufferSkipped]: true } as const);
+
+        trackEvent(GA_EVENTS.resultComplete, {
+          [GA_PARAMS.intensityBefore]: intensityBefore,
+          [GA_PARAMS.intensityAfter]: intensity,
+          [GA_PARAMS.intensityChange]: intensityChange,
+          [GA_PARAMS.gameMode]: gameMode,
+          ...outcomeParams,
+        });
+      }
 
       navigate(PATHS.end);
     });
@@ -61,6 +83,8 @@ export default function ResultPage() {
 
   return (
     <>
+      <h1 className={styles.srOnly}>{PAGE_NAMES[PATHS.result]}</h1>
+      {!cleared && <p className={styles.quitMessage}>시작한 것만으로도 오늘 몫은 했어요.</p>}
       <div className={`${styles.resultCard} ${decreased ? styles.resultCardWarm : ''}`}>
         {expressionStep === null ? (
           <MoodEmpty />
@@ -79,9 +103,16 @@ export default function ResultPage() {
         )}
       </div>
 
-      <p className={styles.sliderLabel}>남아있는 감정의 무게는 얼마인가요?</p>
+      <p id={SLIDER_LABEL_ID} className={styles.sliderLabel}>
+        {SLIDER_QUESTION}
+      </p>
       <div className={styles.sliderWrap}>
-        <IntensitySlider value={intensity} onChange={setIntensity} />
+        <IntensitySlider
+          value={intensity}
+          onChange={setIntensity}
+          valueText={valueText}
+          labelledBy={SLIDER_LABEL_ID}
+        />
       </div>
 
       <div className={styles.memoBox}>
@@ -96,7 +127,12 @@ export default function ResultPage() {
         />
       </div>
 
-      <Button className={styles.button} disabled={!intensity} onClick={handleDone}>
+      <Button
+        className={styles.button}
+        disabled={!intensity}
+        onClick={handleDone}
+        data-testid={RESULT_TEST_IDS.doneAction}
+      >
         마무리하기 ▸
       </Button>
     </>
