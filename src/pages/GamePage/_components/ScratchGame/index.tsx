@@ -57,8 +57,8 @@ export default function ScratchGame({ onNext, onQuit }: Props) {
     scratchRatio: progress,
     progress,
   });
-  // 실제 지운 비율은 70%에서 멈추지만, 하드 종료가 "다 지웠다"로 읽히도록 게이지는 100%로 채운다 (기획 §3-4)
   const announcement = getAnnouncement({ ended, scratching: progress > 0 });
+  // 실제 지운 비율은 70%에서 멈추지만, 하드 종료가 "다 지웠다"로 읽히도록 게이지는 100%로 채운다 (기획 §3-4)
   const percent = ended ? 100 : Math.round(progress * 100);
 
   return (
