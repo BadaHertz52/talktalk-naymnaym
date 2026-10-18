@@ -26,7 +26,13 @@ export default function PullField({ progress, completed, hint }: PullFieldProps)
         data-testid={completed ? PULL_GAME_TEST_IDS.completionState : undefined}
       >
         {!completed && (
-          <p className={styles.hint} data-testid={PULL_GAME_TEST_IDS.hint} data-level={hint.level}>
+          // 시작 전 외에는 live 영역이 같은 상태를 알리므로, 탐색 중 같은 문구를 두 번 듣지 않게 숨긴다
+          <p
+            className={styles.hint}
+            aria-hidden={hint.level !== 'start'}
+            data-testid={PULL_GAME_TEST_IDS.hint}
+            data-level={hint.level}
+          >
             {hint.text}
           </p>
         )}

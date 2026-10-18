@@ -520,6 +520,17 @@ describe('PullGame', () => {
       expect(instructions.querySelector('kbd')).toBeNull();
     });
 
+    it('화면 힌트는 시작 전에만 스크린리더에 읽히고 이후에는 live 영역이 전달한다', () => {
+      setupFakeClock();
+      renderPullGame();
+      const beforeTap = screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('aria-hidden');
+
+      tap(1);
+
+      expect(beforeTap).toBe('false');
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).getAttribute('aria-hidden')).toBe('true');
+    });
+
     it('진행률이 0이면 힌트가 시작 전 문구이고 첫 탭부터 뽑는 중 문구가 된다', () => {
       setupFakeClock();
       renderPullGame();
@@ -569,9 +580,10 @@ describe('PullGame', () => {
   });
 
   describe('무입력', () => {
-    it('8초 동안 입력이 없으면 주 버튼 라벨이 바뀌고 입력하면 돌아온다', () => {
+    it('뽑기 시작 후 8초 동안 입력이 없으면 주 버튼 라벨이 바뀌고 입력하면 돌아온다', () => {
       setupFakeClock();
       renderPullGame();
+      tap(1);
 
       advance(8000);
       const idleButton = screen.getByTestId(PULL_GAME_TEST_IDS.pullAction);
@@ -585,12 +597,13 @@ describe('PullGame', () => {
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.screen).getAttribute('data-idle-level')).toBe(
         'none',
       );
-      expect(getProgressValue()).toBe(2);
+      expect(getProgressValue()).toBe(5);
     });
 
     it('무입력 강조 중에는 뽑기 버튼의 접근 가능한 이름이 보이는 글자로 시작하고 뽑기를 포함한다', () => {
       setupFakeClock();
       renderPullGame();
+      tap(1);
 
       advance(8000);
 
@@ -621,6 +634,19 @@ describe('PullGame', () => {
       expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.rest);
     });
 
+    it('뽑기 시작 전에는 8초가 지나도 멈춤 상태가 되지 않고 시작 전 문구를 유지한다', () => {
+      setupFakeClock();
+      renderPullGame();
+
+      advance(60_000);
+
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.pullAction).textContent).not.toBe(
+        IDLE_PULL_LABEL,
+      );
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.hint).textContent).toBe(HINT_TEXT.start);
+      expect(screen.getByTestId(PULL_GAME_TEST_IDS.completionAnnouncement).textContent).toBe('');
+    });
+
     it('8초 직전에는 버튼과 힌트 모두 아직 바뀌지 않는다', () => {
       setupFakeClock();
       renderPullGame();
@@ -649,6 +675,7 @@ describe('PullGame', () => {
     it('누르고 떼지 않은 채 8초가 지나도 무입력으로 본다', () => {
       setupFakeClock();
       renderPullGame();
+      tap(1);
 
       fireEvent.pointerDown(getPrimaryButton());
       advance(8000);

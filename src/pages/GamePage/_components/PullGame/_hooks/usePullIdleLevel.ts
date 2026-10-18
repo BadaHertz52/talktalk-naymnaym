@@ -8,12 +8,14 @@ const IDLE_REST_MS = 8000;
 
 interface UsePullIdleLevelOptions {
   inputCount: number;
+  started: boolean;
   holding: boolean;
   completed: boolean;
 }
 
 export function usePullIdleLevel({
   inputCount,
+  started,
   holding,
   completed,
 }: UsePullIdleLevelOptions): IdleLevel {
@@ -26,13 +28,12 @@ export function usePullIdleLevel({
       return;
     }
 
-    const timeoutIds = [
-      setTimeout(() => setIdleLevel('relax'), IDLE_RELAX_MS),
-      setTimeout(() => setIdleLevel('rest'), IDLE_REST_MS),
-    ];
+    const timeoutIds = [setTimeout(() => setIdleLevel('relax'), IDLE_RELAX_MS)];
+    // 멈춤은 뽑기 시작 후의 상태다. 시작 전 탐색 중에 "쉬어도 괜찮아요"가 끼어들지 않게 한다
+    if (started) timeoutIds.push(setTimeout(() => setIdleLevel('rest'), IDLE_REST_MS));
 
     return () => timeoutIds.forEach(clearTimeout);
-  }, [inputCount, holding, completed]);
+  }, [inputCount, started, holding, completed]);
 
   return idleLevel;
 }

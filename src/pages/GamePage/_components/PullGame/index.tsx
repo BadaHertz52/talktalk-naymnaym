@@ -57,7 +57,12 @@ export default function PullGame({ onNext, onQuit }: Props) {
     progress: session.progress / PERCENT_MAX,
   });
   const { progress, inputCount, holding, completed } = session;
-  const idleLevel = usePullIdleLevel({ inputCount, holding, completed });
+  const idleLevel = usePullIdleLevel({
+    inputCount,
+    started: progress > 0,
+    holding,
+    completed,
+  });
 
   const nextRef = useRef<HTMLButtonElement>(null);
   const hint = getPullHint({ progress, resting: idleLevel === 'rest' });
