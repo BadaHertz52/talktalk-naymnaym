@@ -13,6 +13,7 @@
 
 - [서비스 설명](#서비스-설명)
 - [기술 스택 &amp; 시작하기](#기술-스택--시작하기)
+- [개발 기록](#개발-기록)
 
 ---
 
@@ -105,3 +106,11 @@ pnpm test:e2e    # E2E 테스트 (Playwright)
 ```
 
 E2E를 처음 실행한다면 `pnpm exec playwright install`로 브라우저를 먼저 설치하세요.
+
+---
+
+## 개발 기록
+
+- [개발 의사결정 아카이브](https://github.com/BadaHertz52/talktalk-naymnaym/wiki/개발-의사결정-아카이브) — 어떤 기준으로 판단했고, 그 판단에 AI를 언제·왜 썼는지
+- [v2.0.0 업데이트 히스토리](https://github.com/BadaHertz52/talktalk-naymnaym/wiki/v2.0.0-업데이트-히스토리) — 게임 방식 2종(스크래치·당근 뽑기)과 휴식 버퍼
+- [Releases](https://github.com/BadaHertz52/talktalk-naymnaym/releases)
