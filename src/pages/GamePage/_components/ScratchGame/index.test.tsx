@@ -22,9 +22,14 @@ function renderScratchGame({ progress = 0.72 }: { progress?: number } = {}) {
   useSessionStore.getState().reset();
   const onNext = vi.fn();
   const onQuit = vi.fn();
-  render(<ScratchGame onNext={onNext} onQuit={onQuit} />);
+  const { rerender } = render(<ScratchGame onNext={onNext} onQuit={onQuit} />);
+  // 같은 화면에서 진행률만 바뀌는 상황(실제 지우기)을 재현한다
+  const rerenderWithProgress = (next: number) => {
+    gameCanvas.progress = next;
+    rerender(<ScratchGame onNext={onNext} onQuit={onQuit} />);
+  };
 
-  return { onNext, onQuit };
+  return { onNext, onQuit, rerenderWithProgress };
 }
 
 function hardEndGame() {
@@ -116,14 +121,14 @@ describe('ScratchGame', () => {
     });
 
     it('진행률이 여러 번 바뀌어도 안내 문구는 지우는 중에서 바뀌지 않는다', () => {
-      renderScratchGame({ progress: 0.1 });
-      const first = getAnnouncement().textContent;
+      const { rerenderWithProgress } = renderScratchGame({ progress: 0.1 });
+      const region = getAnnouncement();
 
-      cleanup();
-      renderScratchGame({ progress: 0.6 });
+      rerenderWithProgress(0.35);
+      rerenderWithProgress(0.6);
 
-      expect(first).toBe(SCRATCH_SCRUBBING_ANNOUNCEMENT);
-      expect(getAnnouncement().textContent).toBe(SCRATCH_SCRUBBING_ANNOUNCEMENT);
+      expect(getAnnouncement()).toBe(region);
+      expect(region.textContent).toBe(SCRATCH_SCRUBBING_ANNOUNCEMENT);
     });
 
     it('완료되면 다음으로 넘어갈 수 있다는 문구로 바뀐다', () => {
