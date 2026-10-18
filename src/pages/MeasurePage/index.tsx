@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { overlay } from 'overlay-kit';
-import type { EmotionExpressionStep, EmotionIntensity, GameMode } from '@/types/session';
+import type { EmotionIntensity, GameMode } from '@/types/session';
 import { useSessionStore } from '@stores/sessionStore';
 import { ASSETS, GAME_PAGE_PRELOAD } from '@game/assets';
-import { EXPRESSION_WEATHER } from '@constants/intensity';
+import { EXPRESSION_WEATHER, WEATHER_LABEL } from '@constants/intensity';
 import { toExpressionStep } from '@utils/intensity';
 import { trackEvent } from '@utils/analytics';
 import { PATHS } from '@constants/paths';
@@ -16,14 +16,6 @@ import Button from '@components/Button';
 import GameModeModal from './_components/GameModeModal';
 import styles from './index.module.css';
 import { MEASURE_TEST_IDS } from './testIds';
-
-const WEATHER_LABEL: Record<EmotionExpressionStep, string> = {
-  1: '맑음 — 가볍고 환해요',
-  2: '구름 조금 — 살짝 신경 쓰여요',
-  3: '흐림 — 꽤 무겁네요',
-  4: '잔뜩 흐림 — 많이 무거워요',
-  5: '천둥번개 — 굉장히 신경 쓰여요',
-};
 
 export default function MeasurePage() {
   const intensityBefore = useSessionStore((s) => s.steps.measure.data.intensityBefore);
@@ -116,7 +108,11 @@ export default function MeasurePage() {
       </div>
 
       <div className={styles.sliderWrap}>
-        <IntensitySlider value={intensity} onChange={setIntensity} />
+        <IntensitySlider
+          value={intensity}
+          onChange={setIntensity}
+          valueText={expressionStep ? `${intensity}, ${WEATHER_LABEL[expressionStep]}` : undefined}
+        />
       </div>
 
       <Button

@@ -2,19 +2,18 @@ import { clsx } from 'clsx';
 import { ASSETS } from '@game/assets';
 import { PULL_GAME_TEST_IDS } from '../../../_constants/pullGameTestIds';
 import styles from '../index.module.css';
-import { getPullStep, PULL_STEP_MAX } from './pullStep';
+import type { getPullHint } from '../_utils/pullHint';
+import { getPullStep, PULL_STEP_MAX } from '../_utils/pullStep';
 
 const DIRT_HEIGHT_RATIO = 96 / 398;
-const HINT_NEAR = 70;
-const HINT_CLOSE = 90;
 
 interface PullFieldProps {
   progress: number;
   completed: boolean;
-  resting: boolean;
+  hint: ReturnType<typeof getPullHint>;
 }
 
-export default function PullField({ progress, completed, resting }: PullFieldProps) {
+export default function PullField({ progress, completed, hint }: PullFieldProps) {
   const bunnyOffset = (1 - getPullStep(progress) / PULL_STEP_MAX) * DIRT_HEIGHT_RATIO * 100;
 
   return (
@@ -27,12 +26,14 @@ export default function PullField({ progress, completed, resting }: PullFieldPro
         data-testid={completed ? PULL_GAME_TEST_IDS.completionState : undefined}
       >
         {!completed && (
+          // 시작 전 외에는 live 영역이 같은 상태를 알리므로, 탐색 중 같은 문구를 두 번 듣지 않게 숨긴다
           <p
             className={styles.hint}
+            aria-hidden={hint.level !== 'start'}
             data-testid={PULL_GAME_TEST_IDS.hint}
-            data-level={resting ? 'rest' : getHintLevel(progress)}
+            data-level={hint.level}
           >
-            {resting ? '쉬어도 괜찮아요. 준비되면 이어서 해요.' : getHint(progress)}
+            {hint.text}
           </p>
         )}
         <div className={styles.bunnyArea}>
@@ -69,16 +70,4 @@ export default function PullField({ progress, completed, resting }: PullFieldPro
       </div>
     </div>
   );
-}
-
-function getHint(progress: number): string {
-  if (progress >= HINT_CLOSE) return '조금만 더!';
-  if (progress >= HINT_NEAR) return '거의 올라왔어요';
-  return '흙이 조금씩 움직여요';
-}
-
-function getHintLevel(progress: number): 'progress' | 'near' | 'close' {
-  if (progress >= HINT_CLOSE) return 'close';
-  if (progress >= HINT_NEAR) return 'near';
-  return 'progress';
 }

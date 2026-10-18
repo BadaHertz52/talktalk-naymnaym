@@ -73,3 +73,7 @@
   text-align: center;
   margin: 0.625rem 0 0;
 }
+
+.srOnly {
+  composes: srOnly from '../../styles/shared.module.css';
+}

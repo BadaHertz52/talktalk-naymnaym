@@ -1,13 +1,15 @@
 import { clsx } from 'clsx';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, RefObject } from 'react';
 import Button from '@components/Button';
 import QuitButton from '../../QuitButton';
 import { PULL_GAME_TEST_IDS } from '../../../_constants/pullGameTestIds';
 import type { IdleLevel } from '../_hooks/usePullIdleLevel';
+import { IDLE_PULL_ARIA_LABEL, IDLE_PULL_LABEL, PULL_LABEL } from '../pullActionLabels';
 import styles from '../index.module.css';
 
 interface PullActionsProps {
   completed: boolean;
+  nextRef: RefObject<HTMLButtonElement | null>;
   idleLevel: IdleLevel;
   onQuit: () => void;
   onArmNext: () => void;
@@ -19,6 +21,7 @@ interface PullActionsProps {
 
 export default function PullActions({
   completed,
+  nextRef,
   idleLevel,
   onQuit,
   onArmNext,
@@ -27,13 +30,14 @@ export default function PullActions({
   onTap,
   onPrimaryClick,
 }: PullActionsProps) {
-  const isIdleEmphasis = idleLevel === 'slow' || idleLevel === 'rest';
+  const isIdleEmphasis = idleLevel === 'rest';
 
   return (
     <div className={styles.actionGroup}>
       {completed ? (
         <Button
           key="next"
+          ref={nextRef}
           className={styles.mainButton}
           onPointerDown={onArmNext}
           onClick={onNextClick}
@@ -51,8 +55,9 @@ export default function PullActions({
           data-pull-primary
           data-testid={PULL_GAME_TEST_IDS.pullAction}
           onClick={onPrimaryClick}
+          aria-label={isIdleEmphasis ? IDLE_PULL_ARIA_LABEL : undefined}
         >
-          {isIdleEmphasis ? '천천히 해도 괜찮아요' : '영차! 뽑기'}
+          {isIdleEmphasis ? IDLE_PULL_LABEL : PULL_LABEL}
         </Button>
       )}
       <QuitButton

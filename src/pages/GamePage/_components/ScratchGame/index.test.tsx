@@ -3,26 +3,33 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useSessionStore } from '@stores/sessionStore';
 import { SCRATCH_GAME_TEST_IDS } from '../../_constants/gameTestIds';
+import { SCRATCH_DONE_ANNOUNCEMENT, SCRATCH_SCRUBBING_ANNOUNCEMENT } from './announcements';
 
 // Canvas·ResizeObserver를 쓰는 스크래치 로직은 jsdom에서 돌지 않으므로, 하드 종료 신호(enableNextStep)만 잡아 직접 호출한다
-const gameCanvas = vi.hoisted(() => ({ enableNextStep: () => {} }));
+const gameCanvas = vi.hoisted(() => ({ enableNextStep: () => {}, progress: 0.72 }));
 vi.mock('../../_hooks/useGameCanvas', () => ({
   useGameCanvas: ({ enableNextStep }: { enableNextStep: () => void }) => {
     gameCanvas.enableNextStep = enableNextStep;
 
-    return { progress: 0.72 };
+    return { progress: gameCanvas.progress };
   },
 }));
 
 const { default: ScratchGame } = await import('.');
 
-function renderScratchGame() {
+function renderScratchGame({ progress = 0.72 }: { progress?: number } = {}) {
+  gameCanvas.progress = progress;
   useSessionStore.getState().reset();
   const onNext = vi.fn();
   const onQuit = vi.fn();
-  render(<ScratchGame onNext={onNext} onQuit={onQuit} />);
+  const { rerender } = render(<ScratchGame onNext={onNext} onQuit={onQuit} />);
+  // 같은 화면에서 진행률만 바뀌는 상황(실제 지우기)을 재현한다
+  const rerenderWithProgress = (next: number) => {
+    gameCanvas.progress = next;
+    rerender(<ScratchGame onNext={onNext} onQuit={onQuit} />);
+  };
 
-  return { onNext, onQuit };
+  return { onNext, onQuit, rerenderWithProgress };
 }
 
 function hardEndGame() {
@@ -99,6 +106,45 @@ describe('ScratchGame', () => {
       fireEvent.click(screen.getByTestId(SCRATCH_GAME_TEST_IDS.nextAction));
 
       expect(onNext).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('스크린리더 안내', () => {
+    function getAnnouncement() {
+      return screen.getByTestId(SCRATCH_GAME_TEST_IDS.announcement);
+    }
+
+    it('지우기 전에는 안내가 비어 있다', () => {
+      renderScratchGame({ progress: 0 });
+
+      expect(getAnnouncement().textContent).toBe('');
+    });
+
+    it('진행률이 여러 번 바뀌어도 안내 문구는 지우는 중에서 바뀌지 않는다', () => {
+      const { rerenderWithProgress } = renderScratchGame({ progress: 0.1 });
+      const region = getAnnouncement();
+
+      rerenderWithProgress(0.35);
+      rerenderWithProgress(0.6);
+
+      expect(getAnnouncement()).toBe(region);
+      expect(region.textContent).toBe(SCRATCH_SCRUBBING_ANNOUNCEMENT);
+    });
+
+    it('완료되면 다음으로 넘어갈 수 있다는 문구로 바뀐다', () => {
+      renderScratchGame();
+
+      hardEndGame();
+
+      expect(getAnnouncement().textContent).toBe(SCRATCH_DONE_ANNOUNCEMENT);
+    });
+
+    it('화면의 진행률 문구 요소에는 aria-live가 없다', () => {
+      renderScratchGame();
+
+      expect(screen.getByTestId(SCRATCH_GAME_TEST_IDS.progress).hasAttribute('aria-live')).toBe(
+        false,
+      );
     });
   });
 

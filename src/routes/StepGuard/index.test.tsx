@@ -4,11 +4,13 @@ import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { useSessionStore } from '@stores/sessionStore';
 import { PATHS } from '@constants/paths';
+import { NOT_FOUND_TEST_IDS } from '@pages/NotFoundPage/testIds';
+import { ERROR_TEST_IDS } from '@pages/ErrorPage/testIds';
 
 // 각 페이지는 GamePage(Canvas/ResizeObserver)·HomePage(마운트 시 reset 부작용) 등
 // jsdom·테스트 흐름과 충돌하는 내부 구현을 갖고 있다. router.tsx의 실제 라우트 배선(단일 StepGuard가
 // requires 배열로 여러 단계를 한번에 확인하는 구조)만 검증 대상이므로 페이지 컴포넌트는 testid만 렌더하는 스텁으로 교체한다.
-// NotFoundPage는 그런 충돌이 없으므로 실제 컴포넌트를 그대로 렌더해 텍스트·버튼 동작까지 검증한다.
+// NotFoundPage는 그런 충돌이 없으므로 실제 컴포넌트를 그대로 렌더해 버튼 동작까지 검증한다.
 vi.mock('@pages/HomePage', () => ({ default: () => <div data-testid="home-page" /> }));
 vi.mock('@pages/InputPage', () => ({ default: () => <div data-testid="input-page" /> }));
 vi.mock('@pages/MeasurePage', () => ({ default: () => <div data-testid="measure-page" /> }));
@@ -210,8 +212,7 @@ describe('router의 StepGuard 배선', () => {
     it('정의되지 않은 경로 접근 시 /not-found로 리다이렉트되어 NotFoundPage가 렌더된다', async () => {
       renderAt('/unknown');
 
-      expect(await screen.findByRole('heading', { name: '404' })).toBeTruthy();
-      expect(screen.getByRole('heading', { name: '페이지를 찾을 수 없어요.' })).toBeTruthy();
+      expect(await screen.findByTestId(NOT_FOUND_TEST_IDS.page)).toBeTruthy();
       expect(screen.queryByTestId('home-page')).toBeNull();
       expect(screen.queryByTestId('input-page')).toBeNull();
       expect(screen.queryByTestId('measure-page')).toBeNull();
@@ -223,8 +224,7 @@ describe('router의 StepGuard 배선', () => {
     it('/not-found에 직접 접근해도 NotFoundPage가 렌더된다', async () => {
       renderAt(PATHS.notFound);
 
-      expect(await screen.findByRole('heading', { name: '404' })).toBeTruthy();
-      expect(screen.getByRole('heading', { name: '페이지를 찾을 수 없어요.' })).toBeTruthy();
+      expect(await screen.findByTestId(NOT_FOUND_TEST_IDS.page)).toBeTruthy();
     });
 
     it('NotFoundPage에서 홈으로 돌아가기를 클릭하면 /로 이동하고 세션 상태는 변경되지 않는다', async () => {
@@ -232,7 +232,7 @@ describe('router의 StepGuard 배선', () => {
 
       renderAt('/unknown');
 
-      const button = await screen.findByRole('button', { name: '홈으로 돌아가기' });
+      const button = await screen.findByTestId(NOT_FOUND_TEST_IDS.homeAction);
       fireEvent.click(button);
 
       expect(await screen.findByTestId('home-page')).toBeTruthy();
@@ -257,8 +257,8 @@ describe('router의 StepGuard 배선', () => {
       );
       render(<RouterProvider router={memoryRouter} />);
 
-      expect(await screen.findByRole('heading', { name: '문제가 발생했어요' })).toBeTruthy();
-      expect(screen.queryByRole('heading', { name: '404' })).toBeNull();
+      expect(await screen.findByTestId(ERROR_TEST_IDS.page)).toBeTruthy();
+      expect(screen.queryByTestId(NOT_FOUND_TEST_IDS.page)).toBeNull();
     });
   });
 });

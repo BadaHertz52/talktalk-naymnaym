@@ -81,3 +81,7 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+
+.srOnly {
+  composes: srOnly from '../../../../styles/shared.module.css';
+}

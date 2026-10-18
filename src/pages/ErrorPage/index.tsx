@@ -3,6 +3,9 @@ import { PATHS } from '@constants/paths';
 import Button from '@components/Button';
 import PageLayout from '@components/PageLayout';
 import styles from './index.module.css';
+import { ERROR_TEST_IDS } from './testIds';
+
+const ERROR_TITLE = '문제가 발생했어요';
 
 export default function ErrorPage() {
   const error = useRouteError();
@@ -27,10 +30,12 @@ export default function ErrorPage() {
   };
 
   return (
-    <PageLayout showHeader>
-      <div className={styles.content}>
-        <h1 className={styles.title}>!</h1>
-        <h2 className={styles.description}>문제가 발생했어요</h2>
+    <PageLayout showHeader pageName={ERROR_TITLE}>
+      <div className={styles.content} data-testid={ERROR_TEST_IDS.page}>
+        <p className={styles.title} aria-hidden="true">
+          !
+        </p>
+        <h1 className={styles.description}>{ERROR_TITLE}</h1>
         <p className={styles.hint}>
           요청을 처리하는 중 오류가 발생했습니다.
           <br />
