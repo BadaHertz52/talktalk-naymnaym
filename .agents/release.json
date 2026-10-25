@@ -1,0 +1,6 @@
+{
+  "base": "release",
+  "head": "master",
+  "merge": "merge",
+  "next": "github-release-publish"
+}
